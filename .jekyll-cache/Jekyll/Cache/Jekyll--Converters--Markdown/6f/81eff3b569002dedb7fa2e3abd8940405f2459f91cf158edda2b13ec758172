@@ -1,0 +1,391 @@
+I"Z<h4 id="python-basic-chapter-03-1">[Python Basic] Chapter 03-1</h4>
+<ul>
+  <li>본 포스팅은 파이썬 기초 문법에 관하여 다룹니다.</li>
+  <li>파이썬의 지원 자료형 타입 : <code class="language-plaintext highlighter-rouge">str</code> / <code class="language-plaintext highlighter-rouge">int</code> / <code class="language-plaintext highlighter-rouge">float</code> / <code class="language-plaintext highlighter-rouge">Boolean</code> / <code class="language-plaintext highlighter-rouge">list</code> / <code class="language-plaintext highlighter-rouge">dict</code> / <code class="language-plaintext highlighter-rouge">tuple</code> / <code class="language-plaintext highlighter-rouge">set</code></li>
+  <li>형 변환</li>
+  <li>수치 연산, 외부 모듈</li>
+</ul>
+
+<hr />
+
+<h4 id="파이썬-지원-자료형"><u>[파이썬 지원 자료형]</u></h4>
+<ul>
+  <li>int : 정수</li>
+  <li>float : 실수</li>
+  <li>complex : 복소수</li>
+  <li>bool : 불린 (True, False)</li>
+  <li>str : 문자열 (시퀀스)</li>
+  <li>list : 리스트 (시퀀스)</li>
+  <li>tuple : 튜플 (시퀀스)</li>
+  <li>set : 집합</li>
+  <li>dict : 사전</li>
+</ul>
+
+<h4 id="문자열-type"><u>문자열 Type</u></h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">str1_v</span> <span class="o">=</span> <span class="s">'python'</span>
+<span class="n">str2_v</span> <span class="o">=</span> <span class="s">'Anaconda'</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">str1_v</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">str2_v</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;class 'str'&gt;
+&lt;class 'str'&gt;
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="정수-type"><u>정수 Type</u></h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">int_v</span> <span class="o">=</span> <span class="mi">10</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">int_v</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;class 'int'&gt;
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="bool-type"><u>Bool Type</u></h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">bool_v</span> <span class="o">=</span> <span class="bp">True</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">bool_v</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;class 'bool'&gt;
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="실수-type"><u>실수 Type</u></h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">float_v</span> <span class="o">=</span> <span class="mf">10.0</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">float_v</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;class 'float'&gt;
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="list-type"><u>list Type</u></h4>
+<ul>
+  <li>list 타입은 <u>대괄호</u> <code class="language-plaintext highlighter-rouge">[</code>,<code class="language-plaintext highlighter-rouge">]</code>를 사용하는게 포인트!</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">list_v</span> <span class="o">=</span> <span class="p">[</span><span class="n">str1_v</span><span class="p">,</span> <span class="n">str2_v</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="n">list_v</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['python', 'Anaconda']
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="dict-type"><u>dict Type</u></h4>
+<ul>
+  <li>dict 타입은 <u>중괄호</u> <code class="language-plaintext highlighter-rouge">{</code>, <code class="language-plaintext highlighter-rouge">}</code>를 사용하는게 포인트!</li>
+  <li>다음의 예시에서 Machine Learning을 출력하기 위해서는 name이라는 key를 사용해야 하고,</li>
+  <li>2.0을 꺼내기 위해서는 version이라는 key를 사용해야한다!</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dict_v</span> <span class="o">=</span><span class="p">{</span>
+<span class="s">"name"</span><span class="p">:</span> <span class="s">"Machine Learning"</span><span class="p">,</span>
+<span class="s">"version"</span><span class="p">:</span> <span class="mf">2.0</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">dict_v</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;class 'dict'&gt;
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="tuple-type"><u>tuple Type</u></h4>
+<ul>
+  <li>tuple 타입은 <u>소괄호</u> <code class="language-plaintext highlighter-rouge">(</code>, <code class="language-plaintext highlighter-rouge">)</code>를 사용하는게 포인트!</li>
+  <li>또는 소괄호 없이, <code class="language-plaintext highlighter-rouge">,</code>로만 생성할 수 있다.<br />ex) tuple = 7, 8, 9</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">tuple_v</span> <span class="o">=</span> <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">tuple_v</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;class 'tuple'&gt;
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="set-type"><u>set Type</u></h4>
+<ul>
+  <li>set 타입은 dict와 동일하게 <u>중괄호</u> <code class="language-plaintext highlighter-rouge">{</code>, <code class="language-plaintext highlighter-rouge">}</code>를 사용한다!</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">set_v</span> <span class="o">=</span><span class="p">{</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">7</span><span class="p">}</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">set_v</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;class 'set'&gt;
+</code></pre></div></div>
+
+<hr />
+
+<h4 id="숫자형-연산자"><u>[숫자형 연산자]</u></h4>
+
+<ul>
+  <li>+</li>
+  <li>-</li>
+  <li>*</li>
+  <li>/</li>
+  <li>// : 몫</li>
+  <li>% : 나머지</li>
+  <li>abs(x) 절대값</li>
+  <li>pow(x,y) or x ** y -&gt; pow(2,3)=2**3</li>
+</ul>
+
+<p><br /></p>
+
+<h4 id="정수"><u>정수</u></h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">i</span> <span class="o">=</span> <span class="mi">77</span>
+<span class="n">i2</span> <span class="o">=</span> <span class="o">-</span><span class="mi">14</span>
+<span class="c1"># 다른 객체지향 언어에 비해 큰수 넣기 편함... 엄청편한부분...
+</span><span class="n">big_int</span><span class="o">=</span><span class="mi">7777777777777777777777777777799999999999999999999999</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">i2</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">big_int</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>77
+-14
+7777777777777777777777777777799999999999999999999999
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="실수"><u>실수</u></h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">f</span> <span class="o">=</span> <span class="mf">0.9999</span>
+<span class="n">f2</span> <span class="o">=</span> <span class="mf">3.141592</span>
+<span class="n">f3</span> <span class="o">=</span> <span class="o">-</span><span class="mf">3.9</span>
+<span class="n">f4</span> <span class="o">=</span> <span class="mi">3</span> <span class="o">/</span> <span class="mi">9</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">f2</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">f3</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">f4</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0.9999
+3.141592
+-3.9
+0.3333333333333333
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="파이썬-연산"><u>파이썬 연산</u></h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">i1</span> <span class="o">=</span> <span class="mi">39</span>
+<span class="n">i2</span> <span class="o">=</span> <span class="mi">939</span>
+<span class="n">big_int1</span> <span class="o">=</span> <span class="mi">153341287461829374618923746198273</span>
+<span class="n">big_int2</span> <span class="o">=</span> <span class="mi">31248973264871263489123764189723468712</span>
+<span class="n">f1</span> <span class="o">=</span> <span class="mf">1.234</span>
+<span class="n">f2</span> <span class="o">=</span> <span class="mf">3.9412</span>
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">+</code></li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"i1 + i2 : "</span><span class="p">,</span> <span class="n">i1</span> <span class="o">+</span> <span class="n">i2</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"f1 + f2 : "</span><span class="p">,</span> <span class="n">f1</span> <span class="o">+</span> <span class="n">f2</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"big_int1+big_int2 : "</span><span class="p">,</span> <span class="n">big_int1</span> <span class="o">+</span> <span class="n">big_int2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>i1 + i2 :  978
+f1 + f2 :  5.1752
+big_int1+big_int2 :  31249126606158725318498383113469666985
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">*</code></li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"i1 + i2 : "</span><span class="p">,</span> <span class="n">i1</span> <span class="o">*</span> <span class="n">i2</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"f1 + f2 : "</span><span class="p">,</span> <span class="n">f1</span> <span class="o">*</span> <span class="n">f2</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"big_int1+big_int2 : "</span><span class="p">,</span> <span class="n">big_int1</span> <span class="o">*</span> <span class="n">big_int2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>i1 + i2 :  36621
+f1 + f2 :  4.863440799999999
+big_int1+big_int2 :  4791757792295645213137311908851592973253249548074886344533876463934376
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="형-변환"><u>[형 변환]</u></h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">a</span> <span class="o">=</span> <span class="mf">3.</span>
+<span class="n">b</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">c</span> <span class="o">=</span> <span class="p">.</span><span class="mi">7</span>
+<span class="n">d</span> <span class="o">=</span> <span class="mf">12.7</span>
+</code></pre></div></div>
+
+<p>b를 제외한 나머지는 실수이다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;class 'float'&gt;
+&lt;class 'int'&gt;
+&lt;class 'float'&gt;
+&lt;class 'float'&gt;
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">정수형 -&gt; 실수형</code> 형 변환</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">b</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>6.0
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">실수형 -&gt; 정수형</code> 형 변환</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0
+12
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">bool -&gt; 정수형</code> 형 변환<br />
+<code class="language-plaintext highlighter-rouge">bool -&gt; 실수형</code> 형 변환</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="bp">True</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">False</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>1
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">복소수(complex)</code> 형변환
+    <ul>
+      <li>복소수함수는 숫자를 받아야 하는데 문자(문자형)을 받아도 내부적으로 문자형을 숫자형으로 전환하여 실행한다.<br />
+  ex) str type 3에서 complex type 3+0j로 형변환</li>
+    </ul>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">complex</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">complex</span><span class="p">(</span><span class="s">'3'</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">complex</span><span class="p">(</span><span class="bp">False</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(3+0j)
+(3+0j)
+0j
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="수치-연산-함수"><u>[수치 연산 함수]</u></h4>
+
+<ul>
+  <li>절대값 : <code class="language-plaintext highlighter-rouge">abs()</code> 함수</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="o">-</span><span class="mi">7</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>7
+</code></pre></div></div>
+
+<ul>
+  <li>몫, 나머지 : <code class="language-plaintext highlighter-rouge">divmode([], [])</code> 함수</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="nb">divmod</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="mi">8</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="c1">#x에 몫 y에 나머지를 반환한다.
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>12 4
+</code></pre></div></div>
+
+<ul>
+  <li>승수 : <code class="language-plaintext highlighter-rouge">pow()</code> 함수, <code class="language-plaintext highlighter-rouge">**</code> 연산자</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">pow</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span><span class="mi">5</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>125 125
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="외부모듈"><u>[외부모듈]</u></h4>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">import</code>를 사용하여 <code class="language-plaintext highlighter-rouge">math</code>라는 패키지를 가져온다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">math</span>
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">math</code> 패키지안에 있는 <code class="language-plaintext highlighter-rouge">pi</code>를 호출한다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="n">math</span><span class="p">.</span><span class="n">pi</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>3.141592653589793
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">math</code>패키지에 있는 <code class="language-plaintext highlighter-rouge">celi(n)</code>함수는 n이상의 수 중에서 가장 작은 정수를 반환한다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="n">math</span><span class="p">.</span><span class="n">ceil</span><span class="p">(</span><span class="mf">5.1</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>6
+</code></pre></div></div>
+
+:ET

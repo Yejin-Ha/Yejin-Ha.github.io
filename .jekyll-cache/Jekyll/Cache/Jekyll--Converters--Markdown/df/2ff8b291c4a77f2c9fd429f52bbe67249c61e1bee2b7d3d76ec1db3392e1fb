@@ -1,0 +1,12 @@
+I"c<h4 id="contents">Contents</h4>
+<ul>
+  <li><a href="#PIVOT-operator의-기본형태">PIVOT operator의 기본형태</a></li>
+  <li><a href="#PIVOT-operator-예시">PIVOT operator 예시</a></li>
+  <li><a href="#PIVOT-operator-활용하기">PIVOT operator 활용하기</a>
+    <ul>
+      <li><a href="#만약-그룹별로-나누어서-보고자하는-케이스가-2종류일-경우">만약 그룹별로 나누어서 보고자하는 케이스가 2종류일 경우</a></li>
+      <li><a href="#Dynamically-generating-pivot-column-values">Dynamically generating pivot column values</a></li>
+    </ul>
+  </li>
+</ul>
+:ET

@@ -1,0 +1,231 @@
+I"�P<h4 id="contents">Contents</h4>
+<ul>
+  <li><a href="#열인덱스-set_index-reset_index">열↔인덱스: set_index, reset_index</a></li>
+  <li><a href="#인덱스-재배열-reindex">인덱스 재배열: reindex</a></li>
+  <li><a href="#인덱스-정렬-sort_index">인덱스 정렬: sort_index</a></li>
+  <li><a href="#데이터프레임-transpose">데이터프레임 Transpose</a></li>
+</ul>
+
+<p>본 포스팅은 Pandas의 DataFrame : Read&amp;Update부분 중 데이터프레임의 인덱스 수정 및 정렬과 치환에 관하여 중점적으로 정리하였습니다.</p>
+
+<p><br /></p>
+
+<hr />
+
+<h2 id="열인덱스-set_index-reset_index"><span style="color:navy">열↔인덱스: set_index, reset_index<span></span></span></h2>
+
+<p><code class="language-plaintext highlighter-rouge">set_index</code> 메소드를 이용하면 특정 열의 값을 새로운 인덱스 라벨로 지정할 수 있다. 더불어, 해당 메소드는 변경된 새로운 값을 반환하며, <code class="language-plaintext highlighter-rouge">inplace=True</code> 로 지정할 경우에는 원본 객체를 변경시킨다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">dict_data</span> <span class="o">=</span> <span class="p">{</span> <span class="s">'a0'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'A'</span><span class="p">,</span> <span class="s">'B'</span><span class="p">,</span> <span class="s">'C'</span><span class="p">],</span> <span class="s">'a1'</span> <span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="s">'a2'</span> <span class="p">:</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]}</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dict_data</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">'[ DataFrame 변경 전 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">df</span><span class="p">.</span><span class="n">index</span><span class="p">)</span>
+
+<span class="n">df</span><span class="p">.</span><span class="n">set_index</span><span class="p">(</span><span class="s">'a0'</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">[ DataFrame 변경 후1 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">df</span><span class="p">.</span><span class="n">index</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[ DataFrame 변경 전 ]
+   a0  a1  a2
+0  A   1   4
+1  B   2   5
+2  C   3   6
+RangeIndex(start=0, stop=3, step=1)
+
+[ DataFrame 변경 후1 ]
+     a1  a2
+a0        
+A    1   4
+B    2   5
+C    3   6
+Index(['A', 'B', 'C'], dtype='object', name='a0')
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">set_index</code> 메소드는 다음과 같이 <u>열 이름으로 이루어진 리스트</u>를 받아서, 
+<strong>멀티인덱스</strong>를 생성시킬 수 있다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span><span class="p">.</span><span class="n">set_index</span><span class="p">([</span><span class="s">'a0'</span><span class="p">,</span> <span class="s">'a1'</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">[ DataFrame 변경 후2 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">df</span><span class="p">.</span><span class="n">index</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[ DataFrame 변경 후2 ]
+        a2
+a0 a1    
+A  1    4
+B  2    5
+C  3    6
+MultiIndex([('A', 1), ('B', 2), ('C', 3)], names=['a0', 'a1'])
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>또한,  <code class="language-plaintext highlighter-rouge">reset_index</code> 메소드를 이용하여 지정된 인덱스 라벨을 열로 전환시킬 수 있다. <code class="language-plaintext highlighter-rouge">set_index</code>와 마찬가지로 <code class="language-plaintext highlighter-rouge">inplace</code>옵션을 가지고 있다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span><span class="p">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">[ DataFrame 변경 후3 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">df</span><span class="p">.</span><span class="n">index</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[ DataFrame 변경 후3 ]
+   a0  a1  a2
+0  A   1   4
+1  B   2   5
+2  C   3   6
+RangeIndex(start=0, stop=3, step=1)
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h2 id="인덱스-재배열-reindex"><span style="color:navy">인덱스 재배열: reindex<span></span></span></h2>
+
+<p><code class="language-plaintext highlighter-rouge">reindex</code>메소드를 이용하면, <u>행 인덱스를 새로운 배열로 재배치</u>할 수 있다.  원본 데이터프레임에 없던 새로운 인덱스 행을 추가시킬 경우 해당 행의 데이터 값은 <code class="language-plaintext highlighter-rouge">NaN</code>으로 기입된다. <br /> 이는 <code class="language-plaintext highlighter-rouge">fill_value</code> 옵션을 추가하여 <code class="language-plaintext highlighter-rouge">NaN</code>이 아닌 유효한 다른 값으로 대체할 수 있다.  기본 형태는 다음과 같다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">DataFrame</span><span class="p">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">새로운</span> <span class="n">인덱스</span> <span class="n">배열</span><span class="p">,</span> <span class="n">fill_value</span> <span class="o">=</span> <span class="p">...)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">'a0'</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> 
+		   <span class="s">'a1'</span><span class="p">:[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> 
+		   <span class="s">'a2'</span><span class="p">:[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]},</span> <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s">'c0'</span><span class="p">,</span> <span class="s">'c1'</span><span class="p">,</span> <span class="s">'c2'</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'[ 재배치 이전 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+
+<span class="n">df1</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">copy</span><span class="p">().</span><span class="n">reindex</span><span class="p">([</span><span class="s">'c2'</span><span class="p">,</span> <span class="s">'c2'</span><span class="p">,</span> <span class="s">'c0'</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">[ 인덱스 재배치1 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">df1</span><span class="p">)</span>
+
+<span class="n">df2</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">copy</span><span class="p">().</span><span class="n">reindex</span><span class="p">([</span><span class="s">'c0'</span><span class="p">,</span> <span class="s">'c1'</span><span class="p">,</span> <span class="s">'c1'</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">[ 인덱스 재배치2 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">df2</span><span class="p">)</span>
+
+<span class="n">df3</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">copy</span><span class="p">().</span><span class="n">reindex</span><span class="p">([</span><span class="s">'c0'</span><span class="p">,</span> <span class="s">'c1'</span><span class="p">,</span> <span class="s">'c2'</span><span class="p">,</span> <span class="s">'new c3'</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">[ 새로운 인덱스 추가1 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">df3</span><span class="p">)</span>
+
+<span class="n">df4</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">copy</span><span class="p">().</span><span class="n">reindex</span><span class="p">([</span><span class="s">'c0'</span><span class="p">,</span> <span class="s">'c1'</span><span class="p">,</span> <span class="s">'c2'</span><span class="p">,</span> <span class="s">'new c3'</span><span class="p">],</span> <span class="n">fill_value</span> <span class="o">=</span> <span class="mi">999</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">[ 새로운 인덱스 추가2 : fill_value이용 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">df4</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[ 재배치 이전 ]
+     a0  a1  a2
+c0   1   4   7
+c1   2   5   8
+c2   3   6   9
+
+[ 인덱스 재배치1 ]
+     a0  a1  a2
+c2   3   6   9
+c2   3   6   9
+c0   1   4   7
+
+[ 인덱스 재배치2 ]
+     a0  a1  a2
+c0   1   4   7
+c1   2   5   8
+c1   2   5   8
+
+[ 새로운 인덱스 추가1 ]
+          a0   a1   a2
+c0      1.0  4.0  7.0
+c1      2.0  5.0  8.0
+c2      3.0  6.0  9.0
+new c3  NaN  NaN  NaN
+
+[ 새로운 인덱스 추가2 : fill_value이용 ]
+          a0   a1   a2
+c0        1    4    7
+c1        2    5    8
+c2        3    6    9
+new c3  999  999  999
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h2 id="인덱스-정렬-sort_index"><span style="color:navy">인덱스 정렬: sort_index<span></span></span></h2>
+
+<p>데이터프레임은 <code class="language-plaintext highlighter-rouge">sort_index</code>메소드를 통해 행 인덱스를 기준으로 데이터프레임의 행을 정렬시킬 수 있다. 해당 메소드는 기본적으로 오름차순 정렬 결과를 반환하며, <code class="language-plaintext highlighter-rouge">asceding</code>옵션을 <code class="language-plaintext highlighter-rouge">False</code>로 지정할 경우 내림차순 정렬 결과를 반환한다.  <br /></p>
+
+<p>(*참고로 비슷한 메소드인 <code class="language-plaintext highlighter-rouge">sort_values</code>가 있으며, 해당 메소드는 지정한 데이터프레임의 열 값 기준으로 행 인덱스를 정렬시킨다.)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">DataFrame</span><span class="p">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">ascending</span> <span class="o">=</span> <span class="p">...)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">'a0'</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> 
+		   <span class="s">'a1'</span><span class="p">:[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> 
+	          <span class="s">'a2'</span><span class="p">:[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]},</span> <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s">'c0'</span><span class="p">,</span> <span class="s">'c1'</span><span class="p">,</span> <span class="s">'c2'</span><span class="p">])</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">iloc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'[ 정렬 이전 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+
+<span class="n">asc_df</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">copy</span><span class="p">().</span><span class="n">sort_index</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">[ 오름차순 정렬 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">asc_df</span><span class="p">)</span>
+
+<span class="n">desc_df</span> <span class="o">=</span> <span class="n">asc_df</span><span class="p">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">[ 내림차순 정렬 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">desc_df</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[ 정렬 이전 ]
+     a0  a1  a2
+c2   3   6   9
+c1   2   5   8
+c0   1   4   7
+
+[ 오름차순 정렬 ]
+     a0  a1  a2
+c0   1   4   7
+c1   2   5   8
+c2   3   6   9
+
+[ 내림차순 정렬 ]
+     a0  a1  a2
+c2   3   6   9
+c1   2   5   8
+c0   1   4   7
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h2 id="데이터프레임-transpose"><span style="color:navy">데이터프레임 Transpose<span></span></span></h2>
+
+<p>pandas의 데이터프레임 객체의 행과 열은 <code class="language-plaintext highlighter-rouge">transpose</code> 메소드를 이용해서 간단하게 치환시킬 수 있다.  해당 메소드와 동일하게 <code class="language-plaintext highlighter-rouge">T</code> 클래스 속성을 이용해서도 데이터프레임을 치환시킬 수 있다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">DataFrame</span><span class="p">.</span><span class="n">transpose</span><span class="p">()</span>
+<span class="n">DataFrame</span><span class="p">.</span><span class="n">T</span>
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>아래의 예제에서는 총 연속 치환시켰기 때문에 기존 데이터프레임과 동일한 데이터프레임을 반환하는 것을 확인할 수 있다.  더불어, 치환 메소드의 경우 원본의 값을 수정할 수 없기 때문에 새로운 변수를 선언해줘서 값을 넣어주어야한다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">'col0'</span><span class="p">:[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> 
+		   <span class="s">'col1'</span><span class="p">:[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> 
+	          <span class="s">'col2'</span><span class="p">:[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">]},</span> <span class="n">index</span> <span class="o">=</span> <span class="p">[</span><span class="s">'index0'</span><span class="p">,</span> <span class="s">'index1'</span><span class="p">,</span> <span class="s">'index2'</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'[ 치환 전 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+
+<span class="n">first_trans</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">transpose</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">[ 1st 치환 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">first_trans</span><span class="p">)</span>
+
+<span class="n">second_trans</span> <span class="o">=</span> <span class="n">first_trans</span><span class="p">.</span><span class="n">T</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">[ 2nd 치환 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">second_trans</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[ 치환 전 ]
+         col0  col1  col2
+index0     1     4     7
+index1     2     5     8
+index2     3     6     9
+
+[ 1st 치환 ]
+       index0  index1  index2
+col0       1       2       3
+col1       4       5       6
+col2       7       8       9
+
+[ 2nd 치환 ]
+         col0  col1  col2
+index0     1     4     7
+index1     2     5     8
+index2     3     6     9
+</code></pre></div></div>
+
+:ET

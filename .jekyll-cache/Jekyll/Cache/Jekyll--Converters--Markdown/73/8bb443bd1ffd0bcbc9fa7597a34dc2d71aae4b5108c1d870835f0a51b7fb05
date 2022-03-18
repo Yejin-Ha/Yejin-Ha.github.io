@@ -1,0 +1,275 @@
+I"�j<h3>Table of Contents<span class="tocSkip"></span></h3>
+<div class="toc"><ul class="toc-item"><li><span><a href="#1.-BoW-(-Bag-of-Words-)" data-toc-modified-id="1.-BoW-(-Bag-of-Words-)-1">1. BoW ( Bag-of-Words )</a></span></li><li><span><a href="#2.-bag-of-n-grams" data-toc-modified-id="2.-bag-of-n-grams-2">2. bag-of-n-grams</a></span></li></ul></div>
+
+<p>본 포스팅은 『Feature Engineering for Machine Learning - PRRINCIPLES AND TECHNIQUES FOR DATA SCIENTISTS』의 내용을 바탕으로 구성하였으며 저의 주관적인 생각과 견해가 함께 서술되어 있습니다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 사전 작업
+</span><span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="n">warnings</span><span class="p">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s">'ignore'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s">'axes.unicode_minus'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span> 
+<span class="n">plt</span><span class="p">.</span><span class="n">rc</span><span class="p">(</span><span class="s">'font'</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s">'Malgun Gothic'</span><span class="p">)</span> 
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="1-bow--bag-of-words-">1. BoW ( Bag-of-Words )</h3>
+
+<p>모델을 만들기 위해서는 데이터를 모델에 맞게 Transform해야만 한다. 단어 텍스트의 경우 모델 알고리즘에서 있는 그대로 사용할 수  없기 때문에 숫자값으로 피쳐 변환을 해주어야만 한다. <code class="language-plaintext highlighter-rouge">텍스트</code>에 관한 피쳐 엔지니어링의 시작은 단어 카운트 통계를 기초로한 <strong><code class="language-plaintext highlighter-rouge">BoW(Bag-of-Words)</code></strong>로 부터 시작한다.</p>
+
+<p><br /></p>
+
+<p>그렇다면 <code class="language-plaintext highlighter-rouge">BoW</code>란 무엇일까?</p>
+<ul>
+  <li>BoW 피처를 생성할 때 텍스트(Word) 문서는 <strong>카운트</strong>를 가진 <strong>Vector로 변환(Bag에 담기게)</strong>된다.
+    <ul>
+      <li>Vector는 Vocabulary에서 확인할 수 있는 대부분의 단어에 대한 항목을 가지고 있다.</li>
+      <li>어떤 문장이 Vocabulary에 해당하는 단어를 가지고 있다면 그 단어의 숫자만큼 카운트된다.</li>
+      <li>가지고 있지 않다면 카운트는 0이다.</li>
+      <li>예시) 원시텍스트 : <strong>‘it is a puppy and it is extremely cute’</strong></li>
+    </ul>
+  </li>
+</ul>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>it</th>
+      <th>they</th>
+      <th>is</th>
+      <th>are</th>
+      <th>a</th>
+      <th>an</th>
+      <th>puppy</th>
+      <th>cat</th>
+      <th>and</th>
+      <th>extremely</th>
+      <th>cute</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>count</th>
+      <td>2</td>
+      <td>0</td>
+      <td>2</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<ul>
+  <li>Bow 피처는 시퀀스를 갖지 않고, 단순히 Word가 Text에 몇 번 나타나는지 표시한다.
+    <ul>
+      <li>따라서, <u>단어의 순서와 계층 구조를 전혀 표현하지 않는다</u>.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<p>또 다른 <code class="language-plaintext highlighter-rouge">BoW</code>의 가장 중요한 특징은 Text의 Word를 <strong><code class="language-plaintext highlighter-rouge">기하학적</code></strong>으로 나타낼 수 있다는 점이다. 만약 Vocabulary에 $n$개의 단어가 있다면 하나의 문서는 $n$차원 공간에서 하나의 포인트가 되는 것이다. 다음의 figure는 Text의 <strong><code class="language-plaintext highlighter-rouge">Word Vector(데이터 벡터)</code></strong>가 <strong><code class="language-plaintext highlighter-rouge">피처 공간</code></strong>에 어떻게 위치되는지 보여준다. (각 축은 피처로서 BoW표현에 들어 있는 개별 단어를 나타낸다.)</p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/108627156-867aa380-7497-11eb-9cb6-813a2cdb59cc.png" alt="FE_chapter3-1_8_0" /></p>
+
+<p><br /></p>
+
+<p>이와 반대로 <strong><code class="language-plaintext highlighter-rouge">데이터 공간</code></strong>에서의 <strong><code class="language-plaintext highlighter-rouge">피처 벡터</code></strong>를 살펴보는 것도 유용하다. 이 경우 피처 벡터는 이 단어의 문서 내 카운트를 가지게 된다.</p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/108627157-87133a00-7497-11eb-95b3-dd1dea98cc72.png" alt="FE_chapter3-1_10_0" /></p>
+
+<p><br /></p>
+
+<p>하지만, <code class="language-plaintext highlighter-rouge">BoW</code>는 앞에서 언급했듯이 <strong><u>순서/계층 구조를 표현하지 못하기</u></strong> 때문에 <strong><u>(중요)Text의 의미를 파괴</u></strong>한다는 매우 큰 단점을 가지고 있다. 예를 들자면, ‘강아지 장난감’과 ‘강아지 장난감’이라는 예를 들 수 있다. 둘 다 강아지와 장난감이 1로 카운트되는 것은 동일하지만, 순서가 바뀌었기 때문에 의미가 완전히 달라진 것을 확인할 수 있다.</p>
+
+<p><br /></p>
+
+<p>위의 문제를 완화할 방법에는 완벽한 해결책은 아니지만 사도에 해당하는 <strong><code class="language-plaintext highlighter-rouge">bag-of-n-Grams</code></strong>가 있다.</p>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="2-bag-of-n-grams">2. bag-of-n-grams</h3>
+
+<p><strong><code class="language-plaintext highlighter-rouge">bag-of-n-grams</code></strong>란?</p>
+<ul>
+  <li>먼저 눈에 보이는 <strong><code class="language-plaintext highlighter-rouge">n-grams</code></strong>란 무엇일까?
+    <ul>
+      <li>n-grams : $n$개의 <strong><u>연속적으로 나열</u></strong>된 토큰(혹은 단어)이다. corpus에서 $n$개의 단어 뭉치 단위로 끊어서 이를 하나의 토큰으로 간주한다.
+        <ul>
+          <li>하나의 단어로 구성될 경우 : 1-gram(혹은 unigram)</li>
+          <li>두개의 단어로 구성될 경우 : bigram</li>
+          <li>세개의 단어로 구성될 경우 : trigram</li>
+          <li>네개의 단어로 구성될 경우 : 4-grams</li>
+        </ul>
+      </li>
+      <li>ex) “I love you forever”을 예시로 bigrams를 구성하면 다음과 같은 케이스들을 만들 수 있다.
+        <ul>
+          <li>[I love], [love you], [you forever]</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>위와 같이 <code class="language-plaintext highlighter-rouge">n-grams</code>는  text 본래의 시퀀스 구조를 유지하다 보니 <code class="language-plaintext highlighter-rouge">BoW</code>보다 더 유용한 정보를 줄 수 있지만, <u>처리 비용이 증가</u>된다.</li>
+  <li><code class="language-plaintext highlighter-rouge">n-grams</code>는 이론상 text에 $k$개의 고유한 단어가 있을 때 $k^2$개의 bigrams가 있을 수 있다. 하지만, 실제로는 모든 단어가 다른 모든 단어를 뒤따르지 않기에 $k^2$과 같은 경우는 거의 없다. 하지만, 일반적인 문장 내의 <code class="language-plaintext highlighter-rouge">n-grams</code>는 고유 단어 갯수보다 많다.
+    <ul>
+      <li>하지만 $n$이 <strong>커질수록</strong> corpus에서 특정 단어들의 연속 나열 묶음이 포함된 n-gram을 카운트할 수 있는 확률이 적어지기에 <strong>희소 문제</strong><u>는 심각</u>해지며, 모든 경우의 n-gram을 카운팅하기 때문에 모델의 사이즈가 너무 커진다는 문제점도 있다.</li>
+      <li>$n$을 <strong>너무 작게</strong> 설정할 경우 corpus에서 단어의 카운트는 잘되겠지만, <u>단어 예측의 정확도가 떨어진다.</u></li>
+      <li>따라서, <u>적절한 $n$을 선택하는 것도 중요</u>하다. 일반적으로 정확도를 높이려면 $n&lt;5$를 권장하고있다.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<p>다음은 $n$이 증가함에 따라 <code class="language-plaintext highlighter-rouge">n-grams</code>의 수가 얼마나 증가하는지 확인하기 위해 이전에 사용한 Yelp 리뷰 데이터셋의 n-grams를 계산해보자.</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">pandas</code>와 <code class="language-plaintext highlighter-rouge">scikit-learn</code>에 있는 <code class="language-plaintext highlighter-rouge">CountVectorizer</code> 변환기를 사용한다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pandas</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">sklearn.feature_extraction.text</span> <span class="kn">import</span> <span class="n">CountVectorizer</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s">'./example_data/archive/yelp_academic_dataset_review.json'</span><span class="p">,</span>  <span class="n">encoding</span><span class="o">=</span><span class="s">'UTF8'</span><span class="p">)</span>
+<span class="n">js</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10000</span><span class="p">):</span>
+    <span class="n">js</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">json</span><span class="p">.</span><span class="n">loads</span><span class="p">(</span><span class="n">f</span><span class="p">.</span><span class="n">readline</span><span class="p">()))</span>
+<span class="n">f</span><span class="p">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="n">review_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">js</span><span class="p">)</span>
+<span class="n">review_df</span><span class="p">[</span><span class="s">'text'</span><span class="p">]</span> <span class="c1">#리뷰!
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>0       As someone who has worked with many museums, I...
+1       I am actually horrified this place is still in...
+2       I love Deagan's. I do. I really do. The atmosp...
+3       Dismal, lukewarm, defrosted-tasting "TexMex" g...
+4       Oh happy day, finally have a Canes near my cas...
+                              ...                        
+9995    I came here to get a pedicure. Worst experienc...
+9996    Excellent service and excellent food! We ate b...
+9997    In line with and one of the best massages I ha...
+9998    Virginia has been our vet for 6 years. She has...
+9999    If the $5.99 lunch special proves to be as awe...
+Name: text, Length: 10000, dtype: object
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># unigram, bigrams, trigrams에 대한 피처 변환기 생성
+# 기본 옵션으로 a와 b같은 하나의 문자로 된 단어를 무시한다.
+# 이는 실전에서 의미 없는 단어들을 제거하기 때문에 매우 유용하지만 
+# 하지만 여기서는 하나의 문자로 된 단어들을 설명을 위해 token_pattern 매개변수를 이용해 
+# 명시적으로 포함시킬 것이다.
+</span>
+<span class="c1"># token_pattern : 토큰 정의용 정규 표현식
+</span>
+<span class="c1"># ngram_range 매개변수의 조정에 따라 원하는 n-gram을 도출할 수 있다.
+# ngram_range = (1, 1) : unigrams
+# ngram_range = (1, 2) : unigrams &amp; bigrams
+# ngram_range = (2, 2) : bigrams
+</span>
+<span class="n">bow_converter</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">token_pattern</span> <span class="o">=</span> <span class="s">'</span><span class="se">\\</span><span class="s">b</span><span class="se">\\</span><span class="s">w+</span><span class="se">\\</span><span class="s">b'</span><span class="p">)</span>
+<span class="n">bigram_converter</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">ngram_range</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">),</span> <span class="n">token_pattern</span> <span class="o">=</span> <span class="s">'</span><span class="se">\\</span><span class="s">b</span><span class="se">\\</span><span class="s">w+</span><span class="se">\\</span><span class="s">b'</span><span class="p">)</span>
+<span class="n">trigram_converter</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">ngram_range</span> <span class="o">=</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="n">token_pattern</span> <span class="o">=</span> <span class="s">'</span><span class="se">\\</span><span class="s">b</span><span class="se">\\</span><span class="s">w+</span><span class="se">\\</span><span class="s">b'</span><span class="p">)</span>
+<span class="n">quadgram_converter</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">ngram_range</span> <span class="o">=</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">),</span> <span class="n">token_pattern</span> <span class="o">=</span> <span class="s">'</span><span class="se">\\</span><span class="s">b</span><span class="se">\\</span><span class="s">w+</span><span class="se">\\</span><span class="s">b'</span><span class="p">)</span>
+<span class="n">pentgram_converter</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">ngram_range</span> <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">),</span> <span class="n">token_pattern</span> <span class="o">=</span> <span class="s">'</span><span class="se">\\</span><span class="s">b</span><span class="se">\\</span><span class="s">w+</span><span class="se">\\</span><span class="s">b'</span><span class="p">)</span>
+<span class="n">hexgram_converter</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">(</span><span class="n">ngram_range</span> <span class="o">=</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span> <span class="n">token_pattern</span> <span class="o">=</span> <span class="s">'</span><span class="se">\\</span><span class="s">b</span><span class="se">\\</span><span class="s">w+</span><span class="se">\\</span><span class="s">b'</span><span class="p">)</span>
+
+<span class="c1"># 변환을 수행한 후 용어집 크기 확인
+</span><span class="n">bow_converter</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">review_df</span><span class="p">[</span><span class="s">'text'</span><span class="p">])</span>
+<span class="n">bigram_converter</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">review_df</span><span class="p">[</span><span class="s">'text'</span><span class="p">])</span>
+<span class="n">trigram_converter</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">review_df</span><span class="p">[</span><span class="s">'text'</span><span class="p">])</span>
+<span class="n">quadgram_converter</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">review_df</span><span class="p">[</span><span class="s">'text'</span><span class="p">])</span>
+<span class="n">pentgram_converter</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">review_df</span><span class="p">[</span><span class="s">'text'</span><span class="p">])</span>
+<span class="n">hexgram_converter</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">review_df</span><span class="p">[</span><span class="s">'text'</span><span class="p">])</span>
+
+<span class="n">words</span> <span class="o">=</span> <span class="n">bow_converter</span><span class="p">.</span><span class="n">get_feature_names</span><span class="p">()</span>
+<span class="n">bigrams</span> <span class="o">=</span> <span class="n">bigram_converter</span><span class="p">.</span><span class="n">get_feature_names</span><span class="p">()</span>
+<span class="n">trigrams</span> <span class="o">=</span> <span class="n">trigram_converter</span><span class="p">.</span><span class="n">get_feature_names</span><span class="p">()</span>
+<span class="n">quadgrams</span> <span class="o">=</span> <span class="n">quadgram_converter</span><span class="p">.</span><span class="n">get_feature_names</span><span class="p">()</span>
+<span class="n">pentgrams</span> <span class="o">=</span> <span class="n">pentgram_converter</span><span class="p">.</span><span class="n">get_feature_names</span><span class="p">()</span>
+<span class="n">hexgrams</span> <span class="o">=</span> <span class="n">hexgram_converter</span><span class="p">.</span><span class="n">get_feature_names</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">matplotlib</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+<span class="n">x_ticks_labels</span> <span class="o">=</span> <span class="p">[</span><span class="s">'unigram'</span><span class="p">,</span> <span class="s">'bigrams'</span><span class="p">,</span> <span class="s">'trigrams'</span><span class="p">,</span> <span class="s">'quadgrams'</span><span class="p">,</span> <span class="s">'pentgrams'</span><span class="p">,</span> <span class="s">'hexgrams'</span><span class="p">]</span>
+<span class="n">length</span> <span class="o">=</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">words</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">bigrams</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">trigrams</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">quadgrams</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">pentgrams</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">hexgrams</span><span class="p">)]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">length</span><span class="p">,</span> <span class="s">'rs--'</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">x_ticks_labels</span><span class="p">,</span> <span class="n">rotation</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">15</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">'count for n-grams (0&lt;=n&lt;=6)'</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">15</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Yelp 데이터셋의 처음 10,000개 리뷰의 n-grams 수'</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">ticklabel_format</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s">'plain'</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s">'y'</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">get_yaxis</span><span class="p">().</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">matplotlib</span><span class="p">.</span><span class="n">ticker</span><span class="p">.</span><span class="n">FuncFormatter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="nb">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="s">','</span><span class="p">)))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># ngrams 확인
+</span><span class="k">print</span><span class="p">(</span><span class="s">'words : '</span><span class="p">,</span> <span class="n">words</span><span class="p">[:</span><span class="mi">10</span><span class="p">],</span> <span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'bigrams : '</span><span class="p">,</span> <span class="n">bigrams</span><span class="p">[:</span><span class="mi">10</span><span class="p">],</span> <span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'trigrams : '</span><span class="p">,</span> <span class="n">trigrams</span><span class="p">[:</span><span class="mi">10</span><span class="p">],</span> <span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'quadgrams : '</span><span class="p">,</span> <span class="n">quadgrams</span><span class="p">[:</span><span class="mi">10</span><span class="p">],</span> <span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'pentgrams : '</span><span class="p">,</span> <span class="n">pentgrams</span><span class="p">[:</span><span class="mi">10</span><span class="p">],</span> <span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'hexgrams : '</span><span class="p">,</span> <span class="n">hexgrams</span><span class="p">[:</span><span class="mi">10</span><span class="p">],</span> <span class="s">'</span><span class="se">\n</span><span class="s">'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/108627158-87abd080-7497-11eb-8d9f-30986d778879.png" alt="FE_chapter3-1_17_0" /></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>words :  ['0', '00', '000', '00a', '00am', '00p', '00pm', '00service', '01', '0100pm'] 
+
+bigrams :  ['0 00', '0 03', '0 3', '0 35', '0 5', '0 50', '0 75', '0 99', '0 and', '0 are'] 
+
+trigrams :  ['0 00 balance', '0 03 i', '0 3 this', '0 35 ea', '0 5 for', '0 50 difference', '0 50 extra', '0 50 or', '0 75 but', '0 99 charge'] 
+
+quadgrams :  ['0 00 balance and', '0 03 i know', '0 3 this place', '0 35 ea to', '0 5 for food', '0 50 difference that', '0 50 extra depending', '0 50 or 1', '0 75 but it', '0 99 charge for'] 
+
+pentgrams :  ['0 00 balance and than', '0 03 i know it', '0 3 this place has', '0 35 ea to be', '0 5 for food on', '0 50 difference that fifty', '0 50 extra depending on', '0 50 or 1 00', '0 75 but it was', '0 99 charge for cheese'] 
+
+hexgrams : ['0 00 balance and than got', '0 03 i know it s', '0 3 this place has been', '0 35 ea to be exact', '0 5 for food on the', '0 50 difference that fifty cent', '0 50 extra depending on which', '0 50 or 1 00 for', '0 75 but it was the', '0 99 charge for cheese and']
+</code></pre></div></div>
+
+<p>$n$이 점점 커지면서 corpus에서 서치하는 n-gram이 포괄적이게 되는 것을 확인할 수 있다. 이는 서치하길 원하는 n-gram을 카운트 할 수 있는 확률이 적어지는 것을 의미하므로 긍정적인 것은 아니다. 또한,  모델 사이즈가 매우 커지는 것을 확인할 수 있다.</p>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="references">References</h3>
+
+<ul>
+  <li>Alice Zheng, Amanda Casari, 『Feature Engineering for Machine Learning - PRRINCIPLES AND TECHNIQUES FOR DATA SCIENTISTS』, O’Relly Media (2018)</li>
+  <li>https://wikidocs.net/21692</li>
+</ul>
+
+:ET

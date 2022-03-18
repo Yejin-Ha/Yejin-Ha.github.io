@@ -1,0 +1,564 @@
+I"{�<ul>
+  <li>서브쿼리</li>
+  <li>실행 결과가 하나인 단일행 서브쿼리</li>
+  <li>실행 결과가 여러 개인 다중행 서브쿼리</li>
+  <li>비교할 열이 여러 개인 다중열 서브쿼리</li>
+  <li>FROM절에 사용하는 서브쿼리와 WITH절</li>
+  <li>SELECT 절에 사용하는 서브쿼리</li>
+</ul>
+
+<hr />
+
+<h3 id="-1-서브쿼리-">[ 1. 서브쿼리 ]</h3>
+
+<h4 id="1-서브쿼리란">(1) 서브쿼리란?</h4>
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">서브쿼리(subquery)</code> : SQL문을 실행하는 데 필요한 데이터를 추가로 조회하기 위해 SQL문 내부에서 사용하는 SELECT문을 의미한다.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">메인쿼리(main query)</code> : 서브쿼리의 결과 값을 사용하여 기능을 수행하는 영역</p>
+  </li>
+</ul>
+
+<h4 id="1-1-기존-emp-테이블에서-jones보다-급여가-높은-사원-조회하기">(1-1) (기존) EMP 테이블에서 JONES보다 급여가 높은 사원 조회하기</h4>
+<ul>
+  <li>단계1 : 사원 이름이 JONES인 사원의 급여 출력하기</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">1</span>
+<span class="n">SELECT</span> <span class="n">SAL</span>
+    <span class="n">FROM</span> <span class="n">EMP</span>
+    <span class="n">WHERE</span> <span class="n">ENAME</span> <span class="o">=</span> <span class="s">'JONES'</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94003668-84bc8f00-fdd6-11ea-8687-5f8030b2e7fa.JPG" alt="1-1-1" /></p>
+
+<ul>
+  <li>단계2 : 급여가 2975 보다 높은 사원 정보 출력하기</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">2</span>
+<span class="n">SELECT</span> <span class="o">*</span>
+    <span class="n">FROM</span> <span class="n">EMP</span>
+    <span class="n">WHERE</span> <span class="n">SAL</span> <span class="o">&gt;</span> <span class="mi">2975</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>결과 :
+<img src="https://user-images.githubusercontent.com/53929665/94003666-838b6200-fdd6-11ea-95a5-1bd71ff53067.JPG" alt="1-1-1(2)" /></p>
+
+<h4 id="1-2-서브쿼리로-jones보다-급여가-높은-사원-조회하기">(1-2) 서브쿼리로 JONES보다 급여가 높은 사원 조회하기</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">3</span>
+<span class="n">SELECT</span> <span class="o">*</span>
+    <span class="n">FROM</span> <span class="n">EMP</span>
+    <span class="n">WHERE</span> <span class="n">SAL</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">SELECT</span> <span class="n">SAL</span>
+                    <span class="n">FROM</span> <span class="n">EMP</span>
+                    <span class="n">WHERE</span> <span class="n">ENAME</span> <span class="o">=</span> <span class="s">'JONES'</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+<ul>
+  <li>(1-1)에서의 단계1이 서브쿼리가 되고,</li>
+  <li>(1-1)에서의 단계2가 메인쿼리가 되었다.</li>
+</ul>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94003669-84bc8f00-fdd6-11ea-83aa-68b46b9117e5.JPG" alt="1-1-2" /></p>
+
+<h4 id="2-서브쿼리의-특징">(2) 서브쿼리의 특징</h4>
+<ul>
+  <li>
+    <p>서브쿼리는 연산자와 같은 비교 또는 조회 대상의 오른쪽에 놓이며,<br />
+괄호 ()를 묶어서 사용한다.</p>
+  </li>
+  <li>
+    <p>특수한 몇몇 경우를 제외한 대부분의 서브쿼리에서는 <code class="language-plaintext highlighter-rouge">ORDER BY</code>절을 사용할 수 없다.</p>
+  </li>
+  <li>
+    <p>서브쿼리의 SELECT절에 명시한 열은 메인쿼리의 비교 대상과 같은 자료형과 같은 개수로 지정해야한다.<br />
+( 예제 (1-2)의 WHERE절에서 메인쿼리의 비교대상 SAL과 서브쿼리의 SELECT절에 명시한 열은 자료형과 개수가 같다. )</p>
+  </li>
+  <li>
+    <p>서브쿼리에 있는 SELECT문의 결과 행 수는 함께 사용하는 메인쿼리의 연산자 종류와 호환 가능해야한다.</p>
+  </li>
+</ul>
+
+<hr />
+<h3 id="-2-실행-결과가-하나인-단일행-서브쿼리-">[ 2. 실행 결과가 하나인 단일행 서브쿼리 ]</h3>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">단일행 서브쿼리(single-row subquery)</code> : 실행 결과가 ☑(단 하나의 행)으로 나오는 서브쿼리
+    <blockquote>
+      <dl>
+        <dt>서브쿼리에서 출력되는 결과가 하나이면,  </dt>
+        <dt>메인쿼리와 서브쿼리 결과는 다음과 같이 <code class="language-plaintext highlighter-rouge">단일행 연산자</code>를 사용하여 비교한다.</dt>
+        <dd><code class="language-plaintext highlighter-rouge">&gt;</code>, <code class="language-plaintext highlighter-rouge">&gt;=</code>, <code class="language-plaintext highlighter-rouge">=</code>, <code class="language-plaintext highlighter-rouge">&lt;=</code>, <code class="language-plaintext highlighter-rouge">&lt;</code>, <code class="language-plaintext highlighter-rouge">&lt;&gt;</code>, <code class="language-plaintext highlighter-rouge">^=</code>, <code class="language-plaintext highlighter-rouge">!=</code></dd>
+      </dl>
+    </blockquote>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">다중행 서브쿼리(multiple-row subquery)</code> : 실행 결과가 ☑(여러 행)을 반환하는 서브쿼리</li>
+</ul>
+
+<h4 id="1-단일행-서브쿼리와-날짜형-데이터">(1) 단일행 서브쿼리와 날짜형 데이터</h4>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">단일행 서브쿼리</code>는 결과 값이 <code class="language-plaintext highlighter-rouge">날짜(DATE)자료형</code>일 때도 사용할 수 있다.</li>
+</ul>
+
+<h4 id="1-1-서브쿼리의-결과-값이-날짜형인-경우">(1-1) 서브쿼리의 결과 값이 날짜형인 경우</h4>
+<ul>
+  <li>EMP 테이블에서 SCOTT보다 빨리 입사한 사원 목록을 조회할 경우</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">4</span>
+<span class="n">SELECT</span> <span class="o">*</span>
+    <span class="n">FROM</span> <span class="n">EMP</span>
+    <span class="n">WHERE</span> <span class="n">HIREDATE</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">SELECT</span> <span class="n">HIREDATE</span>
+                        <span class="n">FROM</span> <span class="n">EMP</span>
+                        <span class="n">WHERE</span> <span class="n">ENAME</span> <span class="o">=</span> <span class="s">'SCOTT'</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94005278-044b5d80-fdd9-11ea-9bbc-2b4514e3efd3.JPG" alt="2-1-1" /></p>
+
+<h4 id="2-단일형-서브쿼리의-함수">(2) 단일형 서브쿼리의 함수</h4>
+<ul>
+  <li>서브쿼리에서 특정 함수를 사용한 결과 값이 하나일 때<br />
+역시 <code class="language-plaintext highlighter-rouge">단일행 서브쿼리</code>로서 사용가능하다.</li>
+</ul>
+
+<h4 id="2-1-서브쿼리-안에서-함수를-사용하는-경우">(2-1) 서브쿼리 안에서 함수를 사용하는 경우</h4>
+<ul>
+  <li>20번 부서에 속한 사원 중 전체 사원의 평균 급여보다 높은 급여를 받는 사원 정보와 소속 부서 정보를 함께 조회하는 경우</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">5</span>
+<span class="n">SELECT</span>  <span class="n">E</span><span class="p">.</span><span class="n">EMPNO</span><span class="p">,</span> <span class="n">E</span><span class="p">.</span><span class="n">ENAME</span><span class="p">,</span> <span class="n">E</span><span class="p">.</span><span class="n">JOB</span><span class="p">,</span> <span class="n">E</span><span class="p">.</span><span class="n">SAL</span><span class="p">,</span>
+        <span class="n">D</span><span class="p">.</span><span class="n">DEPTNO</span><span class="p">,</span> <span class="n">D</span><span class="p">.</span><span class="n">DNAME</span><span class="p">,</span> <span class="n">D</span><span class="p">.</span><span class="n">LOC</span>
+    <span class="n">FROM</span> <span class="n">EMP</span> <span class="n">E</span><span class="p">,</span> <span class="n">DEPT</span> <span class="n">D</span>
+    <span class="n">WHERE</span> <span class="n">E</span><span class="p">.</span><span class="n">DEPTNO</span> <span class="o">=</span> <span class="n">D</span><span class="p">.</span><span class="n">DEPTNO</span>
+        <span class="n">AND</span> <span class="n">E</span><span class="p">.</span><span class="n">DEPTNO</span> <span class="o">=</span> <span class="mi">20</span> 
+        <span class="n">AND</span> <span class="n">E</span><span class="p">.</span><span class="n">SAL</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">SELECT</span> <span class="n">AVG</span><span class="p">(</span><span class="n">SAL</span><span class="p">)</span>
+                        <span class="n">FROM</span> <span class="n">EMP</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94005279-057c8a80-fdd9-11ea-8370-cddaa2402e26.JPG" alt="2-2-1" /></p>
+
+<hr />
+<h3 id="-3-실행-결과가-여러-개인-다중행-서브쿼리-">[ 3. 실행 결과가 여러 개인 다중행 서브쿼리 ]</h3>
+<ul>
+  <li>
+    <p>단일행 서브쿼리와 달리 서브쿼리 결과가 여러 개이므로 단일행 연산자는 사용할 수 없고 <code class="language-plaintext highlighter-rouge">다중행 연산자</code>를 사용해야 메인쿼리와 비교할 수 있다.</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">다중행 연산자</code></p>
+  </li>
+</ul>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94031906-581a6e80-fdfa-11ea-8849-4693c9028636.JPG" alt="3" /></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">다중행 연산자</th>
+      <th style="text-align: left">설명</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">IN</code></td>
+      <td style="text-align: left">메인쿼리의 데이터가 서브쿼리의 결과 중 하나라도 일치한 데이터가 있다면  ☑TRUE</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">ANY</code>, <code class="language-plaintext highlighter-rouge">SOME</code></td>
+      <td style="text-align: left">메인쿼리의 조건식을 만족하는 서브쿼리의 결과가 하나 이상이면 ☑TRUE</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">ALL</code></td>
+      <td style="text-align: left">메인쿼리의 조건식을 서브쿼리의 결과 모두 만족하면 ☑TRUE</td>
+    </tr>
+    <tr>
+      <td style="text-align: center"><code class="language-plaintext highlighter-rouge">EXISTS</code></td>
+      <td style="text-align: left">서브쿼리의 결과가 존재하면(즉, 행이 1개 이상일 경우) ☑TRUE</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="1-in-연산자">(1) IN 연산자</h4>
+
+<h4 id="1-1-in-연산자-사용하기">(1-1) <code class="language-plaintext highlighter-rouge">IN</code> 연산자 사용하기</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">6</span>
+<span class="n">SELECT</span> <span class="o">*</span>
+    <span class="n">FROM</span> <span class="n">EMP</span>
+    <span class="n">WHERE</span> <span class="n">DEPTNO</span> <span class="n">IN</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">30</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94029953-40da8180-fdf8-11ea-9117-3b13433ba0bf.JPG" alt="3-1-1" /></p>
+
+<h4 id="1-2-다중행-서브쿼리의-데이터를-비교하는-다중행-연산자-in">(1-2) 다중행 서브쿼리의 데이터를 비교하는 다중행 연산자 <code class="language-plaintext highlighter-rouge">IN</code></h4>
+<ul>
+  <li>각 부서별 최고 급여와 동일한 급여를 받는 사원 정보 출력하기</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">7</span>
+<span class="n">SELECT</span> <span class="o">*</span>
+    <span class="n">FROM</span> <span class="n">EMP</span>
+    <span class="n">WHERE</span> <span class="n">SAL</span> <span class="n">IN</span><span class="p">(</span><span class="n">SELECT</span> <span class="n">MAX</span><span class="p">(</span><span class="n">SAL</span><span class="p">)</span>
+                    <span class="n">FROM</span> <span class="n">EMP</span>
+                    <span class="n">GROUP</span> <span class="n">BY</span> <span class="n">DEPTNO</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">IN</code> 연산자를 사용해 메인쿼리에서는 세 값 중 일치하는 값을 가진 행만 출력</li>
+</ul>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94029955-41731800-fdf8-11ea-86ea-caf3295baf84.JPG" alt="3-1-2" /></p>
+
+<h4 id="2-any-some-연산자">(2) ANY, SOME 연산자</h4>
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">ANY</code>, <code class="language-plaintext highlighter-rouge">SOME</code> 연산자는 서브쿼리가 반환한 여러 결과 값 중<br />
+메인쿼리와 조건식을 사용한 결과가 하나라도 TRUE이면<br />
+메인쿼리 조건식을 TRUE로 반환해 주는 연산자이다.</p>
+  </li>
+  <li>
+    <p>조건식이 참이 되어 출력 대상이 된다는 점에서 <code class="language-plaintext highlighter-rouge">IN</code>연산자가 생각날 수 있다.<br />
+실제로, <code class="language-plaintext highlighter-rouge">ANY</code> 및 <code class="language-plaintext highlighter-rouge">SOME</code> 연산자를 <code class="language-plaintext highlighter-rouge">등가 비교 연산자(=)</code>와 함께 사용하면 <code class="language-plaintext highlighter-rouge">IN</code>연산자와 정확히 같은 기능을 수행한다.</p>
+  </li>
+</ul>
+
+<h4 id="2-1-any연산자-사용하기-with-등가-비교-연산자">(2-1) <code class="language-plaintext highlighter-rouge">ANY</code>연산자 사용하기 (with 등가 비교 연산자)</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">8</span>
+<span class="n">SELECT</span> <span class="o">*</span>
+    <span class="n">FROM</span> <span class="n">EMP</span>
+    <span class="n">WHERE</span> <span class="n">SAL</span> <span class="o">=</span> <span class="n">ANY</span><span class="p">(</span><span class="n">SELECT</span> <span class="n">MAX</span><span class="p">(</span><span class="n">SAL</span><span class="p">)</span>
+                        <span class="n">FROM</span> <span class="n">EMP</span>
+                        <span class="n">GROUP</span> <span class="n">BY</span> <span class="n">DEPTNO</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">ANY</code>연산자에 등가 비교 연산자를 함께 사용하니 <code class="language-plaintext highlighter-rouge">IN</code>연산자와 같은 결과가 출력되었다.</li>
+</ul>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94029958-420bae80-fdf8-11ea-8e91-403c2488547d.JPG" alt="3-2-1" /></p>
+
+<h4 id="2-2-some연산자-사용하기-with-등가-비교-연산자">(2-2) <code class="language-plaintext highlighter-rouge">SOME</code>연산자 사용하기 (with 등가 비교 연산자)</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">9</span>
+<span class="n">SELECT</span> <span class="o">*</span>
+    <span class="n">FROM</span> <span class="n">EMP</span>
+    <span class="n">WHERE</span> <span class="n">SAL</span> <span class="o">=</span> <span class="n">SOME</span><span class="p">(</span><span class="n">SELECT</span> <span class="n">MAX</span><span class="p">(</span><span class="n">SAL</span><span class="p">)</span>
+                        <span class="n">FROM</span> <span class="n">EMP</span>
+                        <span class="n">GROUP</span> <span class="n">BY</span> <span class="n">DEPTNO</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">SOME</code> 연산자에 등가 비교 연산자를 함께 사용하니 <code class="language-plaintext highlighter-rouge">IN</code>연산자와 같은 결과가 출력되었다.</li>
+</ul>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94029960-420bae80-fdf8-11ea-90db-6004983b08e2.JPG" alt="3-2-2" /></p>
+
+<h4 id="2-3-any연산자-사용하기with-대소-비교-연산자">(2-3) <code class="language-plaintext highlighter-rouge">ANY</code>연산자 사용하기(with 대소 비교 연산자)</h4>
+<ul>
+  <li>단계 1 : 부서 번호가 30인 사원들의 급여 출력하기</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">11</span>
+<span class="n">SELECT</span> <span class="n">SAL</span>
+    <span class="n">FROM</span> <span class="n">EMP</span>
+    <span class="n">WHERE</span> <span class="n">DEPTNO</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94029964-42a44500-fdf8-11ea-9eb5-3fa91bbb1b59.JPG" alt="3-2-3(1)" /></p>
+
+<ul>
+  <li>단계 2-1 :30번 부서 사원들의 최대 급여보다 적은 급여를 받는 사원 정보 출력하기</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">10</span>
+<span class="n">SELECT</span> <span class="o">*</span>
+    <span class="n">FROM</span> <span class="n">EMP</span>
+    <span class="n">WHERE</span> <span class="n">SAL</span> <span class="o">&lt;</span> <span class="n">ANY</span><span class="p">(</span><span class="n">SELECT</span> <span class="n">SAL</span>
+                        <span class="n">FROM</span> <span class="n">EMP</span>
+                        <span class="n">WHERE</span> <span class="n">DEPTNO</span> <span class="o">=</span> <span class="mi">30</span><span class="p">)</span>
+    <span class="n">ORDER</span> <span class="n">BY</span> <span class="n">SAL</span><span class="p">,</span> <span class="n">DEPTNO</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+<blockquote>
+  <p>단계1의 서브쿼리에서 가장 큰 값인 2850보다 적은 급여를 가진 메인쿼리행은 모두 TRUE가 된다.</p>
+
+  <p>따라서, 950, 1250, 1500, 1600보다 큰 값이더라도 2850 하나의 값보다만 작으면 한 가지 경우에 TRUE가 나온다.</p>
+
+  <p>즉, <code class="language-plaintext highlighter-rouge">&lt; ANY</code> 연산자는 서브쿼리 결과 값 중 급여의 최댓값(SAL=2850)보다 작은 값은 모두 출력 대상이 된다.</p>
+</blockquote>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94029966-433cdb80-fdf8-11ea-8330-d00453df7b76.JPG" alt="3-2-3(2)" /></p>
+
+<ul>
+  <li>단계 2-2 : 30번 부서 사원들의 최소 급여보다 많은 급여를 받은 사원 정보 출력하기</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">13</span>
+<span class="n">SELECT</span> <span class="o">*</span>
+    <span class="n">FROM</span> <span class="n">EMP</span>
+    <span class="n">WHERE</span> <span class="n">SAL</span> <span class="o">&gt;</span> <span class="n">ANY</span> <span class="p">(</span><span class="n">SELECT</span> <span class="n">SAL</span>
+                        <span class="n">FROM</span> <span class="n">EMP</span>
+                        <span class="n">WHERE</span> <span class="n">DEPTNO</span> <span class="o">=</span> <span class="mi">30</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+<blockquote>
+  <p>단계1의 서브쿼리에서 가장 작은 값인 950보다 큰 급여를 가지면 조건식이 TRUE가 되어 결과 값이 출력된다.</p>
+</blockquote>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94029967-433cdb80-fdf8-11ea-811f-25be1bf3ec85.JPG" alt="3-2-3(3)" /></p>
+
+<h4 id="3-all-연산자">(3) ALL 연산자</h4>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">ANY</code> 및 <code class="language-plaintext highlighter-rouge">SOME</code>과 달리 <code class="language-plaintext highlighter-rouge">ALL</code>연산자는<br />
+서브쿼리의 ☑(모든 결과가 조건식에 맞아 떨어져야만)<br />
+메인쿼리의 조건식이 TRUE가 되는 연산자이다.</li>
+</ul>
+
+<h4 id="3-1-all-연산자-사용하기">(3-1) <code class="language-plaintext highlighter-rouge">ALL</code> 연산자 사용하기</h4>
+<ul>
+  <li>단계 2-1 :부서 번호가 30번인 사원들의 최소 급여보다 더 적은 급여를 받는 사원 출력하기</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">14</span>
+<span class="n">SELECT</span> <span class="o">*</span>
+    <span class="n">FROM</span> <span class="n">EMP</span>
+    <span class="n">WHERE</span> <span class="n">SAL</span> <span class="o">&lt;</span> <span class="n">ALL</span> <span class="p">(</span><span class="n">SELECT</span> <span class="n">SAL</span>
+                        <span class="n">FROM</span> <span class="n">EMP</span>
+                        <span class="n">WHERE</span> <span class="n">DEPTNO</span> <span class="o">=</span> <span class="mi">30</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">ALL</code> 연산자가 의미하는 것과 같이 
+서브쿼리의 모든 결과 값(950, 1250, 1500, 1600, 2850)보다 작은 값을 가진
+메인쿼리의 행만 TRUE가 되어 출력된다.</p>
+
+  <p>즉, 메인쿼리 값 중 950(서브쿼리 결과 값 중 가장 작은 값)보다 작은 값만 출력된다.</p>
+</blockquote>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94029971-43d57200-fdf8-11ea-8b35-22cee8296940.JPG" alt="3-3-1(1)" /></p>
+
+<ul>
+  <li>단계 2-2 :부서 번호가 30번인 사원들의 최대 급여보다 더 많은 급여를 받는 사원 출력하기</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">15</span>
+<span class="n">SELECT</span> <span class="o">*</span>
+    <span class="n">FROM</span> <span class="n">EMP</span>
+    <span class="n">WHERE</span> <span class="n">SAL</span> <span class="o">&gt;</span> <span class="n">ALL</span> <span class="p">(</span><span class="n">SELECT</span> <span class="n">SAL</span>
+                        <span class="n">FROM</span> <span class="n">EMP</span>
+                        <span class="n">WHERE</span> <span class="n">DEPTNO</span> <span class="o">=</span> <span class="mi">30</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+<blockquote>
+  <p>서브쿼리 결과 값(950, 1250, 1500, 1600, 2850)중<br />
+가장 큰 값인 2850과 비교하여 큰 값을 가진 데이터만 출력된다.</p>
+</blockquote>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94029974-43d57200-fdf8-11ea-850b-8f1a35bba4d2.JPG" alt="3-3-1(2)" /></p>
+
+<h4 id="4-exists-연산자">(4) EXISTS 연산자</h4>
+<ul>
+  <li>
+    <p>서브쿼리에 결과 값이<br />
+하나 이상 존재하면 조건식이 모두 TRUE<br />
+존재하지 않으면 모두 FALSE가 되는 연산자</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">EXIST</code>연산자는 다른 다중행 연산자에 비해 그리 자주 사용되는 편은 아니지만,<br />
+특정 서브쿼리 결과 값의 존재 유무를 통해<br />
+메인쿼리의 데이터 노출 여부를 결정해야 할 떄 간혹 사용한다.</p>
+  </li>
+</ul>
+
+<h4 id="4-1-서브쿼리-결과-값이-존재하는-경우true">(4-1) 서브쿼리 결과 값이 존재하는 경우(TRUE)</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">16</span>
+<span class="n">SELECT</span> <span class="o">*</span>
+    <span class="n">FROM</span> <span class="n">EMP</span>
+    <span class="n">WHERE</span> <span class="n">EXISTS</span><span class="p">(</span><span class="n">SELECT</span> <span class="n">DNAME</span>
+                    <span class="n">FROM</span> <span class="n">DEPT</span>
+                    <span class="n">WHERE</span> <span class="n">DEPTNO</span> <span class="o">=</span> <span class="mi">10</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+<blockquote>
+  <p>서브쿼리를 살펴보면 결과 값이 존재하기 때문에 EMP의 모든 행이 출력되었다.</p>
+</blockquote>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94029975-446e0880-fdf8-11ea-9a6a-b79536ac0aa4.JPG" alt="3-4-1" /></p>
+
+<h4 id="4-2-서브쿼리-결과-값이-존재하지-않는-경우false">(4-2) 서브쿼리 결과 값이 존재하지 않는 경우(FALSE)</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">17</span>
+<span class="n">SELECT</span> <span class="o">*</span>
+    <span class="n">FROM</span> <span class="n">EMP</span>
+    <span class="n">WHERE</span> <span class="n">EXISTS</span><span class="p">(</span><span class="n">SELECT</span> <span class="n">DNAME</span>
+                    <span class="n">FROM</span> <span class="n">DEPT</span>
+                    <span class="n">WHERE</span> <span class="n">DEPTNO</span> <span class="o">=</span> <span class="mi">50</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+<blockquote>
+  <p>DEPT 테이블에 존재하지 않는 조건(DEPTNO=50)의 서브쿼리를 실행하면
+결과 데이터로 아무 행도 출력되지 않는다</p>
+</blockquote>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94029978-446e0880-fdf8-11ea-81bf-62fd452a9b8c.JPG" alt="3-4-2" /></p>
+
+<hr />
+<h3 id="-4-비교할-열이-여러-개인-다중열-서브쿼리-">[ 4. 비교할 열이 여러 개인 다중열 서브쿼리 ]</h3>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">다중열 서브쿼리(multiple-column subquery)</code> :<br />
+서브쿼리의 SELECT절에 비교할 데이터를 여러 개 지정하는 방식</p>
+  </li>
+  <li>
+    <p>빈번하게 사용된다.</p>
+  </li>
+</ul>
+
+<h4 id="1-다중열-서브쿼리-사용하기">(1) 다중열 서브쿼리 사용하기</h4>
+<ul>
+  <li>다음과 같이 메인쿼리에 비교할 열을 괄호로 묶어 명시하고<br />
+서브쿼리에서는 괄호로 묶은 데이터와 같은 자료형 데이터를 SELECT절에 명시하여<br />
+사용한다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">18</span>
+<span class="n">SELECT</span> <span class="o">*</span>
+    <span class="n">FROM</span> <span class="n">EMP</span>
+    <span class="n">WHERE</span> <span class="p">(</span><span class="n">DEPTNO</span><span class="p">,</span> <span class="n">SAL</span><span class="p">)</span> <span class="n">IN</span> <span class="p">(</span><span class="n">SELECT</span> <span class="n">DEPTNO</span><span class="p">,</span> <span class="n">MAX</span><span class="p">(</span><span class="n">SAL</span><span class="p">)</span>
+                                <span class="n">FROM</span> <span class="n">EMP</span>
+                                <span class="n">GROUP</span> <span class="n">BY</span> <span class="n">DEPTNO</span><span class="p">);</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94033888-5e114f00-fdfc-11ea-924e-9d62ebf11c3c.JPG" alt="4-1" /></p>
+
+<hr />
+<h3 id="-5-from절에-사용하는-서브쿼리와-with절-">[ 5. FROM절에 사용하는 서브쿼리와 WITH절 ]</h3>
+
+<ul>
+  <li>
+    <p>지금 까지의 서브쿼리는 <code class="language-plaintext highlighter-rouge">WHERE</code>절에서 조건식 대상으로 사용했다.<br />
+ 하지만, ☑(<code class="language-plaintext highlighter-rouge">FROM</code>절에서도 서브쿼리를 사용할 수 있다.)</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">FROM</code>절에서 사용하는 서브쿼리는 <code class="language-plaintext highlighter-rouge">인라인 뷰(inline view)</code>라고도 부른다.</p>
+    <ul>
+      <li>인라인 뷰는 특정 테이블 전체 데이터가 아닌 SELECT문을 통해<br />
+  일부 데이터를 먼저 추출해 온 후 ☑(별칭을 주어 사용할 수 있다.)</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="1-인라인-뷰-사용하기">(1) <code class="language-plaintext highlighter-rouge">인라인 뷰</code> 사용하기</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">19</span>
+<span class="n">SELECT</span>  <span class="n">E10</span><span class="p">.</span><span class="n">EMPNO</span><span class="p">,</span> <span class="n">E10</span><span class="p">.</span><span class="n">ENAME</span><span class="p">,</span> <span class="n">E10</span><span class="p">.</span><span class="n">DEPTNO</span><span class="p">,</span> <span class="n">D</span><span class="p">.</span><span class="n">DNAME</span><span class="p">,</span> <span class="n">D</span><span class="p">.</span><span class="n">LOC</span>
+    <span class="n">FROM</span> <span class="p">(</span><span class="n">SELECT</span> <span class="o">*</span> <span class="n">FROM</span> <span class="n">EMP</span> <span class="n">WHERE</span> <span class="n">DEPTNO</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="n">E10</span><span class="p">,</span>
+         <span class="p">(</span><span class="n">SELECT</span> <span class="o">*</span> <span class="n">FROM</span> <span class="n">DEPT</span><span class="p">)</span> <span class="n">D</span>
+    <span class="n">WHERE</span> <span class="n">E10</span><span class="p">.</span><span class="n">DEPTNO</span> <span class="o">=</span> <span class="n">D</span><span class="p">.</span><span class="n">DEPTNO</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94035402-fbb94e00-fdfd-11ea-9de6-b06dd7a057c3.JPG" alt="5-1" /></p>
+
+<ul>
+  <li>
+    <p>하지만, <code class="language-plaintext highlighter-rouge">FROM</code>절에 너무 많은 서브쿼리를 지정하면<br />
+가독성이나 성능이 떨어질 수 있기 떄문에 경우에 따라서 <code class="language-plaintext highlighter-rouge">WITH</code>절을 사용한다.</p>
+  </li>
+  <li>
+    <p>기본형식</p>
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>WITH
+[별칭 1] AS (SELECT문 1),
+[별칭 2] AS (SELECT문 2),
+...
+[별칭 n] AS (SELECT문 n)
+SELECT
+  FROM 별칭1, 별칭2, 별칭3
+...
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h4 id="2-with절-사용하기">(2) <code class="language-plaintext highlighter-rouge">WITH</code>절 사용하기</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">20</span>
+<span class="n">WITH</span>
+<span class="n">E10</span> <span class="n">AS</span> <span class="p">(</span><span class="n">SELECT</span> <span class="o">*</span> <span class="n">FROM</span> <span class="n">EMP</span> <span class="n">WHERE</span> <span class="n">DEPTNO</span> <span class="o">=</span> <span class="mi">10</span><span class="p">),</span>
+<span class="n">D</span>   <span class="n">AS</span> <span class="p">(</span><span class="n">SELECT</span> <span class="o">*</span> <span class="n">FROM</span> <span class="n">DEPT</span><span class="p">)</span>
+<span class="n">SELECT</span>  <span class="n">E10</span><span class="p">.</span><span class="n">EMPNO</span><span class="p">,</span> <span class="n">E10</span><span class="p">.</span><span class="n">ENAME</span><span class="p">,</span> <span class="n">E10</span><span class="p">.</span><span class="n">DEPTNO</span><span class="p">,</span> <span class="n">D</span><span class="p">.</span><span class="n">DNAME</span><span class="p">,</span> <span class="n">D</span><span class="p">.</span><span class="n">LOC</span>
+    <span class="n">FROM</span> <span class="n">E10</span><span class="p">,</span> <span class="n">D</span>
+    <span class="n">WHERE</span> <span class="n">E10</span><span class="p">.</span><span class="n">DEPTNO</span> <span class="o">=</span> <span class="n">D</span><span class="p">.</span><span class="n">DEPTNO</span><span class="p">;</span>  
+</code></pre></div></div>
+
+<p>결과 : (1)과 동일</p>
+
+<hr />
+<h3 id="-6-select-절에-사용하는-서브쿼리-">[ 6. SELECT 절에 사용하는 서브쿼리 ]</h3>
+
+<ul>
+  <li>
+    <p>서브쿼리는 <code class="language-plaintext highlighter-rouge">SELECT</code>절에도 사용할 수 있다.<br />
+흔히 <code class="language-plaintext highlighter-rouge">스칼라 서브쿼리(scalar subquery)</code>라고 부른다.</p>
+  </li>
+  <li>
+    <p>☑(<code class="language-plaintext highlighter-rouge">SELECT</code>절에 하나의 열 영역으로서 결과를 출력할 수 있다.)</p>
+  </li>
+  <li>
+    <p>☑(주의) <code class="language-plaintext highlighter-rouge">SELECT</code>절에 명시하는 서브쿼리는<br />
+반드시 하나의 결과만 반환 가능하도록 작성해야한다.</p>
+  </li>
+</ul>
+
+<h4 id="1-select절에-서브쿼리-사용하기">(1) <code class="language-plaintext highlighter-rouge">SELECT</code>절에 서브쿼리 사용하기</h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="o">---</span> <span class="mi">9</span><span class="o">-</span><span class="mi">21</span>
+<span class="n">SELECT</span>  <span class="n">EMPNO</span><span class="p">,</span> <span class="n">ENAME</span><span class="p">,</span> <span class="n">JOB</span><span class="p">,</span> <span class="n">SAL</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">SELECT</span> <span class="n">GRADE</span>
+            <span class="n">FROM</span> <span class="n">SALGRADE</span>
+            <span class="n">WHERE</span> <span class="n">E</span><span class="p">.</span><span class="n">SAL</span> <span class="n">BETWEEN</span> <span class="n">LOSAL</span> <span class="n">AND</span> <span class="n">HISAL</span><span class="p">)</span> <span class="n">AS</span> <span class="n">SALGRADE</span><span class="p">,</span>
+        <span class="n">DEPTNO</span><span class="p">,</span>
+        <span class="p">(</span><span class="n">SELECT</span> <span class="n">DNAME</span>
+            <span class="n">FROM</span> <span class="n">DEPT</span> <span class="n">D</span>
+            <span class="n">WHERE</span> <span class="n">E</span><span class="p">.</span><span class="n">DEPTNO</span> <span class="o">=</span> <span class="n">D</span><span class="p">.</span><span class="n">DEPTNO</span><span class="p">)</span> <span class="n">AS</span> <span class="n">DNAME</span>
+    <span class="n">FROM</span> <span class="n">EMP</span> <span class="n">E</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>결과 :</p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/94036072-dd078700-fdfe-11ea-9e17-4e0d27870554.JPG" alt="6-1" /></p>
+
+<h3 id="references">References</h3>
+
+<ul>
+  <li>이지훈, 『Do it! 오라클로 배우는 데이터베이스』, 이지스퍼블리싱 (2018)</li>
+</ul>
+
+:ET

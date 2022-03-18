@@ -1,0 +1,6 @@
+I"b<h4 id="bigquery-concat-함수-팁">BigQuery <code class="language-plaintext highlighter-rouge">CONCAT</code> 함수 팁!</h4>
+<ul>
+  <li>본 포스팅은 BigQuery의 <code class="language-plaintext highlighter-rouge">CONCAT</code>함수를 사용한 간단한 팁에 관하여 다룹니다.</li>
+  <li>IS NOT NULL 반복 최소화하는 법!</li>
+</ul>
+:ET

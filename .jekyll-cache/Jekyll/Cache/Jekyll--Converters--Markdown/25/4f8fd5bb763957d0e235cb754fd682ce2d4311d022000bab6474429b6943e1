@@ -1,0 +1,323 @@
+I"4<h4 id="contents">Contents</h4>
+<p><a href="#앵커">1. 앵커 (Anchor)</a></p>
+<ul>
+  <li>^ (캐럿, caret)</li>
+  <li>$ (달러,  dollar)</li>
+  <li>앵커를 이용해서 완전일치 검사하기</li>
+</ul>
+
+<p><a href="#메타-문자">2. 메타 문자  (Metacharacters)</a></p>
+<ul>
+  <li>. (점, dot)</li>
+  <li>| (세로선,  pipe)</li>
+  <li>\ (역슬래시, backslash)</li>
+</ul>
+
+<p><a href="#괄호-및-수량사">3. 괄호 및 수량사</a></p>
+<ul>
+  <li>[…]</li>
+  <li>[^…]</li>
+  <li>{…}</li>
+  <li>(…)</li>
+  <li>*</li>
+  <li>\?</li>
+</ul>
+
+<p><a href="#요약-문자">4.요약 문자 (Shorthand Character Classes)</a></p>
+<ul>
+  <li>\w와  \W</li>
+  <li>\s와 \S</li>
+  <li>\d와 \D</li>
+</ul>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="앵커">앵커</h3>
+
+<h4 id="-캐럿-caret">^ (캐럿, caret)</h4>
+<ul>
+  <li>Expression: <code class="language-plaintext highlighter-rouge">^[문자(열)]</code></li>
+  <li>Description : <br /> 특정 문자로 시작되는 패턴을 가진 문자열들을 색인한다.</li>
+  <li>Usage : <br /> 만약 <code class="language-plaintext highlighter-rouge">^abc</code>로 색인할 경우, 다음의 문자열들이 색인된다.<br />ex) <b>abc</b>, <b>abc</b>d, <b>abc</b>english, <b>abc</b> Class</li>
+</ul>
+
+<p><br /></p>
+
+<h4 id="-달러-dollar">$ (달러, dollar)</h4>
+<ul>
+  <li>Expression: <code class="language-plaintext highlighter-rouge">[문자(열)]$</code></li>
+  <li>Description : <br /> 특정 문자로 끝나는 패턴을 가진 문자열들을 색인한다.</li>
+  <li>Usage : <br /> 만약 <code class="language-plaintext highlighter-rouge">abc$</code>로 색인할 경우, 다음의 문자열들이 색인된다.<br />ex) <b>abc</b>, I can wirte <b>abc</b>, defg<b>abc</b>, Hellow <b>abc</b></li>
+</ul>
+
+<p><br /></p>
+
+<h4 id="앵커를-이용해서-완전일치-검사하기">앵커를 이용해서 완전일치 검사하기</h4>
+<p>특정 패턴과 완전히 일치하는 문자열을 색인하고 싶을 경우, 앵커 <code class="language-plaintext highlighter-rouge">$</code>와 <code class="language-plaintext highlighter-rouge">^</code>를 동시에 사용한다.</p>
+<ul>
+  <li>예를 들어, <code class="language-plaintext highlighter-rouge">^abc$</code>을 abc로 시작해서 abc로 끝나는 경우임을 의미하기에 <b>abc</b>라는 문자열만 색인된다.</li>
+  <li>더불어, <code class="language-plaintext highlighter-rouge">^$</code>와 같이 사용할 경우, <code class="language-plaintext highlighter-rouge">빈문자열</code>이 색인된다.</li>
+</ul>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="메타-문자">메타 문자</h3>
+
+<h4 id="-점-dot">. (점, dot)</h4>
+<ul>
+  <li>Expression:  <code class="language-plaintext highlighter-rouge">[문자(열)].[문자(열)]</code></li>
+  <li>Description :  <br />줄바꿈 문자를 제외한 <u>임의의 한 문자</u>를 가진 패턴을 색인한다.</li>
+  <li>Usage : <br />만약 <code class="language-plaintext highlighter-rouge">a.c</code>로 색인할 경우, 다음의 문자열들이 색인된다.<br />ex) <b>a</b>d<b>c</b>, <b>a</b>1<b>c</b>, <b>a</b>a<b>c</b> (하지만, <b>a</b>123<b>c</b> 이런 문자열은 해당되지 않는다.)</li>
+</ul>
+
+<p><br /></p>
+
+<h4 id="-세로선-pipe">| (세로선, pipe)</h4>
+<ul>
+  <li>Expression:  <code class="language-plaintext highlighter-rouge">[문자(열)]|[문자(열)]</code></li>
+  <li>Description : <br /> 단순하게 <u>또는</u>을 의미한다.</li>
+  <li>Usage : <br />만약, <code class="language-plaintext highlighter-rouge">hello|hi</code>로 색인할 경우, 다음과 같은 문자열들이 색인된다.  <br /> ex) 123<b>hello</b>4123, abc<b>hello</b>abc, 123<b>hi</b>4123, abc<b>hi</b>abc, <b>hello</b><b>hi</b></li>
+</ul>
+
+<p><br /></p>
+
+<h4 id="-역슬래시-backslash">\ (역슬래시, backslash)</h4>
+<ul>
+  <li>Expression:  <code class="language-plaintext highlighter-rouge">\[특수문자]</code></li>
+  <li>Description :  <br />특수 문자가 아닌 문자 그대로의 의미를 나타내는데 사용한다.</li>
+  <li>Usage :  <br />예를들어, <code class="language-plaintext highlighter-rouge">.</code>은 위에서 정규표현식으로 적용되었지만,  <code class="language-plaintext highlighter-rouge">\.</code>로 표기할 경우 문자열에서 흔히 볼 수 있는 마침표에 해당한다.</li>
+</ul>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="괄호-및-수량사">괄호 및 수량사</h3>
+
+<h4>[…]</h4>
+<ul>
+  <li>Expression:  사용예시 참조!</li>
+  <li>Description : <br />문자 집합에 속한 문자들을 색인한다. <code class="language-plaintext highlighter-rouge">대시(-)</code>를 이용해서 첫 번째와 마지막 문자를 구분한다.</li>
+  <li>Usage :
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">[123]</code> : 1 또는 2 또는 3 중에 하나를 색인한다.</li>
+      <li><code class="language-plaintext highlighter-rouge">[a-f]</code> : a에서 f까지의 모든 문자를 색인한다.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<h4 id="-1">[^…]</h4>
+<ul>
+  <li>Expression:  사용예시 참조!</li>
+  <li>Description : <br /> 문자 집합에 없는 모든 문자를 색인한다.</li>
+  <li>Usage :
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">[^123]</code> : 1, 2, 3이 아닌 모든 문자열을 색인한다.</li>
+      <li><code class="language-plaintext highlighter-rouge">[^a-f]</code> : a에서 f까지의 모든 문자가 아닌 문자열을 색인한다.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>BigQuery <br />사용예시</th>
+      <th><center>REGEXP_CONTAINS(value, '[a-f]')</center></th>
+      <th><center>REGEXP_CONTAINS(value, '[^a-f]')</center></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><center>1234</center></td>
+      <td><code class="language-plaintext highlighter-rouge">False</code> <br />a에서 f까지 이외의 문자로 이루어짐</td>
+      <td><code class="language-plaintext highlighter-rouge">True</code> <br />a에서 f까지 이외의 문자로 이루어짐</td>
+    </tr>
+    <tr>
+      <td><center>a</center></td>
+      <td><code class="language-plaintext highlighter-rouge">True</code> <br />a에서 f사이의 문자중 하나로 이루어짐</td>
+      <td><code class="language-plaintext highlighter-rouge">False</code> <br />a에서 f사이의 문자중 하나로 이루어짐</td>
+    </tr>
+    <tr>
+      <td><center>abcdef</center></td>
+      <td><code class="language-plaintext highlighter-rouge">True</code> <br />a에서 f까지의 문자로 이루어짐</td>
+      <td><code class="language-plaintext highlighter-rouge">False</code> <br />a에서 f까지의 문자로 이루어짐</td>
+    </tr>
+    <tr>
+      <td><center>abcdefg</center></td>
+      <td><code class="language-plaintext highlighter-rouge">True</code> <br />a에서 f사이의 문자 이외의 문자인 g가 있음</td>
+      <td><code class="language-plaintext highlighter-rouge">True</code> <br />a에서 f사이의 문자 이외의 문자인 g가 있음</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br /></p>
+
+<h4 id="-2">{…}</h4>
+<ul>
+  <li>Expression:  <code class="language-plaintext highlighter-rouge">[문자(열)]{n, m}</code></li>
+  <li>Description : <br /> 중괄호 앞에 위치한 문자열들(선행 표현식)을 최소 n번에서 최대 m번까지 가지는 문자열들을 색인한다.</li>
+  <li>Usage :
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">ab{2, }</code> :  abb, abbb, abbb, …, abbbbbbbbbbbbbbbbbbbbb</li>
+      <li><code class="language-plaintext highlighter-rouge">ab{2, 5}</code> : abb, abbb, abbbb, abbbbb</li>
+      <li>응용 [a-c]{2, 4} : aa, bb, cc, aabb, aabbcc, aaddcc <br /> (즉, a혹은 b혹은 c인 문자가 최소 2번 최대 4번 연속으로 나열된 패턴을 가지는 문자열들만 색인, 따라서 affc같은건 매칭이안됨)</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<h4 id="-3">(…)</h4>
+<ul>
+  <li>Expression:  <code class="language-plaintext highlighter-rouge">[문자(열)](...)</code></li>
+  <li>Description : <code class="language-plaintext highlighter-rouge">()</code> 안에 있는 글자들을 그룹화한다.</li>
+  <li>Usage :
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">a(bc)</code> : abc, abcbc, abcbcbc, abcbcbcbc, ….</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<h4 id="-별표-asterisk">* (별표, Asterisk)</h4>
+<ul>
+  <li>Expression:  <code class="language-plaintext highlighter-rouge">[문자]*</code></li>
+  <li>Description :  <br /> 선행 문자가 0번 이상 반복되는 모든 문자열을 색인한다. 만약 <code class="language-plaintext highlighter-rouge">*</code>가 아니라 <code class="language-plaintext highlighter-rouge">+</code>가 사용될 경우 0번을 제외한 1번 이상 반복되는 모든 문자열을 색인한다.</li>
+  <li>Usage :
+    <ul>
+      <li>bo<code class="language-plaintext highlighter-rouge">*</code>k  : bk,  bok, book, boook, booook, boooook, …, boooooooooooook, …</li>
+      <li>bo<code class="language-plaintext highlighter-rouge">+</code>k : <del>bk</del>,  bok, book, boook, booook, boooook, …, boooooooooooook, …</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<h4 id="-물음표-qm">? (물음표, QM)</h4>
+<ul>
+  <li>Expression:  <code class="language-plaintext highlighter-rouge">[문자]?</code></li>
+  <li>Description : <br />선행 문자가 0번 또는 1번 위치한 패턴을 색인한다. <code class="language-plaintext highlighter-rouge">{0,1}</code> 범위와 같다.</li>
+  <li>Usage :
+    <ul>
+      <li><b>colo</b><code class="language-plaintext highlighter-rouge">?</code>r의 경우 color 혹은 colo<b>u</b>r가  이에 해당된다.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<hr />
+<h3 id="요약-문자">요약 문자</h3>
+
+<h4 id="w와-w">\w와 \W</h4>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">\w</code> : 문자, 숫자, 혹은 밑줄을 가진 문자열을 색인한다.</li>
+  <li><code class="language-plaintext highlighter-rouge">\W</code> : 문자, 숫자, 혹은 밑줄을 가지지 않은 문자열을 색인한다.</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">\w</th>
+      <th style="text-align: center">\W</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">[[:word:]]</td>
+      <td style="text-align: center">[^ [:word:]]</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">[A-Za-z0-9_]</td>
+      <td style="text-align: center">[^A-Za-z0-9_]</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li>다른 문자(열)관련  요약 문자
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">[[:alnum:]]</code> or <code class="language-plaintext highlighter-rouge">[A-Za-z0-9]</code> : <u>영숫자</u>를 가진 문자열을 색인한다.</li>
+      <li><code class="language-plaintext highlighter-rouge">[[:alpha:]]</code> or <code class="language-plaintext highlighter-rouge">[A-Za-z]</code> : <u>영문자</u>를 가진 문자열을 색인한다.</li>
+      <li><code class="language-plaintext highlighter-rouge">[[:upper:]]</code> or <code class="language-plaintext highlighter-rouge">[A-Z]</code> : <u>대문자</u>를 가지 문자열을 색인한다.</li>
+      <li><code class="language-plaintext highlighter-rouge">[[:lower:]]</code> or <code class="language-plaintext highlighter-rouge">[a-z]</code> : <u>소문자</u>를 가지 문자열을 색인한다.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<h4 id="s와-s">\s와 \S</h4>
+<ul>
+  <li><u>공백, 탭 및 줄바꿈</u>을 비롯한 모든 <u>공백 문자</u>를가진 문자열을 색인한다.</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">\s</th>
+      <th style="text-align: center">\S</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">[[:space:]]</td>
+      <td style="text-align: center">[^ [:space:]]</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">[ \t\r\n\v\f]</td>
+      <td style="text-align: center">[^ \t\r\n\v\f]</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br /></p>
+
+<h4 id="d와-d">\d와 \D</h4>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">\d</code> : <u>0-9사이의 숫자</u>를 가진 문자열을 색인한다.</li>
+  <li><code class="language-plaintext highlighter-rouge">\D</code> : <u>0-9사이의 숫자 외의</u> 문자를 가진 문자열을 색인한다.</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">\d</th>
+      <th style="text-align: center">\D</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">[[:digit:]]</td>
+      <td style="text-align: center">[^ [:digit:]]</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">[0-9]</td>
+      <td style="text-align: center">[^0-9]</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="references">References</h3>
+
+<ul>
+  <li><a href="https://support.google.com/a/answer/1371415?hl=ko">Google 정규표현식 document</a></li>
+  <li><a href="https://github.com/google/re2/wiki/Syntax">re2 Wiki Github</a></li>
+  <li><a href="https://velog.io/@2innnnn0/%EB%B9%85%EC%BF%BC%EB%A6%ACbigquery-%EC%A0%95%EA%B7%9C%ED%91%9C%ED%98%84%EC%8B%9D">2innnnn0’s velog</a></li>
+</ul>
+
+:ET

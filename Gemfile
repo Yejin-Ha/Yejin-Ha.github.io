@@ -19,6 +19,7 @@ group :jekyll_plugins do
   gem "jekyll-paginate"
   gem "jekyll-relative-links"
   gem "jekyll-sitemap"
+  gem "jekyll-redirect-from"
 
 end
 

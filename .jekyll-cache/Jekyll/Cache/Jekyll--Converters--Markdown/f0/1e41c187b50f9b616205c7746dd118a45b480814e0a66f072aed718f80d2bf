@@ -1,0 +1,296 @@
+I"`�<h4 id="ml-with-python-3-비지도-학습-알고리즘-2-2-nmf비음수-행렬-분해">[ML with Python] 3. 비지도 학습 알고리즘 (2-2) NMF(비음수 행렬 분해)</h4>
+<ul>
+  <li>본 포스팅은 NMF에 관한 기본적인 내용에 관하여 다룹니다.</li>
+  <li>비음수 행렬 분해 (<code class="language-plaintext highlighter-rouge">NMF</code>)</li>
+  <li>고유얼굴(eigenface) 추출 / 음성 신호 추출</li>
+</ul>
+
+<hr />
+
+<p>필요 라이브러리 import</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">mglearn</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">PCA</span>
+<span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">NMF</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">rc</span><span class="p">(</span><span class="s">'font'</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s">'Malgun Gothic'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">fetch_lfw_people</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="n">people</span> <span class="o">=</span> <span class="n">fetch_lfw_people</span><span class="p">(</span><span class="n">min_faces_per_person</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">resize</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="n">image_shape</span> <span class="o">=</span> <span class="n">people</span><span class="p">.</span><span class="n">images</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">shape</span>
+
+<span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">people</span><span class="p">.</span><span class="n">target</span><span class="p">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="nb">bool</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">np</span><span class="p">.</span><span class="n">unique</span><span class="p">(</span><span class="n">people</span><span class="p">.</span><span class="n">target</span><span class="p">):</span>
+    <span class="n">mask</span><span class="p">[</span><span class="n">np</span><span class="p">.</span><span class="n">where</span><span class="p">(</span><span class="n">people</span><span class="p">.</span><span class="n">target</span> <span class="o">==</span> <span class="n">target</span><span class="p">)[</span><span class="mi">0</span><span class="p">][:</span><span class="mi">50</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span>
+    
+<span class="n">X_people</span> <span class="o">=</span> <span class="n">people</span><span class="p">.</span><span class="n">data</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+<span class="n">y_people</span> <span class="o">=</span> <span class="n">people</span><span class="p">.</span><span class="n">target</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+<span class="c1"># 0~255 사이의 이미지의 픽셀 값을 0~1 사이로 스케일 조정합니다.
+# (옮긴이) MinMaxScaler를 적용하는 것과 거의 동일합니다.
+</span><span class="n">X_people</span> <span class="o">=</span> <span class="n">X_people</span> <span class="o">/</span> <span class="mf">255.</span>
+
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> \
+<span class="n">train_test_split</span><span class="p">(</span><span class="n">X_people</span><span class="p">,</span> <span class="n">y_people</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">y_people</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div></div>
+
+<hr />
+
+<h4 id="비음수-행렬-분해nmf"><u>비음수 행렬 분해(NMF)</u></h4>
+
+<p><code class="language-plaintext highlighter-rouge">NMF(Non-negative Matrix Factorization)</code></p>
+<ul>
+  <li><u>유용한 특성을 뽑아내기 위한</u> 비지도 학습 알고리즘</li>
+  <li><code class="language-plaintext highlighter-rouge">PCA</code>와 비슷하며, <u>차원축소에도 사용가능</u></li>
+  <li><code class="language-plaintext highlighter-rouge">PCA</code>와 다른 점 : <u>음수가 아닌 성분(즉 양수인 성분)과 계수값을 찾는다.</u>
+    <ul>
+      <li>주성분과 계수가 모두 0보다 크거나 같아야 함</li>
+      <li>음수가 아닌 특성을 가진 데이터에만 적용 가능</li>
+    </ul>
+  </li>
+  <li>용도 : <u>섞여 있는 데이터에서 원본/성분을 구분하는데 사용</u>
+    <ul>
+      <li>ex) 시각 처리, 문서 분류, 음파 분석</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="nmf-알고리즘-이해하기"><u>NMF 알고리즘 이해하기</u></h4>
+
+<p><code class="language-plaintext highlighter-rouge">NMF</code> 알고리즘 이란 <u><b>음수를 포함하지 않은 행렬 V</b>를 음수를 포함하지 않은 </u><b><code class="language-plaintext highlighter-rouge">가중치 행렬 W</code></b><u>와 </u><b><code class="language-plaintext highlighter-rouge">특성 행렬 H</code></b><u>의 곱으로 </u><b><code class="language-plaintext highlighter-rouge">분해</code></b><u>하는 알고리즘이라고 한다.</u></p>
+
+<p><br /></p>
+
+<p>나는 <code class="language-plaintext highlighter-rouge">NMF</code>의 알고리즘에 관한 설명을 듣고 해당 알고리즘이 <code class="language-plaintext highlighter-rouge">분해</code>를 한다는 것은 알겠지만, “어떻게 분해를 하는 것일까?”에 관하여 궁금증을 느꼈다. 하지만, 이는 아래의 과정들을 통해서 이해할 수 있었다.</p>
+
+<p><br /></p>
+
+<p>위에서 언급되었던, <code class="language-plaintext highlighter-rouge">가중치 행렬W</code>와 <code class="language-plaintext highlighter-rouge">특성 행렬H</code>에 관하여 먼저 이해해보자.</p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/101774181-1794dc00-3b31-11eb-8030-417241ea7f4f.png" alt="사진1" /></p>
+
+<p>V 행렬로 부터 분해되어 나오는 <code class="language-plaintext highlighter-rouge">가중치 행렬 W</code>의 행은 <b>특성에 대한 중요도</b>를 의미하며, 열은 <b>데이터의 특성</b>을 의미한다. 이와 반대로, <code class="language-plaintext highlighter-rouge">특성 행렬 H</code>의 행은 <b>데이터의 특성</b>을 의미하고, 열은 <b>특성에 대한 중요도</b>를 의미한다. 정리하면 다음과 같다.</p>
+
+<ul>
+  <li>W의 열 &amp; H의 행 : 데이터의 특성</li>
+  <li>W의 행 &amp; H의 열 : 특성에 대한 중요도</li>
+</ul>
+
+<p><br /></p>
+
+<p>단순 설명으로는 막연하기 때문에, 예시와 함께 <code class="language-plaintext highlighter-rouge">가중치 행렬 W</code>와 <code class="language-plaintext highlighter-rouge">특성 행렬 H</code>에 관하여 살펴보자.
+아래와 같이 책에 나온 단어의 빈번도를 나타내는 행렬 v가 있다. 그리고 책과 특성간의 관계를 나타내는 <code class="language-plaintext highlighter-rouge">가중치 행렬 W</code>, 단어들과 특성간의 관계를 나타내는 <code class="language-plaintext highlighter-rouge">특성 행렬 H</code>가 있다. 여기서, <code class="language-plaintext highlighter-rouge">W의 성분</code>은 각 특성이 책에 적합한 정도를 의미하며, <code class="language-plaintext highlighter-rouge">H의 성분</code>은 각 단어가 특성에서 중요한 정도를 의미한다.</p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/101774876-07c9c780-3b32-11eb-802b-80f471999581.png" alt="사진2" /></p>
+
+<p>아주 조금 더 깊게 설명하면 다음과 같다.</p>
+
+<ul>
+  <li>예시 <code class="language-plaintext highlighter-rouge">가중치 행렬 W</code> : 책과 특성간의 관계
+    <ul>
+      <li>각 열에서 값이 높은 책이 해당 <code class="language-plaintext highlighter-rouge">특성</code>을 대표하는 책임을 뜻한다.</li>
+      <li>각 행에서 값이 높은 <code class="language-plaintext highlighter-rouge">특성</code>이 해당 책을 대표하는 특성임을 뜻한다.</li>
+    </ul>
+  </li>
+  <li>예시 <code class="language-plaintext highlighter-rouge">특성 행렬W</code> : 단어들과 특성간의 관계
+    <ul>
+      <li>각 행에서 값이 높은 단어가 해당 <code class="language-plaintext highlighter-rouge">특성</code>을 대표하는 단어임을 뜻한다.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>여기서, <code class="language-plaintext highlighter-rouge">특성</code>에 따라서, 대표하는 무언가가 달라지는 것을 확인할 수 있으며, 이는 <code class="language-plaintext highlighter-rouge">특성의 개수</code>에 따라서도 분류에 영향이 있음을 의미한다.</p>
+
+<p><br /></p>
+
+<p>그렇다면, <code class="language-plaintext highlighter-rouge">V</code>행렬을 어떻게 <code class="language-plaintext highlighter-rouge">가중치 행렬 W</code>와 <code class="language-plaintext highlighter-rouge">특성 행렬 H</code>행렬로 분해하는 것일까? 내 기준에서는 아직까지 <code class="language-plaintext highlighter-rouge">n*m 행렬을 n*r행렬과 r*m 행렬로 분해하는 방법</code>에 관한 지식이 없어서 이 부분이 가장 의아했다. 하지만, 원리는 의외로 단순하였다.</p>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">NMF</code>의 분해 로직은 처음에 <code class="language-plaintext highlighter-rouge">가중치 행렬 W</code>와 <code class="language-plaintext highlighter-rouge">특성 행렬H</code>에 임의의 값을 채우고 이 두 행렬을 곱한 결과가 기존 행렬 <code class="language-plaintext highlighter-rouge">V</code>에 근사할 때 까지 반복하는 것이다. <u>그리고 이것은 결과적으로 행렬하나를 두 개의 행렬로 분해하는 것과 유사하다.</u></p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/101776877-f6ce8580-3b34-11eb-8412-4c7c41048f06.png" alt="사진3" /></p>
+
+<p><br /></p>
+
+<p>이제 실제 데이터에 적용하고 확인하면서 이해해보자</p>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="-인위적-데이터에-nmf-적용하기"><u> 인위적 데이터에 NMF 적용하기</u></h4>
+
+<p><code class="language-plaintext highlighter-rouge">PCA</code>를 사용할 때와 달리 <code class="language-plaintext highlighter-rouge">NMF</code>로 데이터를 다루려면 앞에서 확인했던거와 같이 주어진 데이터가 양수인지 확인할 필요가 있다. 즉, <u>데이터가 원점 (0, 0)에서 상대적으로 어디에 놓여있는지</u>가 <code class="language-plaintext highlighter-rouge">NMF</code>에서 중요하다는 의미이다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mglearn</span><span class="p">.</span><span class="n">plots</span><span class="p">.</span><span class="n">plot_nmf_illustration</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/101786645-837f4080-3b41-11eb-9470-acf47e5d7b59.png" alt="ML_NMF_13_1" /></p>
+
+<p>위의 그림에서 왼쪽은 <code class="language-plaintext highlighter-rouge">특성</code>이 2개일 때, 오른쪽은 <code class="language-plaintext highlighter-rouge">특성</code>이 1개일 때를 보여준다. 데이터셋의 모든 포인트를 양수로 이뤄진 두 개의 성분으로 표현할 수 있다. 또한, 특성의 갯수는 분류에 영향을 준다는 것을 위에서 확인하였었다. 따라서, 특성이 아주 많다면 알고리즘은 데이터의 각 특성의 끝에 위치한 포인트를 가리키는 방향을 선택할 것이다. 하지만, 하나의 성분만을 사용한다면 <code class="language-plaintext highlighter-rouge">NMF</code>는 데이터를 가장 잘 표현할 수 있는 평균으로 향하는 성분을 만든다.</p>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="얼굴-이미지에-nmf-적용하기"><u>얼굴 이미지에 NMF 적용하기</u></h4>
+
+<p>이전 <code class="language-plaintext highlighter-rouge">PCA</code>에서 사용한 <code class="language-plaintext highlighter-rouge">LFW</code> 데이터셋에 <code class="language-plaintext highlighter-rouge">NMF</code>를 적용해보자. <code class="language-plaintext highlighter-rouge">NMF</code>의 핵심 매개변수는 <code class="language-plaintext highlighter-rouge">추출할 성분의 개수</code>이다. 보통 이 값은 데이터셋이 가진 특성(ex. 웹사이트를 이용하는 유저의 성별, 나이 등등)의 개수보다 작다.</p>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">NMF</code>를 사용해 데이터를 재구성하는 데 <code class="language-plaintext highlighter-rouge">성분의 개수</code>가 어떤 영향을 주는지 확인해보자</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mglearn</span><span class="p">.</span><span class="n">plots</span><span class="p">.</span><span class="n">plot_nmf_faces</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">image_shape</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/101786647-837f4080-3b41-11eb-8c75-efbb24e3e057.png" alt="ML_NMF_17_3" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">PCA</code>보다는 품질이 조금 떨어지는 것을 확인할 수 있다. 왜냐하면 <code class="language-plaintext highlighter-rouge">PCA</code>는 재구성 측면에서 최선의 방향을 찾는 반면에 <code class="language-plaintext highlighter-rouge">NMF</code>는 맨 처음에 확인했듯이 <code class="language-plaintext highlighter-rouge">유용한 패턴(혹은 특성)</code>을 찾는데 활용한다(재구성하는 용도로는 <code class="language-plaintext highlighter-rouge">PCA</code>보다 뒤떨어지기 때문에 <code class="language-plaintext highlighter-rouge">NMF</code>로 재구성을 굳이 수행하지 않는다).</p>
+
+<p><br /></p>
+
+<p>성분 15개를 추출하여 <code class="language-plaintext highlighter-rouge">유용한 패턴</code>이란게 있는지 아래에서 확인할 수 있다.</p>
+<ul>
+  <li>component 3 : 오른쪽으로 조금 회전한 얼굴 패턴</li>
+  <li>component 7 : 왼쪽으로 조금 회전한 얼굴 패턴</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.decomposition</span> <span class="kn">import</span> <span class="n">NMF</span>
+<span class="n">nmf</span> <span class="o">=</span> <span class="n">NMF</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">)</span>
+<span class="n">nmf</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_train_nmf</span> <span class="o">=</span> <span class="n">nmf</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_test_nmf</span> <span class="o">=</span> <span class="n">nmf</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>
+                         <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s">'xticks'</span><span class="p">:</span> <span class="p">(),</span> <span class="s">'yticks'</span><span class="p">:</span> <span class="p">()})</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="n">ax</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">nmf</span><span class="p">.</span><span class="n">components_</span><span class="p">,</span> <span class="n">axes</span><span class="p">.</span><span class="n">ravel</span><span class="p">())):</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">component</span><span class="p">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">image_shape</span><span class="p">))</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">"component {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/101786650-8417d700-3b41-11eb-9720-1b2fa4ece514.png" alt="ML_NMF_19_0" /></p>
+
+<p>이 성분들이 특별히 강하게 나타난 이미지를 추출하면 다음과 같다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">compn</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="c1"># 4번째 성분으로 정렬하여 처음 10개 이미지를 출력합니다
+</span><span class="n">inds</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">X_train_nmf</span><span class="p">[:,</span> <span class="n">compn</span><span class="p">])[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+                         <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s">'xticks'</span><span class="p">:</span> <span class="p">(),</span> <span class="s">'yticks'</span><span class="p">:</span> <span class="p">()})</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">ax</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">inds</span><span class="p">,</span> <span class="n">axes</span><span class="p">.</span><span class="n">ravel</span><span class="p">())):</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">X_train</span><span class="p">[</span><span class="n">ind</span><span class="p">].</span><span class="n">reshape</span><span class="p">(</span><span class="n">image_shape</span><span class="p">))</span>
+    
+<span class="n">compn</span> <span class="o">=</span> <span class="mi">7</span>
+<span class="c1"># 8번째 성분으로 정렬하여 처음 10개 이미지를 출력합니다
+</span><span class="n">inds</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">X_train_nmf</span><span class="p">[:,</span> <span class="n">compn</span><span class="p">])[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+                         <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s">'xticks'</span><span class="p">:</span> <span class="p">(),</span> <span class="s">'yticks'</span><span class="p">:</span> <span class="p">()})</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="n">ax</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">inds</span><span class="p">,</span> <span class="n">axes</span><span class="p">.</span><span class="n">ravel</span><span class="p">())):</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">X_train</span><span class="p">[</span><span class="n">ind</span><span class="p">].</span><span class="n">reshape</span><span class="p">(</span><span class="n">image_shape</span><span class="p">))</span>
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/101786651-8417d700-3b41-11eb-8846-98c5821d4f53.png" alt="ML_NMF_21_0" /></p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/101786652-84b06d80-3b41-11eb-9d7b-58a194c2c145.png" alt="ML_NMF_21_1" /></p>
+
+<p><br /></p>
+
+<p>이와 같은 패턴을 추출하는 것은 소리, 유전자 표현, 텍스트 데이터처럼 덧붙이는 구조를 가진 데이터에는 <code class="language-plaintext highlighter-rouge">NMF</code> 알고리즘이 적합한다. 인위적인 데이터셋을 이용한 예에서 이에 관해 확인해보자. 다음은 세 개의 서로 다른 입력으로부터 합성된 신호이다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">S</span> <span class="o">=</span> <span class="n">mglearn</span><span class="p">.</span><span class="n">datasets</span><span class="p">.</span><span class="n">make_signals</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="s">'-'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"시간"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"신호"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">margins</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/101786653-84b06d80-3b41-11eb-83c5-aa43e25e1490.png" alt="ML_NMF_23_0" /></p>
+
+<p>여기서 합쳐진 신호를 <code class="language-plaintext highlighter-rouge">분해</code>해서 원본 신호를 복원해야하는 상황에 처해있으며 이 신호를 100개의 측정 장치로 측정하고 각 측정 장치는 측정 데이터를 제공한다고 가정하자.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 원본 데이터를 사용해 100개의 측정 데이터를 만듭니다
+</span><span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">0</span><span class="p">).</span><span class="n">uniform</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">dot</span><span class="p">(</span><span class="n">S</span><span class="p">,</span> <span class="n">A</span><span class="p">.</span><span class="n">T</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"측정 데이터 형태:"</span><span class="p">,</span> <span class="n">X</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>측정 데이터 형태: (2000, 100)
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 비교용 PCA
+</span><span class="n">pca</span> <span class="o">=</span> <span class="n">PCA</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">H</span> <span class="o">=</span> <span class="n">pca</span><span class="p">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">nmf</span> <span class="o">=</span> <span class="n">NMF</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">S_</span> <span class="o">=</span> <span class="n">nmf</span><span class="p">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"복원한 신호 데이터 형태:"</span><span class="p">,</span> <span class="n">S_</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>복원한 신호 데이터 형태: (2000, 3)
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>아래의 그림에서 <code class="language-plaintext highlighter-rouge">NMF</code>와 <code class="language-plaintext highlighter-rouge">PCA</code>로 추출한 신호들을 확인할 수 있다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">models</span> <span class="o">=</span> <span class="p">[</span><span class="n">X</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">S_</span><span class="p">]</span>
+<span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s">'측정 신호 (처음 3개)'</span><span class="p">,</span> <span class="s">'원본 신호'</span><span class="p">,</span> <span class="s">'공란'</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">13</span><span class="p">),</span> <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s">'hspace'</span><span class="p">:</span> <span class="p">.</span><span class="mi">5</span><span class="p">},</span>
+                         <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s">'xticks'</span><span class="p">:</span> <span class="p">(),</span> <span class="s">'yticks'</span><span class="p">:</span> <span class="p">()})</span>
+
+<span class="k">for</span> <span class="n">model</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ax</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">models</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">]):</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">model</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">3</span><span class="p">],</span> <span class="s">'-'</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">margins</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">nmf_model</span> <span class="o">=</span> <span class="p">[</span><span class="n">S_</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">1</span><span class="p">],</span> <span class="n">S_</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="n">S_</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">3</span><span class="p">]]</span>
+<span class="n">nmf_title</span> <span class="o">=</span> <span class="p">[</span><span class="s">'NMF 복원신호 1'</span><span class="p">,</span> <span class="s">'NMF 복원신호 2'</span><span class="p">,</span> <span class="s">'NMF 복원신호 3'</span><span class="p">,</span> <span class="s">'공란'</span><span class="p">]</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s">'blue'</span><span class="p">,</span> <span class="s">'orange'</span><span class="p">,</span> <span class="s">'green'</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">model</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">colors</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">nmf_model</span><span class="p">,</span> <span class="n">nmf_title</span><span class="p">,</span> <span class="n">axes</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">7</span><span class="p">],</span> <span class="n">colors</span><span class="p">):</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s">'-'</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">colors</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">margins</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    
+<span class="n">nmf_model</span> <span class="o">=</span> <span class="p">[</span><span class="n">H</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">1</span><span class="p">],</span> <span class="n">H</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:</span><span class="mi">2</span><span class="p">],</span> <span class="n">H</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:</span><span class="mi">3</span><span class="p">]]</span>
+<span class="n">nmf_title</span> <span class="o">=</span> <span class="p">[</span><span class="s">'PCA 복원신호 1'</span><span class="p">,</span> <span class="s">'PCA 복원신호 2'</span><span class="p">,</span> <span class="s">'PCA 복원신호 3'</span><span class="p">]</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s">'blue'</span><span class="p">,</span> <span class="s">'orange'</span><span class="p">,</span> <span class="s">'green'</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">model</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">colors</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">nmf_model</span><span class="p">,</span> <span class="n">nmf_title</span><span class="p">,</span> <span class="n">axes</span><span class="p">[</span><span class="mi">7</span><span class="p">:</span><span class="mi">10</span><span class="p">],</span> <span class="n">colors</span><span class="p">):</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s">'-'</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="n">colors</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">margins</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    
+<span class="n">plt</span><span class="p">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/101786655-85490400-3b41-11eb-8b41-a4366b298c7c.png" alt="ML_NMF_29_1" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">NMF</code>는 원본 신호를 잘 추출하여 복원한 반면 <code class="language-plaintext highlighter-rouge">PCA</code>는 실패했음을 확인할 수 있다.</p>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="references">References</h3>
+
+<ul>
+  <li>안드레아스 뮐러, 세라 가이도, 『파이썬 라이브러리를 활용한 머신러닝』, 박해선, 한빛미디어(2017)</li>
+  <li>위키백과 : 음수_미포함_행렬_분해</li>
+</ul>
+
+:ET

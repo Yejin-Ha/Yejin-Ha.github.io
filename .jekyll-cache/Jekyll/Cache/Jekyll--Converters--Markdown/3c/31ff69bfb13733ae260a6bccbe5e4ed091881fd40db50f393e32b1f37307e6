@@ -1,0 +1,433 @@
+I"�<h4 id="ml-with-python-2-지도-학습-알고리즘-7-분류-예측의-불확실성-추정">[ML with Python] 2. 지도 학습 알고리즘 (7) 분류 예측의 불확실성 추정</h4>
+<ul>
+  <li>본 포스팅은 예측의 불확실성 추정에 관한 기본적인 내용에 관하여 다룹니다.</li>
+  <li>이진 분류
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">decision_function</code></li>
+      <li><code class="language-plaintext highlighter-rouge">predict_proba</code></li>
+    </ul>
+  </li>
+  <li>다중 분류
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">decision_function</code></li>
+      <li><code class="language-plaintext highlighter-rouge">predict_proba</code></li>
+    </ul>
+  </li>
+  <li>예측결과를 재현할 때 주의해야할 점
+___</li>
+</ul>
+
+<p>필요 라이브러리 import</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">mglearn</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">GradientBoostingClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">make_circles</span>
+</code></pre></div></div>
+
+<hr />
+
+<p>분류기의 <code class="language-plaintext highlighter-rouge">예측의 불확실성</code>을 추정하는 기능은 <code class="language-plaintext highlighter-rouge">scikit-learn</code>에서 많이 활용하는 기능 중 하나이다. 왜냐하면, 어떤 test point에 대해서 분류기가 예측한 클래스가 무엇인지 확인한 하고 넘어갈 것이 아니라, 그 <u>예측한 클래스에 대해 정답인지 얼마나 확신하는가</u>를 알아내는 것도 중요할 때가 많기 때문이다.<br />
+ex. 병원에서의 암진료( 거짓 양성 / 거짓 음성 )</p>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">scikit-learn</code>분류기에서<code class="language-plaintext highlighter-rouge"> 불확실성을 추정할 수 있는 함수</code>가 아래와 같이 두가지 존재한다. 이 함수들은 대부분의 분류 클래스에서 적어도 둘 중 하나 혹은 모두를 제공한다.</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">decision_function</code></li>
+  <li><code class="language-plaintext highlighter-rouge">predict_proba</code></li>
+</ul>
+
+<p><br /></p>
+
+<p>앞서 사용했던 인위적으로 만든 2차원 데이터셋을 사용해 <code class="language-plaintext highlighter-rouge">GradientBoostingClassifier</code>분류기의 <code class="language-plaintext highlighter-rouge">decision_function</code>과 <code class="language-plaintext highlighter-rouge">predict_proba</code> 메서드가 어떤 역할을 하는지 살펴보자</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">GradientBoostingClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">make_circles</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_circles</span><span class="p">(</span><span class="n">noise</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">factor</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># 예제를 위해 클래스의 이름을 "blue"와 "red"로 바꿉니다.
+</span><span class="n">y_named</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">array</span><span class="p">([</span><span class="s">"blue"</span><span class="p">,</span> <span class="s">"red"</span><span class="p">])[</span><span class="n">y</span><span class="p">]</span>
+
+<span class="c1"># 여러 배열을 한꺼번에 train_test_split에 넣을 수 있습니다.
+# 훈련 세트와 테스트 세트로 나뉘는 방식은 모두 같습니다.
+</span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train_named</span><span class="p">,</span> <span class="n">y_test_named</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> \
+    <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y_named</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># 그래디언트 부스팅 모델을 만듭니다.
+</span><span class="n">gbrt</span> <span class="o">=</span> <span class="n">GradientBoostingClassifier</span><span class="p">(</span><span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">gbrt</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train_named</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GradientBoostingClassifier(random_state=0)
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="결정-함수-for-이진분류"><u>결정 함수 (for 이진분류)</u></h4>
+
+<p><code class="language-plaintext highlighter-rouge">이진 분류</code>에서 <code class="language-plaintext highlighter-rouge">decision_function</code> 반환값의 크기는 <code class="language-plaintext highlighter-rouge">(n_sample, )</code> 이다.<br />
+아래의 예시를 같이 참조하면, 이때 <code class="language-plaintext highlighter-rouge">n_sample</code>는 <code class="language-plaintext highlighter-rouge">X_test</code>의 각 테스트 샘플들의 갯수임을 확인할 수 있다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"X_test.shape: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">X_test</span><span class="p">.</span><span class="n">shape</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"결정 함수 결과 형태: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">gbrt</span><span class="p">.</span><span class="n">decision_function</span><span class="p">(</span><span class="n">X_test</span><span class="p">).</span><span class="n">shape</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>X_test.shape: (25, 2)
+결정 함수 결과 형태: (25,)
+</code></pre></div></div>
+
+<p>또한, <code class="language-plaintext highlighter-rouge">decision_function</code>의 각 테스트 샘플에 대한 반환값을 실수 형태로 나타낸다.<br />
+이 반환값은 <u>특정 클래스(혹은 양성클래스)에 데이터 샘플이 속한다고 믿는 정도를 의미한다.</u> <br />
+즉, 반환값이 <code class="language-plaintext highlighter-rouge">양수</code>일 경우, <code class="language-plaintext highlighter-rouge">양성 클래스</code>임을 뜻하고,<code class="language-plaintext highlighter-rouge">음수</code>일 경우, <code class="language-plaintext highlighter-rouge">음성 클래스(혹은 양성클래스 외 다른 클래스)</code>임을 의미한다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">'25개의 테스트 샘플에 대한 결정함수 : </span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">gbrt</span><span class="p">.</span><span class="n">decision_function</span><span class="p">(</span><span class="n">X_test</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>25개의 테스트 샘플에 대한 결정함수 : 
+ [ 4.13592603 -1.70169917 -3.95106099 -3.62609552  4.28986642  3.66166081
+ -7.69097179  4.11001686  1.10753937  3.40782222 -6.46255955  4.28986642
+  3.90156346 -1.20031247  3.66166081 -4.17231157 -1.23010079 -3.91576223
+  4.03602783  4.11001686  4.11001686  0.65709014  2.69826265 -2.65673274
+ -1.86776596]
+</code></pre></div></div>
+
+<p>그리고, <code class="language-plaintext highlighter-rouge">결정 함수의 부호</code><u>만을 보고 예측 결과를 알 수 있다.</u> <br />
+이는 아래에서 확인할 수 있다. 첫 번째 print문에서 양수와 음수로 분리되어 나온 반환값을 True(양수), False(음수)로 치환하여 재출력한 것을 확인할 수 있고, 두 번째 print문에서 <code class="language-plaintext highlighter-rouge">predict</code>메소드를 이용하여 샘플의 예측 클래스 값을 반환하였음을 확인할 수 있다. 그리고 이 둘의 결과 값은 같다는 것은(True = red, False = blue) 또한 확인할 수 있다. 따라서, <code class="language-plaintext highlighter-rouge">결정 함수의 부호</code>만을 이용하여 예측결과를 무엇인지 확인할 수 있는 것이다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 실수값이 음수이면 False를 반환하도록 한다.
+# 실수값이 양수이면 True를 반환하도록 한다.
+</span><span class="k">print</span><span class="p">(</span><span class="s">"임계치와 결정 함수 결과 비교:</span><span class="se">\n</span><span class="s">{}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">gbrt</span><span class="p">.</span><span class="n">decision_function</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">))</span>
+<span class="c1"># pred = gbrt
+</span><span class="k">print</span><span class="p">(</span><span class="s">"예측:</span><span class="se">\n</span><span class="s">{}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">gbrt</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>임계치와 결정 함수 결과 비교:
+[ True False False False  True  True False  True  True  True False  True
+  True False  True False False False  True  True  True  True  True False
+ False]
+예측:
+['red' 'blue' 'blue' 'blue' 'red' 'red' 'blue' 'red' 'red' 'red' 'blue'
+ 'red' 'red' 'blue' 'red' 'blue' 'blue' 'blue' 'red' 'red' 'red' 'red'
+ 'red' 'blue' 'blue']
+</code></pre></div></div>
+
+<p>더불어, <code class="language-plaintext highlighter-rouge">이진 분류</code>에서 <code class="language-plaintext highlighter-rouge">classes</code>속성을 이용하여 위에서의 <code class="language-plaintext highlighter-rouge">predict</code>함수의 결과를 완전히 재현할 수 있다.</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">classes</code>속성의 두 번째 원소 = <code class="language-plaintext highlighter-rouge">양성 클래스</code></li>
+  <li><code class="language-plaintext highlighter-rouge">classes</code>속성의 첫 번째 원소 = <code class="language-plaintext highlighter-rouge">음성 클래스</code></li>
+</ul>
+
+<blockquote>
+  <p>[참고] <code class="language-plaintext highlighter-rouge">np.all()</code>, <code class="language-plaintext highlighter-rouge">np.any()</code></p>
+  <ul>
+    <li><code class="language-plaintext highlighter-rouge">np.all()</code> = 배열의 모든 데이터가 조건과 맞으면 True를 반환하고 하나라도 다르면 False반환</li>
+    <li><code class="language-plaintext highlighter-rouge">np.any()</code> = 배열의 모든 데이터 중 조건과 맞는 데이터가 있으면 `True를 반환하고, 전혀 없으면 False반환</li>
+  </ul>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">gbrt</span><span class="p">.</span><span class="n">classes_</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>array(['blue', 'red'], dtype='&lt;U4')
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 불리언 값을 0과 1로 변환합니다.
+</span><span class="n">greater_zero</span> <span class="o">=</span> <span class="p">(</span><span class="n">gbrt</span><span class="p">.</span><span class="n">decision_function</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="c1"># classes_에 인덱스로 사용합니다.
+</span><span class="n">pred</span> <span class="o">=</span> <span class="n">gbrt</span><span class="p">.</span><span class="n">classes_</span><span class="p">[</span><span class="n">greater_zero</span><span class="p">]</span>
+<span class="c1"># pred와 gbrt.predict의 결과를 비교합니다.
+</span><span class="k">print</span><span class="p">(</span><span class="s">"pred는 예측 결과와 같다: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span>
+    <span class="n">np</span><span class="p">.</span><span class="nb">all</span><span class="p">(</span><span class="n">pred</span> <span class="o">==</span> <span class="n">gbrt</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">))))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pred는 예측 결과와 같다: True
+</code></pre></div></div>
+
+<p>위에서 True가 반환되었기에, 위 데이터셋에서  <code class="language-plaintext highlighter-rouge">결정 함수</code>결과와 <code class="language-plaintext highlighter-rouge">predict 함수</code>결과가 완전히 같음을 확인할 수 있다.</p>
+
+<p><br /></p>
+
+<p>하지만, <code class="language-plaintext highlighter-rouge">decision_function</code>의 실수값 범위는 데이터와 모델 파라미터에 따라 달라진다. <u>따라서, 해당 함수의 출력값이 왜 저렇게 나왔느지 뭘 의미하는지 완벽하게 이해하기는 어렵다.</u> 즉 실수의 숫자부에 의미를 가지기보다 양수인지 음수인지 부호에 의미를 가지고 이를 통해 분류할 수 있다는 장점밖에 존재하지 않는다.</p>
+
+<p><br /></p>
+
+<p>다음 예에서 2차원 평면의 모든 점에 대해 <code class="language-plaintext highlighter-rouge">decision_function</code>의 값을 색으로 표현하여 앞서본 <code class="language-plaintext highlighter-rouge">결정 경계</code>와 함께 그래프로 비교해보자.<br />(훈련 데이터 = 원, 테스트 데이터 = 삼각형)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+<span class="n">mglearn</span><span class="p">.</span><span class="n">tools</span><span class="p">.</span><span class="n">plot_2d_separator</span><span class="p">(</span><span class="n">gbrt</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="p">.</span><span class="mi">4</span><span class="p">,</span>
+                                <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">cm</span><span class="o">=</span><span class="n">mglearn</span><span class="p">.</span><span class="n">cm2</span><span class="p">)</span>
+<span class="n">scores_image</span> <span class="o">=</span> <span class="n">mglearn</span><span class="p">.</span><span class="n">tools</span><span class="p">.</span><span class="n">plot_2d_scores</span><span class="p">(</span><span class="n">gbrt</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                            <span class="n">alpha</span><span class="o">=</span><span class="p">.</span><span class="mi">4</span><span class="p">,</span> <span class="n">cm</span><span class="o">=</span><span class="n">mglearn</span><span class="p">.</span><span class="n">ReBl</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
+    <span class="c1"># 훈련 포인트와 테스트 포인트를 그리기
+</span>    <span class="n">mglearn</span><span class="p">.</span><span class="n">discrete_scatter</span><span class="p">(</span><span class="n">X_test</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X_test</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y_test</span><span class="p">,</span>
+                             <span class="n">markers</span><span class="o">=</span><span class="s">'^'</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">mglearn</span><span class="p">.</span><span class="n">discrete_scatter</span><span class="p">(</span><span class="n">X_train</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X_train</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y_train</span><span class="p">,</span>
+                             <span class="n">markers</span><span class="o">=</span><span class="s">'o'</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">"property 0"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">"property 1"</span><span class="p">)</span>
+<span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">scores_image</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">.</span><span class="n">tolist</span><span class="p">())</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">legend</span><span class="p">([</span><span class="s">"test class 0"</span><span class="p">,</span> <span class="s">"test class 1"</span><span class="p">,</span> <span class="s">"train class 0"</span><span class="p">,</span>
+                <span class="s">"train class 1"</span><span class="p">],</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="p">(.</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.legend.Legend at 0x21849bc1948&gt;
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/100541895-4639c980-328a-11eb-807f-6948709a6d7f.png" alt="ML_uncertainty_of_prediction_18_1" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">결정 경계(좌)</code>와 달리 <br /><code class="language-plaintext highlighter-rouge">decision_function(우)</code>그래프에서 해당 함수는 이해하기 어려운 <u>실수 범위의 값을 반환</u>하기 때문에 <u>두 클래스 사이의 경계를 정확하게 구분하는 것은 어려운 것으로 확인된다.</u></p>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="예측-확률-for-이진분류"><u>예측 확률 (for 이진분류)</u></h4>
+
+<p><code class="language-plaintext highlighter-rouge">predict_proba</code>의 출력은 <u>각 클래스에 대한 확률</u>이다.<br /> (확률이라는 의미에서 벌써 앞의 <code class="language-plaintext highlighter-rouge">decision_function</code>보다 이해하기 쉬울 것이다.)<br /> 이 함수의 반환값의 크기는 <code class="language-plaintext highlighter-rouge">이진 분류</code>에서 항상 <code class="language-plaintext highlighter-rouge">(n_samples, 2)</code>이다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"확률 값의 형태: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">gbrt</span><span class="p">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">).</span><span class="n">shape</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>확률 값의 형태: (25, 2)
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">predict_proba</code>의 반환값에서 의미하는 바는 다음과 같다.</p>
+<ul>
+  <li>첫 번째 원소 = 첫 번째 클래스의 예측 확률</li>
+  <li>두 번째 원소 = 두 번째 클래스의 예측 확률</li>
+  <li>즉 두 클래스에 대한 확률의 합( 첫 번째 클래스의 예측 확률 + 두 번째 클래스의 예측 확률)은 항상 1이다.</li>
+</ul>
+
+<p>따라서, <code class="language-plaintext highlighter-rouge">이진 분류</code>에서 두 클래스 중 하나는 50%이상의 확신을 가질 것이며, 그리고 그것이 예측값이 된다.<br />
+만약! 이럴 일은 거의 없겠지만, 두 클래스가 정확히 동시에 50%의 확률을 보이면 예측은 랜덤하게 둘 중하나를 선택한다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="n">gbrt</span><span class="p">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">)[:</span><span class="mi">6</span><span class="p">],</span> <span class="s">'</span><span class="se">\n</span><span class="s"> ...'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[[0.01573626 0.98426374]
+ [0.84575653 0.15424347]
+ [0.98112869 0.01887131]
+ [0.97407033 0.02592967]
+ [0.01352142 0.98647858]
+ [0.02504637 0.97495363]] 
+ ...
+</code></pre></div></div>
+
+<p>또한, <code class="language-plaintext highlighter-rouge">과대적합</code>모델의 경우 <u>예측의 확신이 강하게</u> 나타날 것이며, <code class="language-plaintext highlighter-rouge">복잡도가 낮은 모델</code>에서는 <u>예측의 확신이 약하게(즉 불확실하게)</u> 나타날 것이다. 이런 <code class="language-plaintext highlighter-rouge">불확실성</code>과 <code class="language-plaintext highlighter-rouge">모델의 정확도</code>가 동일하면 모델이 <code class="language-plaintext highlighter-rouge">보정(calibration)</code>되었다고 한다. 즉, 보정된 모델에서 70%확신을 가진 예측은 70%의 정확도를 나타낼 것이다.</p>
+
+<p><br /></p>
+
+<p>앞에서 마지막으로 확인했던 것과 똑같이  데이터셋을 사용해 <code class="language-plaintext highlighter-rouge">결정 경계</code>와 <code class="language-plaintext highlighter-rouge">클래스 1</code>의 확률을 살펴보자</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+<span class="n">mglearn</span><span class="p">.</span><span class="n">tools</span><span class="p">.</span><span class="n">plot_2d_separator</span><span class="p">(</span>
+    <span class="n">gbrt</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="p">.</span><span class="mi">4</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">cm</span><span class="o">=</span><span class="n">mglearn</span><span class="p">.</span><span class="n">cm2</span><span class="p">)</span>
+<span class="n">scores_image</span> <span class="o">=</span> <span class="n">mglearn</span><span class="p">.</span><span class="n">tools</span><span class="p">.</span><span class="n">plot_2d_scores</span><span class="p">(</span>
+    <span class="n">gbrt</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="p">.</span><span class="mi">5</span><span class="p">,</span> <span class="n">cm</span><span class="o">=</span><span class="n">mglearn</span><span class="p">.</span><span class="n">ReBl</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="s">'predict_proba'</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
+    <span class="c1"># 훈련 포인트와 테스트 포인트를 그리기
+</span>    <span class="n">mglearn</span><span class="p">.</span><span class="n">discrete_scatter</span><span class="p">(</span><span class="n">X_test</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X_test</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y_test</span><span class="p">,</span>
+                             <span class="n">markers</span><span class="o">=</span><span class="s">'^'</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">mglearn</span><span class="p">.</span><span class="n">discrete_scatter</span><span class="p">(</span><span class="n">X_train</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X_train</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y_train</span><span class="p">,</span>
+                             <span class="n">markers</span><span class="o">=</span><span class="s">'o'</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">"property 0"</span><span class="p">)</span>
+    <span class="n">ax</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">"property 1"</span><span class="p">)</span>
+<span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">scores_image</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">.</span><span class="n">tolist</span><span class="p">())</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">legend</span><span class="p">([</span><span class="s">"test class 0"</span><span class="p">,</span> <span class="s">"test class 1"</span><span class="p">,</span> <span class="s">"train class 0"</span><span class="p">,</span>
+                <span class="s">"train class 1"</span><span class="p">],</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="p">(.</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.legend.Legend at 0x2184bba7048&gt;
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/100541896-476af680-328a-11eb-9cc1-2b3e7477bb84.png" alt="ML_uncertainty_of_prediction_26_1" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">predict_proba(우)</code><u>로 나타낸 경계는 이전의 </u><code class="language-plaintext highlighter-rouge">decision_function</code><u>보다 훨씬 명확하게 잘 나타나 있는 것</u>을 확인할 수 있다.</p>
+
+<p><br /></p>
+
+<p>지금 까지는 <code class="language-plaintext highlighter-rouge">이진 분류</code>에서만 모델을 확인하였으므로, <code class="language-plaintext highlighter-rouge">다중 분류</code>에서는 어떨지 살펴볼 것이다.</p>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="-다중-분류에서의-불확실성-"><u> 다중 분류에서의 불확실성 </u></h4>
+
+<p><code class="language-plaintext highlighter-rouge">decision_function</code>과 <code class="language-plaintext highlighter-rouge">predict_proba</code>메소드는 <code class="language-plaintext highlighter-rouge">이진 분류</code>뿐만 아니라 <code class="language-plaintext highlighter-rouge">다중 분류</code>에서도 사용할 수 있다!<br />
+클래스가 세 개인 iris데이터셋에서 이를 확인해보자</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_iris</span>
+
+<span class="n">iris</span> <span class="o">=</span> <span class="n">load_iris</span><span class="p">()</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span>
+    <span class="n">iris</span><span class="p">.</span><span class="n">data</span><span class="p">,</span> <span class="n">iris</span><span class="p">.</span><span class="n">target</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="n">gbrt</span> <span class="o">=</span> <span class="n">GradientBoostingClassifier</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">gbrt</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>GradientBoostingClassifier(learning_rate=0.01, random_state=0)
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="decision_function">decision_function</h4>
+
+<p><code class="language-plaintext highlighter-rouge">다중 분류</code>에서 <code class="language-plaintext highlighter-rouge">decision_function</code>의 반환값의 크기는 <code class="language-plaintext highlighter-rouge">이진 분류</code>와는 다르다.</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">다중 분류</code> -&gt; <code class="language-plaintext highlighter-rouge">(n_samples, n_classes)</code></li>
+  <li><code class="language-plaintext highlighter-rouge">이진 분류</code> -&gt; <code class="language-plaintext highlighter-rouge">(n_samples, )</code></li>
+</ul>
+
+<p>각 열은 <u>각 클래스에 대한 <b>확신 점수</b> </u>를 담고 있다.</p>
+<ul>
+  <li>점수 ⇧ : 해당 클래스일 가능성 ⇧</li>
+  <li>점수 ⇩ : 해당 클래스일 가능성 ⇩</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"결정 함수의 결과 형태: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">gbrt</span><span class="p">.</span><span class="n">decision_function</span><span class="p">(</span><span class="n">X_test</span><span class="p">).</span><span class="n">shape</span><span class="p">))</span>
+<span class="c1"># decision function 결과 중 앞부분 일부를 확인합니다.
+</span><span class="k">print</span><span class="p">(</span><span class="s">"결정 함수 결과:</span><span class="se">\n</span><span class="s">{}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">gbrt</span><span class="p">.</span><span class="n">decision_function</span><span class="p">(</span><span class="n">X_test</span><span class="p">)[:</span><span class="mi">6</span><span class="p">,</span> <span class="p">:]))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>결정 함수의 결과 형태: (38, 3)
+결정 함수 결과:
+[[-1.995715    0.04758267 -1.92720695]
+ [ 0.06146394 -1.90755736 -1.92793758]
+ [-1.99058203 -1.87637861  0.09686725]
+ [-1.995715    0.04758267 -1.92720695]
+ [-1.99730159 -0.13469108 -1.20341483]
+ [ 0.06146394 -1.90755736 -1.92793758]]
+</code></pre></div></div>
+
+<p>데이터 포인트마다 점수들에서 가장 큰 값을 찾아 예측 결과를 다음과 같이 재현할 수 있다.</p>
+
+<blockquote>
+  <p>[참고] <code class="language-plaintext highlighter-rouge">np.argmax()</code>, <code class="language-plaintext highlighter-rouge">np.argmin()</code></p>
+  <ul>
+    <li><code class="language-plaintext highlighter-rouge">np.argmax()</code> = array 요소들 중 최댓값의 Index 반환</li>
+    <li><code class="language-plaintext highlighter-rouge">np.argmin()</code> = array 요소들 중 최솟값의 Index 반환</li>
+  </ul>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"가장 큰 결정 함수의 인덱스:</span><span class="se">\n</span><span class="s">{}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">gbrt</span><span class="p">.</span><span class="n">decision_function</span><span class="p">(</span><span class="n">X_test</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"예측:</span><span class="se">\n</span><span class="s">{}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">gbrt</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>가장 큰 결정 함수의 인덱스:
+[1 0 2 1 1 0 1 2 1 1 2 0 0 0 0 1 2 1 1 2 0 2 0 2 2 2 2 2 0 0 0 0 1 0 0 2 1
+ 0]
+예측:
+[1 0 2 1 1 0 1 2 1 1 2 0 0 0 0 1 2 1 1 2 0 2 0 2 2 2 2 2 0 0 0 0 1 0 0 2 1
+ 0]
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="predict_proba">predict_proba</h4>
+
+<p><code class="language-plaintext highlighter-rouge">다중 분류</code>에서 <code class="language-plaintext highlighter-rouge">predict_proba</code>의 반환값 크기는 <code class="language-plaintext highlighter-rouge">이진 분류</code>와 똑같다. 앞에서는 <code class="language-plaintext highlighter-rouge">(n_samples, 2)</code>라고 표기했지만, 이는 <code class="language-plaintext highlighter-rouge">이진 분류</code>에서 클래스의 샘플 갯수는 단 두개 밖에 없기 때문이다. 결론적으로는 둘이 똑같은게 맞다.</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">다중 분류</code> -&gt; <code class="language-plaintext highlighter-rouge">(n_samples, n_classes)</code></li>
+  <li><code class="language-plaintext highlighter-rouge">이진 분류</code> -&gt; <code class="language-plaintext highlighter-rouge">(n_samples, n_classes)</code></li>
+</ul>
+
+<p>그리고 똑같이 각 데이터 포인트에서 클래스 확률의 합은 1이다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># predict_proba 결과 중 앞부분 일부를 확인합니다.
+</span><span class="k">print</span><span class="p">(</span><span class="s">"예측 확률:</span><span class="se">\n</span><span class="s">{}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">gbrt</span><span class="p">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">)[:</span><span class="mi">6</span><span class="p">]))</span>
+<span class="c1"># 행 방향으로 확률을 더하면 1이 됩니다.
+</span><span class="k">print</span><span class="p">(</span><span class="s">"합: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">gbrt</span><span class="p">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">)[:</span><span class="mi">6</span><span class="p">].</span><span class="nb">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>예측 확률:
+[[0.10217718 0.78840034 0.10942248]
+ [0.78347147 0.10936745 0.10716108]
+ [0.09818072 0.11005864 0.79176065]
+ [0.10217718 0.78840034 0.10942248]
+ [0.10360005 0.66723901 0.22916094]
+ [0.78347147 0.10936745 0.10716108]]
+합: [1. 1. 1. 1. 1. 1.]
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>또한, <code class="language-plaintext highlighter-rouge">decision_function</code>과 마찬가지로 <code class="language-plaintext highlighter-rouge">np.argmax</code>를 적용해서 예측을 재현할 수 있다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"가장 큰 예측 확률의 인덱스:</span><span class="se">\n</span><span class="s">{}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">gbrt</span><span class="p">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"예측:</span><span class="se">\n</span><span class="s">{}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">gbrt</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>가장 큰 예측 확률의 인덱스:
+[1 0 2 1 1 0 1 2 1 1 2 0 0 0 0 1 2 1 1 2 0 2 0 2 2 2 2 2 0 0 0 0 1 0 0 2 1
+ 0]
+예측:
+[1 0 2 1 1 0 1 2 1 1 2 0 0 0 0 1 2 1 1 2 0 2 0 2 2 2 2 2 0 0 0 0 1 0 0 2 1
+ 0]
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="재현할-때-주의">재현할 때 주의!</h4>
+
+<p><code class="language-plaintext highlighter-rouge">다중 분류</code>에서 <code class="language-plaintext highlighter-rouge">decision_function</code>과 <code class="language-plaintext highlighter-rouge">predict_proba</code>는 둘 다 <code class="language-plaintext highlighter-rouge">np.argmax</code>함수를 적용해 예측 결과를 재현할 수 있었다. 하지만 주의할 것은 클래스 name이 문자열이거나 또는 정수형을 사용하지만 연속적이지 않을 수 있다. 따라서, 위에서 확인했던 것들 처럼 0, 1, 2 단순한 연속된 정수형으로 재현하기 보다는 항상 <code class="language-plaintext highlighter-rouge">classes_</code>의 값을 사용하는 것이 미연에 버그를 방지할 수 있다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">logreg</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
+<span class="c1"># iris 데이터셋의 타깃을 클래스 이름으로 나타내기
+</span><span class="n">named_target</span> <span class="o">=</span> <span class="n">iris</span><span class="p">.</span><span class="n">target_names</span><span class="p">[</span><span class="n">y_train</span><span class="p">]</span>
+
+<span class="n">logreg</span><span class="p">.</span><span class="n">classes_</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>array(['setosa', 'versicolor', 'virginica'], dtype='&lt;U10')
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">logreg</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">named_target</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"훈련 데이터에 있는 클래스 종류: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">logreg</span><span class="p">.</span><span class="n">classes_</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"예측: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">logreg</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]))</span>
+<span class="n">argmax_dec_func</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">logreg</span><span class="p">.</span><span class="n">decision_function</span><span class="p">(</span><span class="n">X_test</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"가장 큰 결정 함수의 인덱스: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">argmax_dec_func</span><span class="p">[:</span><span class="mi">10</span><span class="p">]))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"인덱스를 classses_에 연결: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span>
+       <span class="n">logreg</span><span class="p">.</span><span class="n">classes_</span><span class="p">[</span><span class="n">argmax_dec_func</span><span class="p">][:</span><span class="mi">10</span><span class="p">]))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>훈련 데이터에 있는 클래스 종류: ['setosa' 'versicolor' 'virginica']
+예측: ['versicolor' 'setosa' 'virginica' 'versicolor' 'versicolor' 'setosa'
+ 'versicolor' 'virginica' 'versicolor' 'versicolor']
+가장 큰 결정 함수의 인덱스: [1 0 2 1 1 0 1 2 1 1]
+인덱스를 classses_에 연결: ['versicolor' 'setosa' 'virginica' 'versicolor' 'versicolor' 'setosa'
+ 'versicolor' 'virginica' 'versicolor' 'versicolor']
+
+
+C:\Users\jhryu\AppData\Local\Programs\Python\Python37\lib\site-packages\sklearn\linear_model\_logistic.py:764: ConvergenceWarning: lbfgs failed to converge (status=1):
+STOP: TOTAL NO. of ITERATIONS REACHED LIMIT.
+
+Increase the number of iterations (max_iter) or scale the data as shown in:
+    https://scikit-learn.org/stable/modules/preprocessing.html
+Please also refer to the documentation for alternative solver options:
+    https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression
+  extra_warning_msg=_LOGISTIC_SOLVER_CONVERGENCE_MSG)
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="references">References</h3>
+
+<ul>
+  <li>안드레아스 뮐러, 세라 가이도, 『파이썬 라이브러리를 활용한 머신러닝』, 박해선, 한빛미디어(2017)</li>
+</ul>
+
+:ET

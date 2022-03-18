@@ -1,0 +1,7 @@
+I"�<h4 id="python-python-3에서-다른-경로에-저장된-파일-import하기">[Python] Python 3에서 다른 경로에 저장된 파일 import하기</h4>
+<ul>
+  <li>본 포스팅은 <code class="language-plaintext highlighter-rouge">Python3</code>에서 다른 경로에 저장되어 있는 모듈을 import하는 방법을 소개한다.</li>
+  <li>동일/하위/상위 경로</li>
+  <li>절대 경로</li>
+</ul>
+:ET

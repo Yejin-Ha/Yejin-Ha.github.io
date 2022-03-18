@@ -1,0 +1,65 @@
+I"�<h4 id="python-python-3에서-다른-경로에-저장된-파일-import하기">[Python] Python 3에서 다른 경로에 저장된 파일 import하기</h4>
+<ul>
+  <li>본 포스팅은 <code class="language-plaintext highlighter-rouge">Python3</code>에서 다른 경로에 저장되어 있는 모듈을 import하는 방법을 소개한다.</li>
+  <li>동일/하위/상위 경로</li>
+  <li>절대 경로</li>
+</ul>
+
+<hr />
+
+<p>pip등의 명령어로 install 할 수 없는 깃허브에서 개인적으로 다운 받은 모듈이나 직접 만든 모듈이 현재 작업하는 공간과 동 떨어져 있는 경우 no module에러와 마주치게된다. <br />이때  아래와 같은 방법들로 쉽게 <code class="language-plaintext highlighter-rouge">import</code>할 수 있다.</p>
+
+<p><br /></p>
+
+<h4 id="-동일경로"><u> 동일경로</u></h4>
+
+<p><code class="language-plaintext highlighter-rouge">import</code>하고자 하는 모듈이 작업하는 공간과 동일한 폴더에 있을 경우<br />현재 경로를 의미하는 <code class="language-plaintext highlighter-rouge">.</code>을 사용하여 <code class="language-plaintext highlighter-rouge">import</code>할 수 있다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">want_to_import</span>
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="하위경로"><u>하위경로</u></h4>
+
+<p><code class="language-plaintext highlighter-rouge">import</code>하고자 하는 모듈혹은 파일이 작업 중인 파일 공간과 같은 위치에 있는 폴더 안에 있을 경우 <code class="language-plaintext highlighter-rouge">from 하위폴더</code>를 지정하여 <code class="language-plaintext highlighter-rouge">import</code>할 수 있다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">from</span> <span class="p">[</span><span class="n">하위폴더</span><span class="p">]</span> <span class="kn">import</span> <span class="nn">want_to_import</span>
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h4 id="상위경로"><u>상위경로</u></h4>
+
+<p><code class="language-plaintext highlighter-rouge">import</code>하고자 하는 모듈혹은 파일이 저장된 폴더가<br /> 작업 중인 파일의 상위 폴더에 위치해있을 때는 다음과 같이 작성한다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">__file__</span><span class="p">))))</span>
+<span class="k">from</span> <span class="p">[</span><span class="n">상위폴더에_존재하는_폴더</span><span class="p">]</span> <span class="kn">import</span> <span class="nn">want_to_import</span>
+<span class="c1"># 혹은 상위폴더에 모듈이 존재할 경우 from . import want_to_import
+</span></code></pre></div></div>
+
+<p>여기서<code class="language-plaintext highlighter-rouge">(os.path.dirname(os.path.abspath</code>는  한단계 상위를 의미한다. <br />따라서 두단계 상위폴더라면 <code class="language-plaintext highlighter-rouge">(os.path.dirname(os.path.abspath(os.path.dirname(os.path.abspath</code><br />와 같이 두번 작성해주어야한다.</p>
+
+<p><br /></p>
+
+<h4 id="절대경로"><u>절대경로</u></h4>
+
+<p>절대경로를 이용해 <code class="language-plaintext highlighter-rouge">import</code>하려면 아래와 같이 <code class="language-plaintext highlighter-rouge">sys.path.append</code>를 이용한다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">append</span><span class="p">([</span><span class="n">파일이_저장된_구체적_경로</span><span class="p">])</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">want_to_import</span>
+</code></pre></div></div>
+
+<hr />
+
+<h3 id="references">References</h3>
+
+<ul>
+  <li><a href="https://weejw.tistory.com/40">https://weejw.tistory.com/40</a></li>
+  <li><a href="https://codechacha.com/ko/how-to-import-python-files/">https://codechacha.com/ko/how-to-import-python-files/</a></li>
+</ul>
+
+:ET

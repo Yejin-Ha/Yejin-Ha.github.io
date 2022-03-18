@@ -1,10 +1,10 @@
 ---
 layout: list
-type: category
 title: Back-End
-slug: techstack
-sidebar: true
-order: 3
+slug: back
+menu: true
+submenu: true
+order: 1
 description: >
-  Log study results
+    back end 공부 정리
 ---

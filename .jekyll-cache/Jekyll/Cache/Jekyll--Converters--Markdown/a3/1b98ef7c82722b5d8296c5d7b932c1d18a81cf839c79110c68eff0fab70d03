@@ -1,0 +1,79 @@
+I"�
+<h4 id="contents">Contents</h4>
+<ul>
+  <li>Gambler’s Ruin Problem</li>
+  <li>Random Variable</li>
+</ul>
+
+<hr />
+<p><br /></p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/118400237-c074d380-b69b-11eb-8fa0-a33f4abd5bc1.jpg" alt="확률론 기초-17" /></p>
+
+<p><br /></p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/117578671-5a7fcd80-b12a-11eb-8c81-74432ca101cf.jpg" alt="확률론 기초-17" /></p>
+
+<p><br /></p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/117578672-5b186400-b12a-11eb-88a3-a763094ebdc2.jpg" alt="확률론 기초-18" /></p>
+
+<ul>
+  <li>“$n$개의 독립적인 $Bern(p)$동안의 성공 횟수에 관한 분포”
+    <ul>
+      <li>해당 노트가 애매모호한 것 같기에 아래에 추가 설명을 참조하였다.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<hr />
+
+<p><br /></p>
+
+<h4 id="베르누이-확률분포-와-확률분포-추가-메모">베르누이 확률분포 와 확률분포 추가 메모</h4>
+<ul>
+  <li>만약 어떤 확률변수 $X$가 베르누이 분포에 의해 발생되었을 때
+    <ul>
+      <li>“확률 변수 $X$가 베르누이 분포를 <br />따른다&lt;/br&gt;”</li>
+      <li>수식 : $X$~$Bern(k;p)$</li>
+      <li>베르누이 분포의 확률 질량함수의 수식은 다음과 같다.
+\(Bern(k;p)=  \begin{cases} p  
+              &amp; \text{if }k = 1 
+              \\ 1-p  &amp; \text{if }k = 0 \end{cases}\)</li>
+      <li>위 식을 하나의 수식으로 표현하면 다음과 같다.
+\(Bern(k;p)=  p^{k}(1-p)^{(1-k)}\)</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">베르누이분포</code>와 <code class="language-plaintext highlighter-rouge">이항분포</code> 모두 <code class="language-plaintext highlighter-rouge">베르누이 확률변수</code>에서 나온 표본값
+    <ul>
+      <li>베르누이분포 : 표본 데이터가  하나 뿐</li>
+      <li>이항분포 : 표본 데이터가 여럿</li>
+      <li>이항분포 확률변수 $X$와 베르누이 확률분포 $Y$($y_1, y_2, …, y_n$)의 관계
+        <ul>
+          <li>$y_n$에 해당하는 값은 모두 0(실패) 아니면 1(성공)이라는 값을 가지기 때문에 $n$번 중 성공한 횟수는 $n$개의 표본값의 합이된다.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+\[k = \sum_{i=1}^{n}{y_i}\]
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="references">References</h3>
+<ul>
+  <li>Joe Blitzstein. “Statistics 110 : Probability”  Harvard University</li>
+  <li><a href="https://datascienceschool.net/02%20mathematics/08.02%20%EB%B2%A0%EB%A5%B4%EB%88%84%EC%9D%B4%EB%B6%84%ED%8F%AC%EC%99%80%20%EC%9D%B4%ED%95%AD%EB%B6%84%ED%8F%AC.html">데이터 사이언스 스쿨</a></li>
+</ul>
+
+:ET

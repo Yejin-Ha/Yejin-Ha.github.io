@@ -1,0 +1,486 @@
+I"��<h4 id="ml-with-python-2-지도-학습-알고리즘-5-커널-서포트-벡터-머신">[ML with Python] 2. 지도 학습 알고리즘 (5) 커널 서포트 벡터 머신</h4>
+<ul>
+  <li>본 포스팅은 지도 학습 알고리즘인 커널 서포트 벡터 머신(SVM)에 관한 기본적인 내용에 관하여 다룹니다.</li>
+  <li>커널 서포트 벡터 머신(<code class="language-plaintext highlighter-rouge">kernelized support vector machines</code>)</li>
+  <li>선형 모델과 비선형 특성</li>
+  <li>커널 기법(<code class="language-plaintext highlighter-rouge">Kernel Trick</code>)</li>
+  <li>SVM 매개변수 튜닝</li>
+</ul>
+
+<hr />
+
+<p>필요 라이브러리 import</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">mglearn</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="kn">import</span> <span class="n">Axes3D</span><span class="p">,</span> <span class="n">axes3d</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">load_breast_cancer</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">make_blobs</span>
+<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">LinearSVC</span>
+<span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">SVC</span>
+</code></pre></div></div>
+
+<hr />
+
+<h4 id="커널-서포트-벡터-머신kernelized-support-vector-machines"><u>커널 서포트 벡터 머신(kernelized support vector machines)</u></h4>
+<p>이전 포스팅 <a href="https://jhryu1208.github.io/data/2020/11/13/ML_classification_linear_regression/"><code class="language-plaintext highlighter-rouge">분류용 선형 모델</code></a>에서 <code class="language-plaintext highlighter-rouge">선형 서포트 백터 머신(SVM)</code>을 이용해 분류 문제를 풀어보았었다.</p>
+
+<ul>
+  <li>입력데이터에서 단순한 초평면(?)으로 정의되지 않는 <u>더 복잡한 모델을 만들 수 있도록</u> 확장한 모델</li>
+  <li><code class="language-plaintext highlighter-rouge">분류</code>와 <code class="language-plaintext highlighter-rouge">회귀</code>에서 모두 사용할 수 있지만, 여기서는 분류 문제만 다룰 것이다.
+    <ul>
+      <li>물론 <code class="language-plaintext highlighter-rouge">SVR</code>를 사용하는 회귀 문제에서도 같은 개념을 적용할 수 있다.</li>
+    </ul>
+  </li>
+</ul>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">초평면</code> 이란?<br />
+<br />
+p개의 변수 x1,x2,…,xp 의 p차원 공간에서 “초평면”은 “응축된(flat)” (p-1)차원 부분 공간(subspace) 이다.<br />
+여기서 “응축된”이란 말은 부피(volume)가 0 이라는 의미이다. <br />
+예를 들어서 1, 2, 3차원 공간에서 초평면은 각각 점, 선, 평면을 말한다.<br />
+4차원 이상에서는 달리 표현하는 용어가 없으므로 총칭하여 초평면이라 부른다.</p>
+</blockquote>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">SVM</code>의 수학적 정의는 복잡하여 다음을 참고할 것을 권장한다.<br />
+<a href="http://statweb.stanford.edu/~tibs/ElemStatLearn/">헤이스티, 팁시라니, 프리드먼의 『The Elements of Statistical Learning』</a></p>
+
+<p><br /></p>
+
+<p>알고리즘의 이면에 있는 아이디어 정도만 살펴보자.</p>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="선형-모델과-비선형-특성"><u>선형 모델과 비선형 특성</u></h4>
+
+<p>직선과 초평면은 유연하지 못하여 저차원 데이터셋에서는 <code class="language-plaintext highlighter-rouge">선형 모델</code>이 매우 제한적이다.</p>
+
+<p><br /></p>
+
+<p>선형 모델을 <b>유연</b>하게 만드는 방법은<br /></p>
+<ul>
+  <li>특성끼리의 곱셈</li>
+  <li>특성을 거듭제곱</li>
+</ul>
+
+<p>식으로 <u>새로운 특성을 추가</u>하는 것이다.</p>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">분류</code>를 위한 <code class="language-plaintext highlighter-rouge">선형 모델</code>은 <b>직선</b>으로만 데이터 포인트를 나눌 수 있어서 아래와 같은 데이터셋에서는 잘 들어 맞지 않는다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_blobs</span><span class="p">(</span><span class="n">centers</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">%</span> <span class="mi">2</span>
+
+<span class="n">mglearn</span><span class="p">.</span><span class="n">discrete_scatter</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"Property 0"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"Property 1"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0, 0.5, 'Property 1')
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/99899660-5c75e180-2cee-11eb-959c-8b5bbe7a2f18.png" alt="ML_SVM_4_1" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">LinearSVC</span>
+<span class="n">linear_svm</span> <span class="o">=</span> <span class="n">LinearSVC</span><span class="p">().</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="n">mglearn</span><span class="p">.</span><span class="n">plots</span><span class="p">.</span><span class="n">plot_2d_separator</span><span class="p">(</span><span class="n">linear_svm</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+<span class="n">mglearn</span><span class="p">.</span><span class="n">discrete_scatter</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"Property 0"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"Property 1"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0, 0.5, 'Property 1')
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/99899651-5849c400-2cee-11eb-92c6-b9097509cb29.png" alt="ML_SVM_5_2" /></p>
+
+<p><br /></p>
+
+<p>두 번째 특성을 <code class="language-plaintext highlighter-rouge">(Property1)^2</code>를 새로운 특성으로 추가해 입력 특성을 확장해보자. 이제 (Property0, Property1)의 2차원 데이터 포인트가 아니라 (Property0, Property1, (Property1)^2)의 <b>3차원 데이터</b>로 표현된다. 그리고 이 데이터셋을 아래처럼 3차원 산점도로 나타낼 수 있다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 두 번째 특성을 제곱하여 추가합니다.
+</span><span class="n">X_new</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">:]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">])</span>
+
+<span class="kn">from</span> <span class="nn">mpl_toolkits.mplot3d</span> <span class="kn">import</span> <span class="n">Axes3D</span><span class="p">,</span> <span class="n">axes3d</span>
+<span class="n">figure</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="c1"># 3차원 그래프
+</span><span class="n">ax</span> <span class="o">=</span> <span class="n">Axes3D</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">elev</span><span class="o">=-</span><span class="mi">152</span><span class="p">,</span> <span class="n">azim</span><span class="o">=-</span><span class="mi">26</span><span class="p">)</span>
+<span class="c1"># y == 0인 포인트를 먼저 그리고 그다음 y == 1인 포인트를 그립니다.
+</span><span class="n">mask</span> <span class="o">=</span> <span class="n">y</span> <span class="o">==</span> <span class="mi">0</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_new</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X_new</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">X_new</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s">'b'</span><span class="p">,</span>
+           <span class="n">cmap</span><span class="o">=</span><span class="n">mglearn</span><span class="p">.</span><span class="n">cm2</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">'k'</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_new</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X_new</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">X_new</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s">'r'</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s">'^'</span><span class="p">,</span>
+           <span class="n">cmap</span><span class="o">=</span><span class="n">mglearn</span><span class="p">.</span><span class="n">cm2</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">'k'</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">"Property0"</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">"Property1"</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="s">"(Property1)^2"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 0, '(Property1)^2')
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/99899653-597af100-2cee-11eb-89c6-cd1b6e64f2ce.png" alt="ML_SVM_7_1" /></p>
+
+<p><br /></p>
+
+<p>새로운 데이터셋에는 선형 모델과 <b>3차원 공간</b>의 <b>평면</b>을 사용해 두 클래스를 구분할 수 있다. 확장된 데이터셋에서 <code class="language-plaintext highlighter-rouge">선형 모델</code>을 만들면 다음과 같다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">linear_svm_3d</span> <span class="o">=</span> <span class="n">LinearSVC</span><span class="p">().</span><span class="n">fit</span><span class="p">(</span><span class="n">X_new</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">coef</span><span class="p">,</span> <span class="n">intercept</span> <span class="o">=</span> <span class="n">linear_svm_3d</span><span class="p">.</span><span class="n">coef_</span><span class="p">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">linear_svm_3d</span><span class="p">.</span><span class="n">intercept_</span>
+
+<span class="c1"># 선형 결정 경계 그리기
+</span><span class="n">figure</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">Axes3D</span><span class="p">(</span><span class="n">figure</span><span class="p">,</span> <span class="n">elev</span><span class="o">=-</span><span class="mi">152</span><span class="p">,</span> <span class="n">azim</span><span class="o">=-</span><span class="mi">26</span><span class="p">)</span>
+<span class="n">xx</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">X_new</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">].</span><span class="nb">min</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">X_new</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">].</span><span class="nb">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+<span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">X_new</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">].</span><span class="nb">min</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="n">X_new</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">].</span><span class="nb">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+
+<span class="n">XX</span><span class="p">,</span> <span class="n">YY</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">)</span>
+<span class="c1"># 평면 방정식
+</span><span class="n">ZZ</span> <span class="o">=</span> <span class="p">(</span><span class="n">coef</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">XX</span> <span class="o">+</span> <span class="n">coef</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">YY</span> <span class="o">+</span> <span class="n">intercept</span><span class="p">)</span> <span class="o">/</span> <span class="o">-</span><span class="n">coef</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">plot_surface</span><span class="p">(</span><span class="n">XX</span><span class="p">,</span> <span class="n">YY</span><span class="p">,</span> <span class="n">ZZ</span><span class="p">,</span> <span class="n">rstride</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">cstride</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_new</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X_new</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">X_new</span><span class="p">[</span><span class="n">mask</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s">'b'</span><span class="p">,</span>
+           <span class="n">cmap</span><span class="o">=</span><span class="n">mglearn</span><span class="p">.</span><span class="n">cm2</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">'k'</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_new</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X_new</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">X_new</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s">'r'</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s">'^'</span><span class="p">,</span>
+           <span class="n">cmap</span><span class="o">=</span><span class="n">mglearn</span><span class="p">.</span><span class="n">cm2</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s">'k'</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">"Property0"</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">"Property1"</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="s">"(Property1)^2"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 0, '(Property1)^2')
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/99899654-5a138780-2cee-11eb-9299-2118527bc209.png" alt="ML_SVM_9_2" /></p>
+
+<p><br /></p>
+
+<p>원래 특성으로 위의 모델을 투영해보면 <code class="language-plaintext highlighter-rouge">선형SVM</code>모델은 더 이상 선형이 아니다.<br />
+직선보다 타원에 가까운 모습을 확인할 수 있다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ZZ</span> <span class="o">=</span> <span class="n">YY</span> <span class="o">**</span> <span class="mi">2</span>
+<span class="n">dec</span> <span class="o">=</span> <span class="n">linear_svm_3d</span><span class="p">.</span><span class="n">decision_function</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="n">c_</span><span class="p">[</span><span class="n">XX</span><span class="p">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">YY</span><span class="p">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">ZZ</span><span class="p">.</span><span class="n">ravel</span><span class="p">()])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">XX</span><span class="p">,</span> <span class="n">YY</span><span class="p">,</span> <span class="n">dec</span><span class="p">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">XX</span><span class="p">.</span><span class="n">shape</span><span class="p">),</span> <span class="n">levels</span><span class="o">=</span><span class="p">[</span><span class="n">dec</span><span class="p">.</span><span class="nb">min</span><span class="p">(),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dec</span><span class="p">.</span><span class="nb">max</span><span class="p">()],</span>
+             <span class="n">cmap</span><span class="o">=</span><span class="n">mglearn</span><span class="p">.</span><span class="n">cm2</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">mglearn</span><span class="p">.</span><span class="n">discrete_scatter</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"Property0"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"Property1"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0, 0.5, 'Property1')
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/99899655-5a138780-2cee-11eb-8630-d477216b1654.png" alt="ML_SVM_11_1" /></p>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="커널-기법kernel-trick"><u>커널 기법(Kernel Trick)</u></h4>
+
+<p>앞에서 데이터셋에 <code class="language-plaintext highlighter-rouge">비선형 특성</code>을 추가해서 <code class="language-plaintext highlighter-rouge">선형 모델</code>을 강력하게 만들었다. 하지만 어떤 특성을 추가해야 할지 모르고 특성을 많이 추가하면 연산 비용이 비이상적으로 커지게 된다. <u>다행히 수학적 기교를 사용해서 새로운 특성을 많이 만들지 않고서도 고차원에서 분류기를 학습시킬 수 있다</u>. 바로 이를 <code class="language-plaintext highlighter-rouge">커널 기법</code>이라 한다.</p>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">커널 기법</code>은 실제로 데이터를 확장하지 않고, 확장된 특성에 대한 포인트들의 거리(더 정확히는 스칼라 곱)를 계산한다.</p>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">서포트 벡터 머신</code>에서 데이터를 고차원 공간에 매핑하는 데 많이 사용하는 방법은 두가지 이다.</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">다항식 커널</code> : 원래 특성의 가능한 조합을 지정된 차수까지 모두 계산하는 방법 (ex. (Property1)^3 X (Property2)^5, …)</li>
+  <li><code class="language-plaintext highlighter-rouge">가우시안 커널(혹은 RBF 커널)</code> : 차원이 무한한 특성 공간에 매핑하는 것으로, 모든 차수의 모든 다항식을 고려한다 이해하면 된다. 하지만 특성의 중요도는 고차항이 될수록 줄어든다.</li>
+</ul>
+
+<p><br /></p>
+
+<p>실제로 <code class="language-plaintext highlighter-rouge">커널 SVM</code> 이면의 수학적인 이론은 중요하지 않지만,<br />
+<code class="language-plaintext highlighter-rouge">RBF 커널</code>을 사용한 <code class="language-plaintext highlighter-rouge">SVM</code>이 결정을 만드는 방법은 비교적 쉽게 설명될 수 있다.<br />
+이에 관하여 살펴보자.</p>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="-svm이해하기-"><u> SVM이해하기 </u></h4>
+
+<p>학습이 진행되는 동안 <code class="language-plaintext highlighter-rouge">SVM</code>은 각 훈련 데이터 포인트가 두 클래스 사이의 결정 경계를 구분하는데 얼마나 중요한지를 배우게 된다. 일반적으로 훈련 데이터의 일부만 결정 경계를 만드는 데 영향을 준다.</p>
+
+<p><br /></p>
+
+<p>바로 <u>두 클래스 사이의 경계에 위치한 데이터 포인트</u>들이다.<br />
+이런 데이터 포인트를 <code class="language-plaintext highlighter-rouge">서포트 벡터(support vector)</code>라 하며, 여기서 <code class="language-plaintext highlighter-rouge">SVM</code>의 이름이 유례되었다.</p>
+
+<p><br /></p>
+
+<p>새로운 데이터 포인트에 대해 <b>예측</b>하려면 각 <code class="language-plaintext highlighter-rouge">서포트 벡터</code>와의 <b>거리</b>를 측정한다.</p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">분류 결정</code>은 <code class="language-plaintext highlighter-rouge">서포트 벡터</code>까지의 <b>거리</b>에 기반하고</li>
+  <li><code class="language-plaintext highlighter-rouge">서포트 벡터</code>의 <b>중요도</b>는 훈련 과정에서 학습한다.(<code class="language-plaintext highlighter-rouge">SVC</code>객체의 <code class="language-plaintext highlighter-rouge">dual_coef_</code>속성에 저장된다.)</li>
+</ul>
+
+<p><br /></p>
+
+<p>데이터 포인트 사이의 거리는 <code class="language-plaintext highlighter-rouge">가우시안 커널</code>에 의해 계산된다.</p>
+
+<p><img width="500" alt="2" src="https://user-images.githubusercontent.com/53929665/99898017-91c80280-2ce1-11eb-85de-2d280e5ddc10.png" /></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">x1과 x2</code> : 데이터 포인트</li>
+  <li><code class="language-plaintext highlighter-rouge">||x1-x2||</code> : 유클라디안 거리</li>
+  <li><code class="language-plaintext highlighter-rouge">r(gamma)</code> : 가우시안 커널의 폭을 제어하는 매개변수</li>
+</ul>
+
+<p><br /></p>
+
+<p>두 개의 클래스를 가진 2차원 데이터셋에 <code class="language-plaintext highlighter-rouge">SVM</code>을 학습시킨 결과를 살펴보자.<br />
+<code class="language-plaintext highlighter-rouge">결정 경계</code>는 검은 실선, <code class="language-plaintext highlighter-rouge">서포트 벡터</code>는 굵은 테두리로 표현되었다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.svm</span> <span class="kn">import</span> <span class="n">SVC</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">mglearn</span><span class="p">.</span><span class="n">tools</span><span class="p">.</span><span class="n">make_handcrafted_dataset</span><span class="p">()</span>
+<span class="n">svm</span> <span class="o">=</span> <span class="n">SVC</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="s">'rbf'</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.1</span><span class="p">).</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">mglearn</span><span class="p">.</span><span class="n">plots</span><span class="p">.</span><span class="n">plot_2d_separator</span><span class="p">(</span><span class="n">svm</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">eps</span><span class="o">=</span><span class="p">.</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">mglearn</span><span class="p">.</span><span class="n">discrete_scatter</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="c1"># 서포트 벡터
+</span><span class="n">sv</span> <span class="o">=</span> <span class="n">svm</span><span class="p">.</span><span class="n">support_vectors_</span>
+<span class="c1"># dual_coef_의 부호에 의해 서포트 벡터의 클래스 레이블이 결정됩니다.
+</span><span class="n">sv_labels</span> <span class="o">=</span> <span class="n">svm</span><span class="p">.</span><span class="n">dual_coef_</span><span class="p">.</span><span class="n">ravel</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="n">mglearn</span><span class="p">.</span><span class="n">discrete_scatter</span><span class="p">(</span><span class="n">sv</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">sv</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">sv_labels</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">markeredgewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"Property 0"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"Property 1"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0, 0.5, 'Property 1')
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/99899656-5aac1e00-2cee-11eb-965d-5e35c16631a2.png" alt="ML_SVM_17_1" /></p>
+
+<p>이 그림에서 <code class="language-plaintext highlighter-rouge">SVM</code>은 매우 부드러운 비선형 경계를 만들었다.<br />
+여기서 사용한 두 매개변수 <code class="language-plaintext highlighter-rouge">C</code>와 <code class="language-plaintext highlighter-rouge">gamma</code>에 대해 자세히 살펴보자.</p>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="svm-매개변수-튜닝"><u>SVM 매개변수 튜닝</u></h4>
+
+<p><br /></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">gamma</code> 매개변수
+    <ul>
+      <li>커널 폭의 역수</li>
+      <li>훈련 샘플이 미치는 영향의 범위를 결정</li>
+      <li><code class="language-plaintext highlighter-rouge">gamma</code> ⇩ ∝ 넓은 영역(훈련 샘플의 영향 범위⇧)</li>
+      <li><code class="language-plaintext highlighter-rouge">gamma</code> ⇧ ∝ 제한된 영역(훈련 샘플의 영향 범위⇩)</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">C</code> 매개변수
+    <ul>
+      <li>선형 모델에서 사용한 것과 비슷한 규제 매개변수</li>
+      <li>각 포인트의 중요도(dual_coef_값)을 제한시킨다.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<p>설명으로는 감이 오지 않기 때문에 해당 매개변수들을 다르게 했을 때 어떻게 변경되는지 살펴보자.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="p">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">C</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">]):</span>
+    <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">gamma</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)):</span>
+        <span class="n">mglearn</span><span class="p">.</span><span class="n">plots</span><span class="p">.</span><span class="n">plot_svm</span><span class="p">(</span><span class="n">log_C</span><span class="o">=</span><span class="n">C</span><span class="p">,</span> <span class="n">log_gamma</span><span class="o">=</span><span class="n">gamma</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">a</span><span class="p">)</span>
+
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">].</span><span class="n">legend</span><span class="p">([</span><span class="s">"Class 0"</span><span class="p">,</span> <span class="s">"Class 1"</span><span class="p">,</span> <span class="s">"Class 0 Support Vector"</span><span class="p">,</span> <span class="s">"Class 1 Support Vector"</span><span class="p">],</span>
+                  <span class="n">ncol</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="p">(.</span><span class="mi">9</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;matplotlib.legend.Legend at 0x1dc7d2b8c08&gt;
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/99899657-5aac1e00-2cee-11eb-8779-ee2f46a531e2.png" alt="ML_SVM_20_1" /></p>
+
+<p>왼쪽에서 오른쪽으로 가면서 <code class="language-plaintext highlighter-rouge">gamma</code>매개변수를 (0.1, 1, 10)으로 증가 시켯다.<br />
+작은 <code class="language-plaintext highlighter-rouge">gamma</code> 값은 가우시안 커널의 반경을 크게하여 많은 포인트들이 가까이 있는 것으로 고려된다.<br />
+그래서 왼쪽 그림의 <code class="language-plaintext highlighter-rouge">결정경계</code>는 매우 부드럽고, 오른쪽으로 갈수록 결정 경계는 하나의 포인트에 대해 민감해진다.<br />
+작은 <code class="language-plaintext highlighter-rouge">gamma</code>값이 <code class="language-plaintext highlighter-rouge">결정경계</code>를 천천히 바뀌게 하므로 모델의 복잡도를 낮춘다.<br />
+하지만, 큰 <code class="language-plaintext highlighter-rouge">gamma</code>값은 더 복잡한 모델을 만든다.</p>
+
+<p><br /></p>
+
+<p>위에서 아래로는 <code class="language-plaintext highlighter-rouge">C</code>매개변수를 (0.1, 1, 1000)으로 증가시켯다.<br />
+선형 모델에서 작은 <code class="language-plaintext highlighter-rouge">C</code>는 매우 제약이 큰 모델을 만들고 각 포인트의 영향력은 작아지게 한다.<br />
+<code class="language-plaintext highlighter-rouge">C</code>을 증가시키면 이 포인트들이 모델에 큰 영향을 주며 <code class="language-plaintext highlighter-rouge">결정경계</code>를 휘어서 정확하게 구분하려고 한다.</p>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">RBF 커널 SVM</code>을 유방암 데이터셋에 적용해보자.<br />
+(기본값 C=1, gamma = 1/n_features를 사용한다.)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cancer</span> <span class="o">=</span> <span class="n">load_breast_cancer</span><span class="p">()</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">cancer</span><span class="p">.</span><span class="n">data</span><span class="p">,</span> <span class="n">cancer</span><span class="p">.</span><span class="n">target</span><span class="p">,</span> <span class="n">random_state</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="n">svc</span> <span class="o">=</span> <span class="n">SVC</span><span class="p">()</span>
+<span class="n">svc</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"훈련 세트 정확도: {:.2f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">svc</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"테스트 세트 정확도: {:.2f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">svc</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>훈련 세트 정확도: 1.00
+테스트 세트 정확도: 0.63
+</code></pre></div></div>
+
+<p>결과를 보아 <code class="language-plaintext highlighter-rouge">과대적합</code>되어있음을 파악할 수 있다.<br />
+<code class="language-plaintext highlighter-rouge">SVM</code>은 잘 작동하는 편이지만 매개변수 설정과 데이터 스케일에 매우 민감하다.<br />
+특히 입력 특성의 범위가 비슷해야한다.<br />
+각 특성의 최솟값과 최댓값을 로그 스케일로 나타내보자.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">manage_ticks</span> <span class="o">=</span> <span class="bp">False</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">yscale</span><span class="p">(</span><span class="s">"symlog"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"Property Category"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"Property Size"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0, 0.5, 'Property Size')
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/99899658-5b44b480-2cee-11eb-881f-c26ca4277998.png" alt="ML_SVM_24_1" /></p>
+
+<p>그래프를 보니 유방암 데이터셋의 특성은 자릿수 자체가 완전히 다르다는 것을 파악할 수 있다.<br />
+이것은 일부 모델에서도 문제가 될 수 있지만, <code class="language-plaintext highlighter-rouge">커널 SVM</code>에서는 영향이 아주 크다.<br /></p>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="svm을-위한-데이터-전처리"><u>SVM을 위한 데이터 전처리</u></h4>
+
+<p>위 문제를 해결하는 방법 하나는 특성 값의 범위가 비슷해지도록 조정하는 것이다.<br />
+<code class="language-plaintext highlighter-rouge">커널 SVM</code>에서 모든 특성 값을 평균이 0이고, 단위 분산이 되도록 하거나, 0과 1사이로 맞추는 방법을 많이 사용한다.</p>
+
+<p><br /></p>
+
+<p>차후에 <code class="language-plaintext highlighter-rouge">StandardScaler</code>와 <code class="language-plaintext highlighter-rouge">MinMaxScaler</code> 전처리 메서드를 사용하는 방법에 관하여 다룰 것이다.</p>
+
+<p><br /></p>
+
+<p>어떤 전처리 방법이 좋은지는 데이터셋의 성질에 따라 다르다. 여기서는 직접 변환시켜보자.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 훈련 세트에서 특성별 최솟값 계산
+</span><span class="n">min_on_training</span> <span class="o">=</span> <span class="n">X_train</span><span class="p">.</span><span class="nb">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="c1"># 훈련 세트에서 특성별 (최댓값 - 최솟값) 범위 계산
+</span><span class="n">range_on_training</span> <span class="o">=</span> <span class="p">(</span><span class="n">X_train</span> <span class="o">-</span> <span class="n">min_on_training</span><span class="p">).</span><span class="nb">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># 훈련 데이터에 최솟값을 빼고 범위로 나누면
+# 각 특성에 대해 최솟값은 0, 최대값은 1입니다.
+</span><span class="n">X_train_scaled</span> <span class="o">=</span> <span class="p">(</span><span class="n">X_train</span> <span class="o">-</span> <span class="n">min_on_training</span><span class="p">)</span> <span class="o">/</span> <span class="n">range_on_training</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"특성별 최소 값</span><span class="se">\n</span><span class="s">{}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">X_train_scaled</span><span class="p">.</span><span class="nb">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"특성별 최대 값</span><span class="se">\n</span><span class="s"> {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">X_train_scaled</span><span class="p">.</span><span class="nb">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>특성별 최소 값
+[0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.
+ 0. 0. 0. 0. 0. 0.]
+특성별 최대 값
+ [1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1. 1.
+ 1. 1. 1. 1. 1. 1.]
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 테스트 세트에도 같은 작업을 적용하지만
+# 훈련 세트에서 계산한 최솟값과 범위를 사용합니다(자세한 내용은 3장에 있습니다).
+</span><span class="n">X_test_scaled</span> <span class="o">=</span> <span class="p">(</span><span class="n">X_test</span> <span class="o">-</span> <span class="n">min_on_training</span><span class="p">)</span> <span class="o">/</span> <span class="n">range_on_training</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">svc</span> <span class="o">=</span> <span class="n">SVC</span><span class="p">()</span>
+<span class="n">svc</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_scaled</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"훈련 세트 정확도: {:.3f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span>
+    <span class="n">svc</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_train_scaled</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"테스트 세트 정확도: {:.3f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">svc</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test_scaled</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>훈련 세트 정확도: 0.948
+테스트 세트 정확도: 0.951
+</code></pre></div></div>
+
+<p>데이터 스케일을 조정하니 결과가 달라졌다.<br />
+하지만 훈련 세트와 테스트 세트가 비슷하기 때문에 <code class="language-plaintext highlighter-rouge">과소적합</code>된 상태이다.<br />
+여기서 <code class="language-plaintext highlighter-rouge">C</code>나 <code class="language-plaintext highlighter-rouge">gamma</code>값을 증가시켜 좀 더 복잡한 모델을 만들 수 있다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">svc</span> <span class="o">=</span> <span class="n">SVC</span><span class="p">(</span><span class="n">C</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+<span class="n">svc</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_scaled</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"훈련 세트 정확도: {:.3f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">svc</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_train_scaled</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"테스트 세트 정확도: {:.3f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">svc</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test_scaled</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>훈련 세트 정확도: 0.988
+테스트 세트 정확도: 0.972
+</code></pre></div></div>
+
+<hr />
+
+<h4 id="장단점"><u>장단점</u></h4>
+
+<p>현재 포스팅에서 <code class="language-plaintext highlighter-rouge">커널 서포트 백터 머신</code>를 도출해내기 까지 다음의 과정으로 단축하여 설명할 수 있다.</p>
+<ul>
+  <li>저차원 데이터셋에서 <code class="language-plaintext highlighter-rouge">SVM</code> 선형 모델은 매우 제한적인 문제가 있었다.</li>
+  <li>특성을 늘리면 이를 해결할 수 있다.</li>
+  <li>특성을 늘리기 위해서는 고차항 다항식을 고려해야한다.</li>
+  <li>이를 위한 방법으로 <code class="language-plaintext highlighter-rouge">커널</code>이 존재한다.</li>
+  <li><code class="language-plaintext highlighter-rouge">c</code>와 <code class="language-plaintext highlighter-rouge">gamma</code>를 이용한 <code class="language-plaintext highlighter-rouge">커널 서포트 백터 머신</code>을 사용하여 좀 더 유연한 모델을 구성할 수 있다.</li>
+</ul>
+
+<p><br /></p>
+
+<ul>
+  <li>장점
+    <ul>
+      <li>다양한 데이터 셋에서 잘 작동하는 강력한 모델이다.</li>
+      <li>데이터의 특성이 몇개 되지 않더라도 복잡한 결정 경계를 형성할 수 있다.</li>
+      <li>특히, 저차원과 고차원 데이터(즉 특성이 적거나 많을 때)에서 잘 작동한다.</li>
+    </ul>
+  </li>
+  <li>단점
+    <ul>
+      <li>샘플이 많을 때는 잘 맞지 않는다.<br />1만개의 샘플 정도면 괜찮겠지만, 10만개 이상의 데이터에서는 속도와 메모리 관점에서 도전적인 과제이다.</li>
+      <li><u>데이터 전처리와 매개변수 설정에 매우 매우 매우 신경을 많이 써야 한다</u>
+        <ul>
+          <li>그래서 요즘은 데이터 전처리를 거의 하지 않거나 필요 없는 <code class="language-plaintext highlighter-rouge">랜덤 포레스트</code>/<code class="language-plaintext highlighter-rouge">그레디언트 부스팅</code> 같은 <code class="language-plaintext highlighter-rouge">트리</code>기반의 모델을 잘 사용한다.</li>
+        </ul>
+      </li>
+      <li>SVM모델은 분석하기도 어렵다. 그래서 예측이 어떻게 결정되었는지 이해하기 어렵고 비전문가에게도 설명하기 난해하다.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<p>위와 같은 단점들이 있지만, 모든 특성이 비슷한 단위이고(ex. 모든 값이 픽셀의 컬러 강도) 스케일이 비슷하면 <code class="language-plaintext highlighter-rouge">커널 서포트 백터 머신</code>을 시도해볼 만하다.</p>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="references">References</h3>
+
+<ul>
+  <li>안드레아스 뮐러, 세라 가이도, 『파이썬 라이브러리를 활용한 머신러닝』, 박해선, 한빛미디어(2017)</li>
+</ul>
+
+:ET

@@ -1,0 +1,11 @@
+I"y<h4 id="python-basic-chapter-03-3">[Python Basic] Chapter 03-3</h4>
+<ul>
+  <li>본 포스팅은 파이썬 기초 문법에 관하여 다룹니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">리스트</code> 생성 /<code class="language-plaintext highlighter-rouge">인덱싱</code> 사용 / <code class="language-plaintext highlighter-rouge">슬라이싱</code> 사용</li>
+  <li>리스트 수정</li>
+  <li>리스트 삭제 : <code class="language-plaintext highlighter-rouge">remove</code>, <code class="language-plaintext highlighter-rouge">pop</code>, <code class="language-plaintext highlighter-rouge">del</code></li>
+  <li>리스트 함수 : <code class="language-plaintext highlighter-rouge">append</code>, <code class="language-plaintext highlighter-rouge">sort</code>, <code class="language-plaintext highlighter-rouge">reverse</code>, <code class="language-plaintext highlighter-rouge">index</code>, <code class="language-plaintext highlighter-rouge">insert</code>, <code class="language-plaintext highlighter-rouge">count</code>, <code class="language-plaintext highlighter-rouge">extend</code></li>
+</ul>
+
+<hr />
+:ET

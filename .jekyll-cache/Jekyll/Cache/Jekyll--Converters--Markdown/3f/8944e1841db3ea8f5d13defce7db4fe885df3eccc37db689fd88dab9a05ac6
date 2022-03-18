@@ -1,0 +1,15 @@
+I"r<h4 id="contents">Contents</h4>
+<ul>
+  <li>Binomial Distribution (이항분포)
+    <ul>
+      <li>Probability Mass Function, PMF (확률질량함수)</li>
+      <li>Cumulative Distribution Function, CDF(누적분포함수)</li>
+      <li>X+Y~Bin(m+n, p) 증명</li>
+    </ul>
+  </li>
+  <li>Hypergeometric Distribution (초기하분포)</li>
+</ul>
+
+<hr />
+<p><br /></p>
+:ET

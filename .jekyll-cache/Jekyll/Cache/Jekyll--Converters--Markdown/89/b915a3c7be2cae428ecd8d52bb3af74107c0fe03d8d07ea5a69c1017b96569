@@ -1,0 +1,153 @@
+I"�D<h4 id="ml-with-python-2-지도-학습-알고리즘-2-선형-모델---라쏘-회귀">[ML with Python] 2. 지도 학습 알고리즘 (2) 선형 모델 - 라쏘 회귀</h4>
+<ul>
+  <li>본 포스팅은 지도 학습 알고리즘인 선형 모델에 관한 기본적인 내용에 관하여 다룹니다.</li>
+  <li>라쏘 회귀( <code class="language-plaintext highlighter-rouge">Lasso</code> )</li>
+</ul>
+
+<hr />
+
+<p>필요 라이브러리 import</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">mglearn</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">Ridge</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">Lasso</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+</code></pre></div></div>
+
+<hr />
+
+<h4 id="라쏘-회귀"><u>라쏘 회귀</u></h4>
+
+<p><code class="language-plaintext highlighter-rouge">선형 회귀</code>에 규제를 적용하는 데 <code class="language-plaintext highlighter-rouge">Ridge</code>의 대안으로 <code class="language-plaintext highlighter-rouge">Lasso</code>가 있다.<br />
+<code class="language-plaintext highlighter-rouge">Lasso</code>회귀에서도 <code class="language-plaintext highlighter-rouge">Ridge</code>회귀와 똑같이 <u>계수를 0에 가깝게 만들려한다.</u></p>
+
+<p><br /></p>
+
+<blockquote>
+  <p>하지만, <code class="language-plaintext highlighter-rouge">Ridge</code>와 달리 <code class="language-plaintext highlighter-rouge">Lasso</code>의 규제 방식은 <code class="language-plaintext highlighter-rouge">L1 규제</code>이다.</p>
+</blockquote>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">Lasso</code>를 사용할 때 <code class="language-plaintext highlighter-rouge">Ridge</code>와 달리 어떤 계수는 정말 0이 되는 경우도 있다.<br />
+즉 <u>완전히 제외되는 특성이 생긴다는 의미</u>이다.<br />
+일부 계수를 0으로 만들면 모델을 이해하기 쉬워지고 이 모델의 가장 중요한 특성이 무엇인지 알 수 있다.</p>
+
+<p><br /></p>
+
+<p>보스턴 주택가격 데이터셋에 <code class="language-plaintext highlighter-rouge">Lasso</code>를 적용해보자</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">mglearn</span><span class="p">.</span><span class="n">datasets</span><span class="p">.</span><span class="n">load_extended_boston</span><span class="p">()</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">lasso</span> <span class="o">=</span> <span class="n">Lasso</span><span class="p">().</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"훈련 세트 점수: {:.2f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">lasso</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"테스트 세트 점수: {:.2f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">lasso</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"사용한 특성의 수: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">lasso</span><span class="p">.</span><span class="n">coef_</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>훈련 세트 점수: 0.29
+테스트 세트 점수: 0.21
+사용한 특성의 수: 4
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>결과에서 확인 가능하듯이, <code class="language-plaintext highlighter-rouge">Lasso</code> 모델의 훈련 세트와 테스트 세트 모두 결과가 좋지 않다.<br />
+이는 <code class="language-plaintext highlighter-rouge">과소 적합</code>이며 105개의 특성 중 4개만을 사용한 것을 확인할 수 있다.</p>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">Ridge</code>와 마찬가지로 <code class="language-plaintext highlighter-rouge">Lasso</code>도 계수를 얼마나 0으로 보낼지를 조절하는 <code class="language-plaintext highlighter-rouge">alpha</code>매개변수를 지원한다.<br />
+앞에서의 경우 default 값으로 alpha = 1이 적용되었다.<br />
+<u>과소적합을 줄이기 위해서 `alpha` 값을 줄여 시행해보자</u><br />(이를 수행하기 위해서는 <code class="language-plaintext highlighter-rouge">max_iter</code>(반복 실행하는 최대 횟수)의 기본값을 늘려야 한다.)</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># "max_iter" 기본값을 증가시키지 않으면 max_iter 값을 늘리라는 경고가 발생합니다.
+</span><span class="n">lasso001</span> <span class="o">=</span> <span class="n">Lasso</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100000</span><span class="p">).</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"훈련 세트 점수: {:.2f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">lasso001</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"테스트 세트 점수: {:.2f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">lasso001</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"사용한 특성의 수: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">lasso001</span><span class="p">.</span><span class="n">coef_</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>훈련 세트 점수: 0.90
+테스트 세트 점수: 0.77
+사용한 특성의 수: 33
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">alpha</code> 값을 낮추면 모델의 복잡도는 증가하여 <code class="language-plaintext highlighter-rouge">훈련세트</code>와 <code class="language-plaintext highlighter-rouge">테스트세트</code>에서의 성능은 좋아진다.<br />
+또한, 성능은 <code class="language-plaintext highlighter-rouge">Ridge</code>보다 조금 나으지만, 사용된 특성은 105개 중 33개 뿐이라 모델을 분석하기에는 용이하다.</p>
+
+<p><br /></p>
+
+<p>그러나 <code class="language-plaintext highlighter-rouge">alpha</code>값을 너무 낮추면 규제의 효과가 없어져 결국 <code class="language-plaintext highlighter-rouge">과대적합</code>이 되기에, <code class="language-plaintext highlighter-rouge">LinearRegression</code>과 결과가 비슷해진다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">lasso00001</span> <span class="o">=</span> <span class="n">Lasso</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100000</span><span class="p">).</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"훈련 세트 점수: {:.2f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">lasso00001</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"테스트 세트 점수: {:.2f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">lasso00001</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"사용한 특성의 수: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nb">sum</span><span class="p">(</span><span class="n">lasso00001</span><span class="p">.</span><span class="n">coef_</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>훈련 세트 점수: 0.95
+테스트 세트 점수: 0.64
+사용한 특성의 수: 96
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>또한, <code class="language-plaintext highlighter-rouge">alpha</code>값의 크기에 따라 계수는 다음과 같이 변한다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">ridge01</span> <span class="o">=</span> <span class="n">Ridge</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">).</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lasso</span><span class="p">.</span><span class="n">coef_</span><span class="p">,</span> <span class="s">'s'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"Lasso alpha=1"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lasso001</span><span class="p">.</span><span class="n">coef_</span><span class="p">,</span> <span class="s">'^'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"Lasso alpha=0.01"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">lasso00001</span><span class="p">.</span><span class="n">coef_</span><span class="p">,</span> <span class="s">'v'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"Lasso alpha=0.0001"</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ridge01</span><span class="p">.</span><span class="n">coef_</span><span class="p">,</span> <span class="s">'o'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">"Ridge alpha=0.1"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">1.05</span><span class="p">))</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"params category"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"params size"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0, 0.5, 'params size')
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/98838757-0b612480-2488-11eb-8317-daf7c7352f0f.png" alt="linear_model_lasso_15_1" /></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">alpha = 1</code>일 때, 계수 대부분이 0일 뿐만 아니라 나머지 계수들도 크기가 작다는 것을 확인할 수 있다.</li>
+  <li><code class="language-plaintext highlighter-rouge">alpha = 0.01</code>일 때, 대부분의 특성이 0이되는 분포를 얻게 된다.</li>
+  <li><code class="language-plaintext highlighter-rouge">alpha = 0.0001</code>일 때, 대부분 0이 아니고 규제받지 않는 모델을 얻게 된다.</li>
+  <li>비교를 위해, <code class="language-plaintext highlighter-rouge">Ridge</code>의 <code class="language-plaintext highlighter-rouge">alpha = 0.1</code>일 때도 표기하였는데<br /><code class="language-plaintext highlighter-rouge">Lasso</code>의 <code class="language-plaintext highlighter-rouge">alpha = 0.1</code>때 값과 비교해보면 성능은 비슷하지만 어떤 계수도 0이되지 않는 것을 확인할 수 있다.</li>
+</ul>
+
+<p><br /></p>
+
+<p>실제 이 두 모델 중 보통은 <code class="language-plaintext highlighter-rouge">Ridge</code>회귀를 더 선호한다.<br />
+하지만 <u>특성이 많고 그 중 일부분만을 중요시 생각한다면 `Lasso`가 더 좋은 선택일 수 있다.</u></p>
+
+<p><br /></p>
+
+<p>또한 <u>분석하기 쉬운 모델을 원하다면</u><br />
+<u> `Lasso`가 입력 특성 중 일부만 사용하므로 쉽게 해석할 수 있는 모델</u>을 만들어 줄 것이다.</p>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">scikit-learn</code>에는 <code class="language-plaintext highlighter-rouge">Lasso</code>와 <code class="language-plaintext highlighter-rouge">Ridge</code>의 제약을 결합한 <code class="language-plaintext highlighter-rouge">ElasticNet</code>도 제공한다.<br />
+실제로 이는 최상의 성능을 보이지만, <code class="language-plaintext highlighter-rouge">L1</code>, <code class="language-plaintext highlighter-rouge">L2</code> 두개의 매개변수를 조정해야만 한다.</p>
+
+<hr />
+
+<h3 id="references">References</h3>
+
+<ul>
+  <li>안드레아스 뮐러, 세라 가이도, 『파이썬 라이브러리를 활용한 머신러닝』, 박해선, 한빛미디어(2017)</li>
+  <li><a href="https://tensorflow.blog/%ed%8c%8c%ec%9d%b4%ec%8d%ac-%eb%a8%b8%ec%8b%a0%eb%9f%ac%eb%8b%9d/2-3-3-%ec%84%a0%ed%98%95-%eb%aa%a8%eb%8d%b8/">https://tensorflow.blog/파이썬-머신러닝/2-3-3-선형-모델/</a></li>
+</ul>
+
+:ET

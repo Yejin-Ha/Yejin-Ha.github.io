@@ -1,0 +1,194 @@
+I"�B<h4 id="ml-with-python-3-비지도-학습-알고리즘-3-3-dbscan">[ML with Python] 3. 비지도 학습 알고리즘 (3-3) DBSCAN</h4>
+<ul>
+  <li>본 포스팅은 DBSCAN에 관한 기본적인 내용에 관하여 다룹니다.</li>
+  <li>DBSCAN(<code class="language-plaintext highlighter-rouge">density-based spatial clustering of applications with noise</code>)</li>
+</ul>
+
+<hr />
+
+<p>필요 라이브러리 import</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">mglearn</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">make_blobs</span>
+<span class="kn">from</span> <span class="nn">sklearn.datasets</span> <span class="kn">import</span> <span class="n">make_moons</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">DBSCAN</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">rc</span><span class="p">(</span><span class="s">'font'</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s">'Malgun Gothic'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<hr />
+
+<p><br /></p>
+
+<h4 id="dbscandensity-based-spatial-clustering-of-applications-with-noise"><u>DBSCAN(density-based spatial clustering of applications with noise)</u></h4>
+
+<p><code class="language-plaintext highlighter-rouge">DBSCAN</code></p>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">밀도 기반 데이터 클러스터링 알고리즘</code></li>
+  <li>Big 장점 : <u>클러스터의 개수를 미리 지정할 필요가 없다</u></li>
+  <li>복잡한 형상의 데이터셋에서도 무리없이 적용 가능</li>
+  <li>어떤 클래스에도 속하지 않는 포인트를 구분</li>
+  <li>(k-평균/병합군집 보다는 다소 느리지만) 비교적 큰 데이터셋에도 적용 가능</li>
+</ul>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">DBSCAN</code>의 원리 순서를 알기 위해서는 아래의 용어와 매개변수들을 간단히 기억해둘 필요가 있다.</p>
+<ul>
+  <li>DBSCAN의 주 매개변수
+    <ul>
+      <li><b>min_samples</b> : 핵심 포인트를  중심점으로 간주하는 주변 지역의 표본 수</li>
+      <li><b>eps</b> : 핵심 포인트를 중심으로 측정되는 유클리디언 거리값</li>
+    </ul>
+  </li>
+  <li><b>밀집지역(dense region)</b> : 특성 공간에서 (거리가 가까워서) 데이터가 붐비는 지역</li>
+  <li><b>핵심 샘플(or 핵심 포인트)</b> :  <code class="language-plaintext highlighter-rouge">eps</code>거리 안에 데이터가 지정한 <code class="language-plaintext highlighter-rouge">min_samples</code>개수를 만족시키는 <code class="language-plaintext highlighter-rouge">밀집지역</code>에 있는 데이터 포인트</li>
+  <li><b>잡음(noise)</b> : <code class="language-plaintext highlighter-rouge">eps</code>거리 안에 들어오는 포인트 수가 지정한 <code class="language-plaintext highlighter-rouge">min_sample</code>보다 적을 경우 어디에도 속하지 않는 <code class="language-plaintext highlighter-rouge">잡음</code>으로 레이블됨</li>
+</ul>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">DBSCAN</code> 어떤 식으로 적용되는가?</p>
+<ul>
+  <li><b>STEP 1</b> : 특성 공간에서 데이터가 붐비는 <code class="language-plaintext highlighter-rouge">밀집지역</code>을 찾고, 그 범위안에서 <code class="language-plaintext highlighter-rouge">핵심 샘플</code>이될 포인트를 지정한다.</li>
+  <li><b>STEP 2</b> : 어느 데이터 포인트에서 <code class="language-plaintext highlighter-rouge">eps</code>거리 안에 데이터가 <code class="language-plaintext highlighter-rouge">min_samples</code>개수 만큼 들어 있으면 이 데이터 포인트를 <code class="language-plaintext highlighter-rouge">핵심 샘플</code>로 지정한다. 이 경우 해당 데이터 포인트는 새로운 클러스터 레이블로 할당된다. (<code class="language-plaintext highlighter-rouge">min_samples</code>개수를 충족시키지 않으면 <code class="language-plaintext highlighter-rouge">잡음</code>으로 분류)</li>
+  <li><b>STEP 3</b> : 새롭게 할당된 <code class="language-plaintext highlighter-rouge">핵심 샘플</code>로 부터 <code class="language-plaintext highlighter-rouge">eps</code>거리 안의 포인트가 만약 어떤 클러스터에도 할당되지 않았다면 해당 클러스터 레이블로 할당시킨다. (만약 핵심 샘플이면 그 포인트의 이웃을 차례로 방문)</li>
+  <li><b>STEP 4</b> : STEP 1~3을 반복하며 <code class="language-plaintext highlighter-rouge">eps</code>거리 안에 더 이상 핵심 샘플이 없을 때까지 자란다.</li>
+</ul>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/103149384-39869380-47ac-11eb-8b8c-649036630985.png" alt="사진1" /></p>
+
+<h6 id="출처--httpsmediumcomagarwalvibhor84lets-cluster-data-points-using-dbscan-278c5459bee5"><center>출처 : https://medium.com/@agarwalvibhor84/lets-cluster-data-points-using-dbscan-278c5459bee5</center></h6>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">DBSCAN</code>을 <u>한 데이터셋에 여러 번 실행하면 핵심 포인트의 군집은 항상 같고 매번 같은 포인트를 잡음으로 레이블</u>한다. 그러나 경계 포인트는 한 개 이상의 클러스터 핵심 샘플의 이웃이 될 수 있기 때문에 경계 포인트가 어떤 클러스터에 속할지는 포인트를 방문하는 순서에 따라 달라진다. 보통은 경계 포인트는 많지 않으며 포인트 순서 때문에 받는 영향도 적어 중요한 이슈에 해당하지 않는다.</p>
+
+<p><br /></p>
+
+<p>이전에 사용했던 버블데이터셋에 <code class="language-plaintext highlighter-rouge">DBSCAN</code>을 적용해보자.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">DBSCAN</span>
+
+<span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_blobs</span><span class="p">(</span><span class="n">random_state</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n_samples</span> <span class="o">=</span> <span class="mi">12</span><span class="p">)</span>
+
+<span class="n">dbscan</span> <span class="o">=</span> <span class="n">DBSCAN</span><span class="p">()</span>
+<span class="n">clusters</span> <span class="o">=</span> <span class="n">dbscan</span><span class="p">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'클러스터 레이블:</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">clusters</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>클러스터 레이블:
+ [-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1]
+</code></pre></div></div>
+
+<p>여기서는 모든 포인트에 <code class="language-plaintext highlighter-rouge">잡음 포인트</code>를 의미하는 <code class="language-plaintext highlighter-rouge">-1 레이블</code>이 할당되었다. 이는 작은 샘플 데이터셋에<code class="language-plaintext highlighter-rouge">eps</code>와 <code class="language-plaintext highlighter-rouge">mins_samples</code>의 기본값이 해당 데이터셋에 부적합하기 때문이다. 여러가지 <code class="language-plaintext highlighter-rouge">min_samples</code>와 <code class="language-plaintext highlighter-rouge">eps</code>에 대한 클러스터링 할당은 다음과 같다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">mglearn</span><span class="p">.</span><span class="n">plots</span><span class="p">.</span><span class="n">plot_dbscan</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>min_samples: 2 eps: 1.000000  cluster: [-1  0  0 -1  0 -1  1  1  0  1 -1 -1]
+min_samples: 2 eps: 1.500000  cluster: [0 1 1 1 1 0 2 2 1 2 2 0]
+min_samples: 2 eps: 2.000000  cluster: [0 1 1 1 1 0 0 0 1 0 0 0]
+min_samples: 2 eps: 3.000000  cluster: [0 0 0 0 0 0 0 0 0 0 0 0]
+min_samples: 3 eps: 1.000000  cluster: [-1  0  0 -1  0 -1  1  1  0  1 -1 -1]
+min_samples: 3 eps: 1.500000  cluster: [0 1 1 1 1 0 2 2 1 2 2 0]
+min_samples: 3 eps: 2.000000  cluster: [0 1 1 1 1 0 0 0 1 0 0 0]
+min_samples: 3 eps: 3.000000  cluster: [0 0 0 0 0 0 0 0 0 0 0 0]
+min_samples: 5 eps: 1.000000  cluster: [-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1]
+min_samples: 5 eps: 1.500000  cluster: [-1  0  0  0  0 -1 -1 -1  0 -1 -1 -1]
+min_samples: 5 eps: 2.000000  cluster: [-1  0  0  0  0 -1 -1 -1  0 -1 -1 -1]
+min_samples: 5 eps: 3.000000  cluster: [0 0 0 0 0 0 0 0 0 0 0 0]
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/103149891-5c677680-47b1-11eb-9709-60d49f64abe7.png" alt="ML_DBSCAN_8_1" /></p>
+
+<p>위의 그래프에서 클러스터에 속한 포인트는 색이 칠해져있고, <code class="language-plaintext highlighter-rouge">잡음</code>인 경우는 색이 칠해져 있지 않으며 <code class="language-plaintext highlighter-rouge">핵심 샘플</code>은 크게 <code class="language-plaintext highlighter-rouge">경계 포인트</code>는 작게 표시되었다. 이를 통해 알 수 있는 <code class="language-plaintext highlighter-rouge">eps</code>와 <code class="language-plaintext highlighter-rouge">min_samples</code>의 특징은 다음과 같다.</p>
+
+<p><br /></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">eps</code>
+    <ul>
+      <li>가까운 포인트의 범위를 결정하는데 중요한 역할을 함</li>
+      <li>eps ⇧ ∝ 클러스터에 포함되는 데이터 개수 ⇧ (즉, 클러스터 사이즈 ⇧) ∝ 전체 클러스터 개수 ⇩</li>
+      <li>eps 매우 ⇩ ∝ (min_samples의 조건을 충족하기 어려워지므로) 핵심 포인트 ⇩ &amp; 잡음 포인트 ⇧</li>
+      <li>eps 매우 ⇧ ∝ 모든 데이터 포인트가 하나의 클러스터에 속하게 됨</li>
+    </ul>
+  </li>
+  <li><code class="language-plaintext highlighter-rouge">min_samples</code>
+    <ul>
+      <li>클러스터의 최소 크기를 결정</li>
+      <li>덜 조밀한 지역의 경우 포인트를 잡음으로 분류할지 클러스터로 분류할지 결정하는데중요한 역할을 함</li>
+      <li>min_samples ⇧ ∝ (조건을 충족시키기 어려워지므로) 핵심 데이터 포인트 ⇩ ∝ 잡음 포인트 ⇧</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">DBSCAN</code>은 이처럼 클러스터의 개수를 지정할 필요는 없지만 <code class="language-plaintext highlighter-rouge">eps</code>의 값은 간접적으로 몇 개의 클러스터가 만들어질지 제어한다. 따라서, 적절한 <code class="language-plaintext highlighter-rouge">eps</code>값을 쉽게 찾으려면 <code class="language-plaintext highlighter-rouge">StandardScaler</code>나 <code class="language-plaintext highlighter-rouge">MinMaxScaler</code>로 모든 특성의 스케일을 비슷한 범위로 조정해주는 것을 권장한다 ㅠㅠ…</p>
+
+<p><br /></p>
+
+<p>아래는 복잡한 two_moons 데이터셋에 <code class="language-plaintext highlighter-rouge">DBSCAN</code>을 적용한 결과이다. 두개의 반달 모양을 매우 정확하게 구분한 것을 확인할 수 있다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">make_moons</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">noise</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># 평균이 0, 분산이 1이 되도록 데이터의 스케일을 조정합니다
+</span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+
+<span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+<span class="n">scaler</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">X_scaled</span> <span class="o">=</span> <span class="n">scaler</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+<span class="n">dbscan</span> <span class="o">=</span> <span class="n">DBSCAN</span><span class="p">()</span>
+<span class="n">clusters</span> <span class="o">=</span> <span class="n">dbscan</span><span class="p">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">X_scaled</span><span class="p">)</span>
+<span class="c1"># 클러스터 할당을 표시합니다
+</span><span class="n">plt</span><span class="p">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">X_scaled</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">X_scaled</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="n">clusters</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">mglearn</span><span class="p">.</span><span class="n">cm2</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">edgecolors</span><span class="o">=</span><span class="s">'black'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"특성 0"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"특성 1"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0, 0.5, '특성 1')
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/103149892-5d000d00-47b1-11eb-8de0-4bcfb20e5084.png" alt="ML_DBSCAN_11_2" /></p>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="-dbscan-장단점-정리"><u> DBSCAN 장단점 정리</u></h4>
+
+<ul>
+  <li><b>장점</b>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">잡음</code>지점도 걸러내기 때문에 이상치를 구별해내기 유용하다.</li>
+      <li>저밀도 클러스터에서 고밀도 클러스터를 분리하는데 유용하다.</li>
+      <li><code class="language-plaintext highlighter-rouge">k-평균</code>과 <code class="language-plaintext highlighter-rouge">병합 군집</code>처럼 클러스터 수를 미리 지정할 필요 없다.</li>
+      <li>복잡한 데이터셋에서도 강하다!</li>
+    </ul>
+  </li>
+  <li><b>단점</b>
+    <ul>
+      <li>부분적으로 비슷한 밀도를 가진 데이터셋의 경우 해당 알고리즘은 연약하다.</li>
+      <li>데이터 포인트 처리 순서가 매번 다르기 때문에 해당 알고리즘을 시행할 때 마다 다른 결과가 도출된다.</li>
+      <li>데이터의 차원이 높아질수록 <code class="language-plaintext highlighter-rouge">eps</code>매개변수의 값을 지정하기 어려워진다.</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="references">References</h3>
+
+<ul>
+  <li>안드레아스 뮐러, 세라 가이도, 『파이썬 라이브러리를 활용한 머신러닝』, 박해선, 한빛미디어(2017)</li>
+  <li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.DBSCAN.html">scikit-learn document for DBSCAN</a></li>
+  <li><a href="https://medium.com/@agarwalvibhor84/lets-cluster-data-points-using-dbscan-278c5459bee5">Vibhor Agarwal’s medium</a></li>
+</ul>
+
+:ET

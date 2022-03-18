@@ -1,0 +1,13 @@
+I",<h4 id="ml-with-python-2-비지도-학습">[ML with Python] 2. 비지도 학습</h4>
+<ul>
+  <li>본 포스팅은 비지도 학습에 관한 기본적인 내용에 관한 서론을 다룹니다.</li>
+  <li>비지도 학습이란?</li>
+  <li>비지도 학습의 종류
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">비지도 변환(unsupervised transformation)</code></li>
+      <li><code class="language-plaintext highlighter-rouge">군집(clustering)</code></li>
+    </ul>
+  </li>
+  <li>비지도 학습의 도전 과제</li>
+</ul>
+:ET

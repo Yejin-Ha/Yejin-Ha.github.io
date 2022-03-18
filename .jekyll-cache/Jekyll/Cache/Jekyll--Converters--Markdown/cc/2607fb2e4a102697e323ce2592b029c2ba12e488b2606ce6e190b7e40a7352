@@ -1,0 +1,402 @@
+I"�[<h4 id="python-basic-chapter-03-2">[Python Basic] Chapter 03-2</h4>
+<ul>
+  <li>본 포스팅은 파이썬 기초 문법에 관하여 다룹니다.</li>
+  <li><code class="language-plaintext highlighter-rouge">문자열</code> 생성 /<code class="language-plaintext highlighter-rouge"> escape 문자</code> 사용 / <code class="language-plaintext highlighter-rouge">탭, 줄</code> 바꿈</li>
+  <li><code class="language-plaintext highlighter-rouge">row string</code> / <code class="language-plaintext highlighter-rouge">멀티 라인</code> 입력</li>
+  <li>문자열 연산 / 문자열 함수 / 문자열 형 변환</li>
+</ul>
+
+<hr />
+
+<h4 id="문자열-생성"><u>[문자열 생성]</u></h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">str1</span> <span class="o">=</span> <span class="s">"I am Python"</span>
+<span class="n">str2</span> <span class="o">=</span> <span class="s">'Python'</span>
+<span class="n">str3</span> <span class="o">=</span> <span class="s">"""How are you?"""</span>
+<span class="n">str4</span> <span class="o">=</span> <span class="s">'''Thank you!'''</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">str1</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">str2</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">str3</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">str4</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;class 'str'&gt; &lt;class 'str'&gt; &lt;class 'str'&gt; &lt;class 'str'&gt;
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">len</code>
+    <ul>
+      <li>공백포함 문자열의 길이 측정</li>
+    </ul>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">str1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">str2</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">str3</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">str4</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>11 6 12 10
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">빈 문자열 생성</code></li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">str1_t1</span> <span class="o">=</span> <span class="s">''</span>
+<span class="n">str2_t2</span> <span class="o">=</span> <span class="nb">str</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">str1_t1</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">str1_t1</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">str2_t2</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">str2_t2</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;class 'str'&gt; 0
+&lt;class 'str'&gt; 0
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="escape-문자-사용"><u>[escape 문자 사용]</u></h4>
+
+<ul>
+  <li>\n : 개행</li>
+  <li>\t : 탭</li>
+  <li>\ : \ 문자</li>
+  <li>' : ‘ 문자</li>
+  <li>" : “ 문자</li>
+  <li>
+    <p>\0 : 널 문자</p>
+  </li>
+  <li>큰 따옴표의 경우 다음과 같이 <code class="language-plaintext highlighter-rouge">'</code>와 상관없이 괜찮지만,</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"I'm boy"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>I'm boy
+</code></pre></div></div>
+
+<ul>
+  <li>작은 따옴표를 이용하여 아래와 같이 출력하면 <code class="language-plaintext highlighter-rouge">'</code>때문에 에러가 출력된다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">'I'</span><span class="n">m</span> <span class="n">boy</span><span class="s">')
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  File "&lt;ipython-input-10-f6a3a1ff5d80&gt;", line 1
+    print('I'm boy')
+             ^
+SyntaxError: invalid syntax
+</code></pre></div></div>
+
+<ul>
+  <li>하지만, <code class="language-plaintext highlighter-rouge">\</code>를 이용하여 특수 기호를 있는 그대로 표시할 수 있다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">'I</span><span class="se">\'</span><span class="s">m boy'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'I</span><span class="se">\\</span><span class="s">m boy'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'a</span><span class="se">\t</span><span class="s">b'</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'a</span><span class="se">\"\"</span><span class="s">b'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>I'm boy
+I\m boy
+a	b
+a""b
+</code></pre></div></div>
+
+<ul>
+  <li>예제</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">escape_str1</span> <span class="o">=</span> <span class="s">"Do you have a </span><span class="se">\"</span><span class="s">retro games</span><span class="se">\"</span><span class="s">?"</span>
+<span class="k">print</span><span class="p">(</span><span class="n">escape_str1</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Do you have a "retro games"?
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">escape_str2</span> <span class="o">=</span> <span class="s">'What</span><span class="se">\'</span><span class="s">s on TV?'</span>
+<span class="k">print</span><span class="p">(</span><span class="n">escape_str2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>What's on TV?
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+<h4 id="탭-줄-바꿈"><u>[탭, 줄 바꿈]</u></h4>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">\t</code> : 탭</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">t_s1</span> <span class="o">=</span> <span class="s">"Click</span><span class="se">\t</span><span class="s">Strat!"</span>
+<span class="k">print</span><span class="p">(</span><span class="n">t_s1</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Click	Strat!
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">\n</code> : 줄 바꿈</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">t_s2</span> <span class="o">=</span> <span class="s">"New Line </span><span class="se">\n</span><span class="s">Check!"</span>
+<span class="k">print</span><span class="p">(</span><span class="n">t_s2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>New Line 
+Check!
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+<h4 id="row-string"><u>[Row String]</u></h4>
+<ul>
+  <li>문자열 앞에 <code class="language-plaintext highlighter-rouge">r</code>만 붙여주면 된다.</li>
+  <li>있는 그대로 문자열을 표시한다. 즉 <code class="language-plaintext highlighter-rouge">\</code>의 기능을 무시할 수 있게 해준다. ex) \t, \n의 기능 무시</li>
+  <li><u>드라이브의 경로를 표시할 때 자주 사용한다.</u></li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">raw_s1</span> <span class="o">=</span> <span class="sa">r</span><span class="s">'D:\python\test'</span>
+<span class="k">print</span><span class="p">(</span><span class="n">raw_s1</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>D:\python\test
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+<h4 id="멀티라인-입력"><u>[멀티라인 입력]</u></h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">multi_str1</span><span class="o">=</span><span class="s">"""
+String
+Multi line
+Test
+"""</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="n">multi_str1</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>String
+Multi line
+Test
+</code></pre></div></div>
+
+<ul>
+  <li>혹은 <code class="language-plaintext highlighter-rouge">\</code>를 이용하여 아래와 같이 깔끔하게 작성할 수 있다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">multi_str2</span> <span class="o">=</span> \
+<span class="s">"""
+String
+Multi line
+Test
+"""</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="n">multi_str2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>String
+Multi line
+Test
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+<h4 id="문자열-연산"><u>[문자열 연산]</u></h4>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">str_o1</span><span class="o">=</span><span class="s">"Python"</span>
+<span class="n">str_o2</span><span class="o">=</span><span class="s">"Apple"</span>
+<span class="n">str_o3</span><span class="o">=</span><span class="s">"How are you doing"</span>
+<span class="n">str_o4</span><span class="o">=</span><span class="s">"Seoul Deajeon Busan Jinju"</span>
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">[문자열]*[n]</code> : 문자열을 n번 반복하여 출력한다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="n">str_o1</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PythonPythonPython
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">[문자열1]+[문자열2]</code> : 서로 다른 문자열을 이어서 출력한다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="n">str_o1</span><span class="o">+</span><span class="n">str_o2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>PythonApple
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">[문자열1] in [문자열2]</code> : 문자열1이 문자열2에 내포되어 -&gt; 있으면 <b>True</b>, 없으면 <b>False</b>로 출력한다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">'Py'</span> <span class="ow">in</span> <span class="n">str_o1</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'n'</span> <span class="ow">in</span> <span class="n">str_o1</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>True
+True
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">[문자열1] not in [문자열2]</code> : 문자열1이 문자열2에 내포되어 -&gt; 있으면 <b>False</b>, 없으면 <b>True</b>로 출력한다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">'P'</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">str_o2</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>True
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+<h4 id="문자열-형-변환"><u>[문자열 형 변환]</u></h4>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">str()</code>함수를 이용하여 다른 자료형의 데이터를 문자열 데이터로 형 변환할 수 있다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="mi">66</span><span class="p">),</span><span class="nb">type</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="mi">66</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="mf">10.1</span><span class="p">),</span><span class="nb">type</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="mf">10.1</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">True</span><span class="p">),</span><span class="nb">type</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">True</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>66 &lt;class 'str'&gt;
+10.1 &lt;class 'str'&gt;
+True &lt;class 'str'&gt;
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+<h4 id="문자열-함수"><u>[문자열 함수]</u></h4>
+<ul>
+  <li>대부분의 문자열 관련 함수들은 구글링하면 금방 금방 나오기 때문에, 필요시 즉각적으로 찾으면된다.</li>
+  <li>몇 가지 간단한 문자열 함수를 살펴보자</li>
+</ul>
+
+<p><br /></p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">capitalize()</code>
+    <ul>
+      <li>문자열의 첫 번째 글자를 대문자로 변경시킨다.</li>
+    </ul>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># str_o1 = 'Python'
+</span><span class="k">print</span><span class="p">(</span><span class="s">"Capitalize : "</span><span class="p">,</span> <span class="n">str_o1</span><span class="p">.</span><span class="n">capitalize</span><span class="p">())</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Capitalize :  Python
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">endswith()</code>
+    <ul>
+      <li>마지막 문자가 무엇인지 체크할 때 사용한다.</li>
+      <li>마지막 문자와 동일하면 <b>True</b>,  아니면 <b>Fasle</b>를 반환한다.</li>
+    </ul>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># str_o2 = 'Apple'
+</span><span class="k">print</span><span class="p">(</span><span class="s">"endswith : "</span><span class="p">,</span> <span class="n">str_o2</span><span class="p">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">"s"</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"endswith : "</span><span class="p">,</span> <span class="n">str_o2</span><span class="p">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">"e"</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>endswith :  False
+endswith :  True
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">replace('x', 'y')</code>
+    <ul>
+      <li>문자열에서 x에 해당하는 문자를 y로 바꿀 때 사용한다.</li>
+      <li>띄어쓰기(공백)도 포함하여 내용이 반영된다.</li>
+    </ul>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># str_o1 = 'Python'
+</span><span class="k">print</span><span class="p">(</span><span class="s">"replace : "</span><span class="p">,</span><span class="n">str_o1</span><span class="p">.</span><span class="n">replace</span><span class="p">(</span><span class="s">"thon"</span><span class="p">,</span><span class="s">" Good"</span><span class="p">))</span> <span class="c1"># Good 옆에 띄어쓰기가 되어있다.
+</span></code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>replace :  Py Good
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">sorted()</code>
+    <ul>
+      <li>문자열을 입력받아서 기준에 맞게 정렬하여 <u>리스트형태로 반환한다.</u></li>
+    </ul>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># str_o1 = 'Python'
+</span><span class="k">print</span><span class="p">(</span><span class="s">"sorted : "</span><span class="p">,</span><span class="nb">sorted</span><span class="p">(</span><span class="n">str_o1</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sorted :  ['P', 'h', 'n', 'o', 't', 'y']
+</code></pre></div></div>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">split()</code>
+    <ul>
+      <li>문자열을 단어 단위 또는 문장 단위 기준으로 분리할 때 사용한다.</li>
+    </ul>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># str_o4 = "Seoul Deajeon Busan Jinju"
+</span><span class="k">print</span><span class="p">(</span><span class="s">"split : "</span><span class="p">,</span> <span class="n">str_o4</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">' '</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>split :  ['Seoul', 'Deajeon', 'Busan', 'Jinju']
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+<h4 id="반복시퀀스"><u>[반복(시퀀스)]</u></h4>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">__iter__</code> 라는 class가 im_str안에서 dir을통해 검색됨</li>
+  <li>이때 <code class="language-plaintext highlighter-rouge">__iter__</code>가 반복이 가능하다는 의미이다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">im_str</span> <span class="o">=</span> <span class="s">"Good Boy!"</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">dir</span><span class="p">(</span><span class="n">im_str</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['__add__', '__class__', '__contains__', '__delattr__', '__dir__', '__doc__', '__eq__', '__format__', '__ge__', '__getattribute__', '__getitem__', '__getnewargs__', '__gt__', '__hash__', '__init__', '__init_subclass__', '__iter__', '__le__', '__len__', '__lt__', '__mod__', '__mul__', '__ne__', '__new__', '__reduce__', '__reduce_ex__', '__repr__', '__rmod__', '__rmul__', '__setattr__', '__sizeof__', '__str__', '__subclasshook__', 'capitalize', 'casefold', 'center', 'count', 'encode', 'endswith', 'expandtabs', 'find', 'format', 'format_map', 'index', 'isalnum', 'isalpha', 'isascii', 'isdecimal', 'isdigit', 'isidentifier', 'islower', 'isnumeric', 'isprintable', 'isspace', 'istitle', 'isupper', 'join', 'ljust', 'lower', 'lstrip', 'maketrans', 'partition', 'replace', 'rfind', 'rindex', 'rjust', 'rpartition', 'rsplit', 'rstrip', 'split', 'splitlines', 'startswith', 'strip', 'swapcase', 'title', 'translate', 'upper', 'zfill']
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">im_str</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>G
+o
+o
+d
+ 
+B
+o
+y
+!
+</code></pre></div></div>
+
+:ET

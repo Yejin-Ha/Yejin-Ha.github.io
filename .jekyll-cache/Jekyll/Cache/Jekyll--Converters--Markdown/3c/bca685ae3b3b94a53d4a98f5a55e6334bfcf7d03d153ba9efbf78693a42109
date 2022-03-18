@@ -1,0 +1,18 @@
+I"�<h4 id="contents">Contents</h4>
+<ul>
+  <li>Cumulative Distribution Function, CDF(누적분포함수)</li>
+  <li>독립 확률 변수</li>
+  <li>평균 ( 가중 평균 / 비가중 평균[기댓값] )
+    <ul>
+      <li>Discrete R.V(이산확률변수)</li>
+      <li>Bernoulli R.V(베르누이확률변수)</li>
+      <li>Binomial R.V(이항확률변수)</li>
+    </ul>
+  </li>
+  <li>기댓값의 선형성</li>
+  <li>Geometric(기하확률변수) 및  기댓값</li>
+</ul>
+
+<hr />
+<p><br /></p>
+:ET

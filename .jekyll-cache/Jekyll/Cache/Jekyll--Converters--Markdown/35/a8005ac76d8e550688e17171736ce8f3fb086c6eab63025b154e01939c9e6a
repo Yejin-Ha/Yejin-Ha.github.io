@@ -1,0 +1,8 @@
+I"<h4 id="python-numpy">[Python] Numpy</h4>
+<ul>
+  <li>본 포스팅은 <code class="language-plaintext highlighter-rouge">Numpy</code> 라이브러리의 <u>배열의 인덱싱, 연산, 그리고 Broadcasting</u>에 관하여 다룹니다.</li>
+  <li>정수 배열 인덱싱 / boolean 배열 인덱싱 / 배열의 자료형</li>
+  <li>배열 연산 : <code class="language-plaintext highlighter-rouge">add</code> / <code class="language-plaintext highlighter-rouge">subtract</code> / <code class="language-plaintext highlighter-rouge">multiply</code> / <code class="language-plaintext highlighter-rouge">divide</code> / <code class="language-plaintext highlighter-rouge">sqrt</code> / <code class="language-plaintext highlighter-rouge">dot</code></li>
+  <li>Broadcasting</li>
+</ul>
+:ET

@@ -1,0 +1,90 @@
+I"�<h4 id="contents">Contents</h4>
+<ul>
+  <li><a href="#행열-삭제-drop">행/열 삭제: drop</a></li>
+</ul>
+
+<p>본 포스팅은 Pandas의 DataFrame : Delete부분 중 데이터프레임의 행/열 삭제에 관하여 정리하였습니다.</p>
+
+<p><br /></p>
+
+<hr />
+
+<h2 id="행열-삭제-drop"><span style="color:navy">행/열 삭제: drop<span></span></span></h2>
+
+<p>데이터프레임에서 행 혹은 열을 삭제하기 위해 <code class="language-plaintext highlighter-rouge">drop</code>메소드가 사용되어진다. <br /> <code class="language-plaintext highlighter-rouge">drop</code>메소드는 다음과 같은 특징 혹은 옵션을 가진다.</p>
+
+<ul>
+  <li>행을 삭제할지 열을 삭제할지는 <code class="language-plaintext highlighter-rouge">axis</code> 옵션을 이용하여 구분한다.
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">axis = 0</code> or <code class="language-plaintext highlighter-rouge">Default</code> : 행을 삭제한다.</li>
+      <li><code class="language-plaintext highlighter-rouge">axis = 1</code> : 열을 삭제한다. <br />(열을 삭제할 경우 필수 옵션이니 까먹지 말자!)</li>
+    </ul>
+  </li>
+  <li>동시에 여러 행 혹은 열을 삭제할 때는 리스트 형태로 기입한다.</li>
+  <li><code class="language-plaintext highlighter-rouge">drop</code> 메소드의 경우 원본 객체를 변경하지 않고 새로운 값을 반환한다. 하지만,  <code class="language-plaintext highlighter-rouge">inplace</code> 옵션을 이용하여 원본 객체를 변경할 수 있다.</li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 행을 지울 경우
+</span><span class="n">DataFrame</span><span class="p">.</span><span class="n">drop</span><span class="p">(</span> <span class="n">단일</span> <span class="n">행</span> <span class="n">인덱스</span> <span class="n">이름</span> <span class="ow">or</span> <span class="p">[</span><span class="n">행이름1</span><span class="p">,</span> <span class="n">행이름2</span><span class="p">,</span> <span class="p">...],</span> 
+		<span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span> <span class="o">=</span> <span class="p">...</span> <span class="p">)</span>
+				
+<span class="c1"># 열을 지울 경우
+</span><span class="n">DataFrame</span><span class="p">.</span><span class="n">drop</span><span class="p">(</span> <span class="n">단일</span> <span class="n">열</span> <span class="n">이름</span> <span class="ow">or</span> <span class="p">[</span><span class="n">열이름1</span><span class="p">,</span> <span class="n">열이름2</span><span class="p">,</span> <span class="p">...],</span> 
+		<span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span> <span class="o">=</span> <span class="p">...</span> <span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">'[ 행 인덱스/열 이름 삭제 전 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">=========================================='</span><span class="p">)</span>
+
+<span class="n">df_copy1</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">df_copy1</span><span class="p">.</span><span class="n">drop</span><span class="p">(</span><span class="s">'c0'</span><span class="p">,</span> <span class="n">inplace</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">[ 특정 단일 행 삭제 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">df_copy1</span><span class="p">)</span>
+
+<span class="n">df_copy2</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">df_copy2</span><span class="p">.</span><span class="n">drop</span><span class="p">([</span><span class="s">'c0'</span><span class="p">,</span> <span class="s">'c2'</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">inplace</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">[ 특정 다중 행 삭제 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">df_copy2</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">=========================================='</span><span class="p">)</span>
+
+<span class="n">df_copy3</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">df_copy3</span><span class="p">.</span><span class="n">drop</span><span class="p">(</span><span class="s">'a0'</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">[ 특정 다중 열 삭제 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">df_copy3</span><span class="p">)</span>
+
+<span class="n">df_copy4</span> <span class="o">=</span> <span class="n">df</span><span class="p">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">df_copy4</span><span class="p">.</span><span class="n">drop</span><span class="p">([</span><span class="s">'a0'</span><span class="p">,</span> <span class="s">'a2'</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span> <span class="o">=</span> <span class="bp">True</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'</span><span class="se">\n</span><span class="s">[ 특정 다중 열 삭제 ]</span><span class="se">\n</span><span class="s">'</span><span class="p">,</span> <span class="n">df_copy4</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[ 행 인덱스/열 이름 삭제 전 ]
+     a0  a1  a2
+c0   1   4   7
+c1   2   5   8
+c2   3   6   9
+
+==========================================
+
+[ 특정 단일 행 삭제 ]
+     a0  a1  a2
+c1   2   5   8
+c2   3   6   9
+
+[ 특정 다중 행 삭제 ]
+     a0  a1  a2
+c1   2   5   8
+
+==========================================
+
+[ 특정  열 삭제 ]
+     a1  a2
+c0   4   7
+c1   5   8
+c2   6   9
+
+[ 특정 다중 열 삭제 ]
+     a1
+c0   4
+c1   5
+c2   6
+</code></pre></div></div>
+:ET

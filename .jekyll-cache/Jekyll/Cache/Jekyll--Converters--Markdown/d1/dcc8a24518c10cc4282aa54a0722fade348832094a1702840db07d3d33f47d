@@ -1,0 +1,1634 @@
+I"��<h4 id="ml-with-python-4-범주형-변수--원-핫-인코딩">[ML with Python] 4. 범주형 변수 &amp; 원-핫-인코딩</h4>
+<ul>
+  <li>본 포스팅은 범주형 변수와 원-핫-인코딩에 관한 기본적인 내용에 관하여 다룹니다.</li>
+</ul>
+
+<h1>Table of Contents<span class="tocSkip"></span></h1>
+<div class="toc"><ul class="toc-item"><li><span><a href="#1)--범주형-변수" data-toc-modified-id="1)--범주형-변수-0">1)  <u>범주형 변수</u></a></span><ul class="toc-item"><li><span><a href="#1-1)-원---핫---인코딩(가변수)" data-toc-modified-id="1-1)-원---핫---인코딩(가변수)-0.1">1-1) <u>원 - 핫 - 인코딩(가변수)</u></a></span></li><li><span><a href="#1-2)-숫자로-표현된-범주형-특성-" data-toc-modified-id="1-2)-숫자로-표현된-범주형-특성--0.2">1-2) <u>숫자로 표현된 범주형 특성 </u></a></span></li></ul></li><li><span><a href="#2)-OneHotEncoder-와-ColumnTransformer" data-toc-modified-id="2)-OneHotEncoder-와-ColumnTransformer-1">2) <u>OneHotEncoder 와 ColumnTransformer</u></a></span><ul class="toc-item"><li><span><a href="#2-1)-make_column_transformer로-간편하게-ColumnTransformer-만들기" data-toc-modified-id="2-1)-make_column_transformer로-간편하게-ColumnTransformer-만들기-1.1">2-1) <u>make_column_transformer로 간편하게 ColumnTransformer 만들기</u></a></span></li></ul></li><li><span><a href="#References" data-toc-modified-id="References-2">References</a></span></li></ul></div>
+
+<hr />
+
+<p>필요라이브러리 import</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="nn">mglearn</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">OneHotEncoder</span>
+<span class="kn">from</span> <span class="nn">sklearn.compose</span> <span class="kn">import</span> <span class="n">ColumnTransformer</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="n">warnings</span><span class="p">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s">'ignore'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="1--범주형-변수">1)  <u>범주형 변수</u></h3>
+
+<p>앞에서는 계속 <code class="language-plaintext highlighter-rouge">연속형 특성(continuous feature)</code>이라 가정하며 공부를 해왔다. 하지만 대부분의 애플리케이션에서는 이렇게 친절하게 데이터가 수집되지 않는다. 일반적으로 보통은 <code class="language-plaintext highlighter-rouge">범주형/이산형 특성(categorical/discrete feature)</code>이다. 연속형과 범주형은 매우 큰 차이가 있다고는 말할 수 없지만 <u>(1)출력이 아닌 입력에 대한 것</u>이란 점이 다르다. 예를 들자면, 제품의 브랜드, 색상, 판매 분류 등이 범주형 특성에 속한다. 예시에서도 확인할 수도 있듯이 범주형 특성은 <u>(2)연속된 값으로 나타나지 않는다</u>. 또한 <u>(3)순서가 없다</u>.</p>
+
+<p><br /></p>
+
+<p>하지만, 데이터가 어떤 형태의 특성으로 구성되어 있는가보다 머신러닝에서 데이터를 어떻게 표현하는가에 따라서 사용하는 모델의 성능이 매우 달라진다. 이처럼 특정 어플리케이션에 가장 적합한 데이터 표현을 찾는 것을 <code class="language-plaintext highlighter-rouge">특성 공학(feature engineering)</code>이라고 한다. 올바른 데이터 표현은 지도 학습 모델에서 적절한 매개변수를 선택하는 것보다 성능에 더 큰 영향을 끼친다.</p>
+
+<p><br /></p>
+
+<p>그렇다면 만약 “학사”, “석사”, “박사”와 같은 범주형 변수들을 로지스틱 회귀와 같은 알고리즘에 학습시킬려면 어떻게해야 할까? 로지스틱 회귀에서 사용하는 변수들은 숫자여야 하므로  “학사”, “석사”, “박사”는 로지스틱 회귀를 위한 변수가 될 수 없다. 따라서, <u>이를 회귀에 사용하려면 데이터를 다른 방식으로 표현해야 한다</u>.</p>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="1-1-원---핫---인코딩가변수">1-1) <u>원 - 핫 - 인코딩(가변수)</u></h4>
+
+<ul>
+  <li>범주형 변수를 표현하는 데 가장 널리 쓰이는 방법</li>
+  <li>범주형 변수를 0 또는 1 값을 가진 하나 이상의 새로운 특성으로 바꾼다.</li>
+</ul>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">pandas</code>나 <code class="language-plaintext highlighter-rouge">scikit-learn</code>을 이용해 범주형 변수를 <code class="language-plaintext highlighter-rouge">원-핫 인코딩</code>으로 바꿀 수 있다. 여기서는 <code class="language-plaintext highlighter-rouge">pandas</code>로 실전처럼 진행해보자.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">os</span>
+<span class="c1"># 이 파일은 열 이름을 나타내는 헤더가 없으므로 header=None으로 지정하고
+# "names" 매개변수로 열 이름을 제공합니다
+</span><span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="n">join</span><span class="p">(</span><span class="n">mglearn</span><span class="p">.</span><span class="n">datasets</span><span class="p">.</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="s">"adult.data"</span><span class="p">),</span> <span class="n">header</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
+    <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s">'age'</span><span class="p">,</span> <span class="s">'workclass'</span><span class="p">,</span> <span class="s">'fnlwgt'</span><span class="p">,</span> <span class="s">'education'</span><span class="p">,</span>  <span class="s">'education-num'</span><span class="p">,</span>
+           <span class="s">'marital-status'</span><span class="p">,</span> <span class="s">'occupation'</span><span class="p">,</span> <span class="s">'relationship'</span><span class="p">,</span> <span class="s">'race'</span><span class="p">,</span> <span class="s">'gender'</span><span class="p">,</span>
+           <span class="s">'capital-gain'</span><span class="p">,</span> <span class="s">'capital-loss'</span><span class="p">,</span> <span class="s">'hours-per-week'</span><span class="p">,</span> <span class="s">'native-country'</span><span class="p">,</span>
+           <span class="s">'income'</span><span class="p">])</span>
+<span class="c1"># 예제를 위해 몇개의 열만 선택합니다
+</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[[</span><span class="s">'age'</span><span class="p">,</span> <span class="s">'workclass'</span><span class="p">,</span> <span class="s">'education'</span><span class="p">,</span> <span class="s">'gender'</span><span class="p">,</span> <span class="s">'hours-per-week'</span><span class="p">,</span>
+             <span class="s">'occupation'</span><span class="p">,</span> <span class="s">'income'</span><span class="p">]]</span>
+<span class="c1"># IPython.display 함수는 주피터 노트북을 위해 포맷팅된 출력을 만듭니다
+</span><span class="n">display</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">head</span><span class="p">())</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>age</th>
+      <th>workclass</th>
+      <th>education</th>
+      <th>gender</th>
+      <th>hours-per-week</th>
+      <th>occupation</th>
+      <th>income</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>39</td>
+      <td>State-gov</td>
+      <td>Bachelors</td>
+      <td>Male</td>
+      <td>40</td>
+      <td>Adm-clerical</td>
+      <td>&lt;=50K</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>50</td>
+      <td>Self-emp-not-inc</td>
+      <td>Bachelors</td>
+      <td>Male</td>
+      <td>13</td>
+      <td>Exec-managerial</td>
+      <td>&lt;=50K</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>38</td>
+      <td>Private</td>
+      <td>HS-grad</td>
+      <td>Male</td>
+      <td>40</td>
+      <td>Handlers-cleaners</td>
+      <td>&lt;=50K</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>53</td>
+      <td>Private</td>
+      <td>11th</td>
+      <td>Male</td>
+      <td>40</td>
+      <td>Handlers-cleaners</td>
+      <td>&lt;=50K</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>28</td>
+      <td>Private</td>
+      <td>Bachelors</td>
+      <td>Female</td>
+      <td>40</td>
+      <td>Prof-specialty</td>
+      <td>&lt;=50K</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>위와 같이 데이터셋을 확인했을 때, <u>먼저 열에 어떤 의미있는 범주형 데이터가 있는지 확인해야한다</u>. 어플리케이션 사용자로부터 입력받은 데이터를 다룰 때는 여러가지 예상 밖의 상황이 있을 수 있다. 예를들어, 철자 혹은 대소문자가 틀리거나, 남성을 “male” 또는 “man”이라고도 표현할 수 있다. “male”과 “man”의 경우는 또 둘이 같은 입력값으로 취급해줘야한다. 따라서, 데이터셋을 받고 가장 먼저 할 일은 범주형 데이터를 확인하는 것이다.</p>
+
+<p><br /></p>
+
+<p>열의 내용을 확인하는 가장 좋은 방법은 <code class="language-plaintext highlighter-rouge">Series</code>의 <code class="language-plaintext highlighter-rouge">value_counts</code>메서드를 사용하여 <u>범주형 데이터의 유일값이 각각 몇 번 나타나는지 출력하는 것</u>이다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"gender :</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s">'gender'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">())</span>
+<span class="k">print</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"workclass :</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s">'workclass'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">())</span>
+<span class="k">print</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"occupation :</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s">'occupation'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">())</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>gender :
+  Male      21790
+ Female    10771
+Name: gender, dtype: int64
+
+workclass :
+  Private             22696
+ Self-emp-not-inc     2541
+ Local-gov            2093
+ ?                    1836
+ State-gov            1298
+ Self-emp-inc         1116
+ Federal-gov           960
+ Without-pay            14
+ Never-worked            7
+Name: workclass, dtype: int64
+
+occupation :
+  Prof-specialty       4140
+ Craft-repair         4099
+ Exec-managerial      4066
+ Adm-clerical         3770
+ Sales                3650
+ Other-service        3295
+ Machine-op-inspct    2002
+ ?                    1843
+ Transport-moving     1597
+ Handlers-cleaners    1370
+ Farming-fishing       994
+ Tech-support          928
+ Protective-serv       649
+ Priv-house-serv       149
+ Armed-Forces            9
+Name: occupation, dtype: int64
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">pandas</code>에서는 <code class="language-plaintext highlighter-rouge">get_dummies</code>함수를 이용해 쉽게 범주형 데이터를 인코딩할 수 있다.</p>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">get_dummies</code> :
+객체(object) 타입 혹은 범주형(categorical)가진 열을 자동으로 변환해준다.</p>
+</blockquote>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"원본 특성 :</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">columns</span><span class="p">),</span> <span class="s">"</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+<span class="n">data_dummies</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"원본 특성 :</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">data_dummies</span><span class="p">.</span><span class="n">columns</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>원본 특성 :
+ ['age', 'workclass', 'education', 'gender', 'hours-per-week', 'occupation', 'income'] 
+
+원본 특성 :
+ ['age', 'hours-per-week', 'workclass_ ?', 'workclass_ Federal-gov', 'workclass_ Local-gov', 'workclass_ Never-worked', 'workclass_ Private', 'workclass_ Self-emp-inc', 'workclass_ Self-emp-not-inc', 'workclass_ State-gov', 'workclass_ Without-pay', 'education_ 10th', 'education_ 11th', 'education_ 12th', 'education_ 1st-4th', 'education_ 5th-6th', 'education_ 7th-8th', 'education_ 9th', 'education_ Assoc-acdm', 'education_ Assoc-voc', 'education_ Bachelors', 'education_ Doctorate', 'education_ HS-grad', 'education_ Masters', 'education_ Preschool', 'education_ Prof-school', 'education_ Some-college', 'gender_ Female', 'gender_ Male', 'occupation_ ?', 'occupation_ Adm-clerical', 'occupation_ Armed-Forces', 'occupation_ Craft-repair', 'occupation_ Exec-managerial', 'occupation_ Farming-fishing', 'occupation_ Handlers-cleaners', 'occupation_ Machine-op-inspct', 'occupation_ Other-service', 'occupation_ Priv-house-serv', 'occupation_ Prof-specialty', 'occupation_ Protective-serv', 'occupation_ Sales', 'occupation_ Tech-support', 'occupation_ Transport-moving', 'income_ &lt;=50K', 'income_ &gt;50K']
+</code></pre></div></div>
+
+<p>위에서 연속형 변수는 그대로지만, 범주형 변수인 “workclass”, “education”, “gender”, “occupation”은 가진 변수값별로 새로운 특성으로 확장된 것을 확인할 수 있다. 그리고 변환된 데이터 프레임은 다음과 같다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data_dummies</span><span class="p">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>age</th>
+      <th>hours-per-week</th>
+      <th>workclass_ ?</th>
+      <th>workclass_ Federal-gov</th>
+      <th>workclass_ Local-gov</th>
+      <th>workclass_ Never-worked</th>
+      <th>workclass_ Private</th>
+      <th>workclass_ Self-emp-inc</th>
+      <th>workclass_ Self-emp-not-inc</th>
+      <th>workclass_ State-gov</th>
+      <th>...</th>
+      <th>occupation_ Machine-op-inspct</th>
+      <th>occupation_ Other-service</th>
+      <th>occupation_ Priv-house-serv</th>
+      <th>occupation_ Prof-specialty</th>
+      <th>occupation_ Protective-serv</th>
+      <th>occupation_ Sales</th>
+      <th>occupation_ Tech-support</th>
+      <th>occupation_ Transport-moving</th>
+      <th>income_ &lt;=50K</th>
+      <th>income_ &gt;50K</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>39</td>
+      <td>40</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>50</td>
+      <td>13</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>38</td>
+      <td>40</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>53</td>
+      <td>40</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>28</td>
+      <td>40</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>...</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 46 columns</p>
+</div>
+
+<p><br /></p>
+
+<p>이제 이를 이용해서 모델에 학습시켜보자. 학습시킬 때 타깃값은 “income”으로 지정한다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">features</span> <span class="o">=</span> <span class="n">data_dummies</span><span class="p">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s">'age'</span><span class="p">:</span><span class="s">'occupation_ Transport-moving'</span><span class="p">]</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">features</span><span class="p">.</span><span class="n">values</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">data_dummies</span><span class="p">[</span><span class="s">'income_ &lt;=50K'</span><span class="p">].</span><span class="n">values</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"X.shape : {0}, y.shape : {1}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">X</span><span class="p">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">y</span><span class="p">.</span><span class="n">shape</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>X.shape : (32561, 44), y.shape : (32561,)
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>이제 scikit_learn의 로지스틱 회귀에 사용가능한 모델이 되었으니 이전과 동일하게 모델에 적용한다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">random_state</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">logreg</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
+<span class="n">logreg</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"테스트 점수 : {:.2f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">logreg</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span><span class="n">y_test</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>테스트 점수 : 0.81
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="1-2-숫자로-표현된-범주형-특성-">1-2) <u>숫자로 표현된 범주형 특성 </u></h4>
+
+<p>여기까지 공부하면서 <del>“범주형 특성 = 문자열”</del>이라고 생각하는 것은 금물이다. 흔히 말하는 기출변형의 형태로 <code class="language-plaintext highlighter-rouge">범주형 변수</code>가 <code class="language-plaintext highlighter-rouge">숫자</code>로 인코딩된 경우도 많다. 이러한 범주형 변수들은 겉으로 보기에는 연속형 변수로 착각하기 쉬워서 주의해야한다.</p>
+
+<p><br /></p>
+
+<p>앞서 사용한 pandas의 <code class="language-plaintext highlighter-rouge">get_dummies</code>함수의 경우 <code class="language-plaintext highlighter-rouge">숫자특성을 모두 연속형이라고 생각</code><u>해서 가변수를 만들지 않기 때문이다</u>. 다음의 각각 문자열과 숫자로 표현된 두 개의 범주형 특성을 가진 데이터프레임을 예제로 살펴보자.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">demo_df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s">'숫자 특성'</span> <span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s">'범주형 특성'</span> <span class="p">:</span> <span class="p">[</span><span class="s">'양말'</span><span class="p">,</span> <span class="s">'여우'</span><span class="p">,</span> <span class="s">'양말'</span><span class="p">,</span> <span class="s">'상자'</span><span class="p">]})</span>
+<span class="n">demo_df</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>숫자 특성</th>
+      <th>범주형 특성</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>양말</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>여우</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>양말</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>상자</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">pd</span><span class="p">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">demo_df</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>숫자 특성</th>
+      <th>범주형 특성_상자</th>
+      <th>범주형 특성_양말</th>
+      <th>범주형 특성_여우</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p><br /></p>
+
+<p>하지만, <code class="language-plaintext highlighter-rouge">숫자 특성</code>도 가변수로 만들고 싶을 경우 <code class="language-plaintext highlighter-rouge">colums</code>매개변수에 인코딩하고 싶은 열을 다음과 같이 명시하면된다. 혹은 <code class="language-plaintext highlighter-rouge">숫자 특성</code>의 숫자들을 <code class="language-plaintext highlighter-rouge">astype</code>과 같은 함수를 통해 문자형으로 바꾸어주면 <code class="language-plaintext highlighter-rouge">columns</code>로 지정하지 않아도 가변수로 만들어준다.</p>
+
+<ul>
+  <li><b>정리 : 숫자 특성을 가변수로 만드는 방법</b>
+    <ul>
+      <li>
+        <ol>
+          <li>get_dummies의 매개변수  columns에 숫자 특성을 가진 열을 명시해준다.</li>
+        </ol>
+      </li>
+      <li>
+        <ol>
+          <li>숫자 특성을 가진 열을 문자열로 변환시켜준다.</li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># columns로 제시할 경우
+</span><span class="n">pd</span><span class="p">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">demo_df</span><span class="p">,</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s">'숫자 특성'</span><span class="p">,</span> <span class="s">'범주형 특성'</span><span class="p">])</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>숫자 특성_0</th>
+      <th>숫자 특성_1</th>
+      <th>숫자 특성_2</th>
+      <th>범주형 특성_상자</th>
+      <th>범주형 특성_양말</th>
+      <th>범주형 특성_여우</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># astype을 이용해 문자형으로 변경할 경우
+</span><span class="n">demo_df</span><span class="p">[</span><span class="s">'숫자 특성'</span><span class="p">]</span> <span class="o">=</span> <span class="n">demo_df</span><span class="p">[</span><span class="s">'숫자 특성'</span><span class="p">].</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="n">pd</span><span class="p">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">demo_df</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>숫자 특성_0</th>
+      <th>숫자 특성_1</th>
+      <th>숫자 특성_2</th>
+      <th>범주형 특성_상자</th>
+      <th>범주형 특성_양말</th>
+      <th>범주형 특성_여우</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="2-onehotencoder-와-columntransformer">2) <u>OneHotEncoder 와 ColumnTransformer</u></h3>
+
+<p>앞에서와 같이 <code class="language-plaintext highlighter-rouge">pandas</code>의 <code class="language-plaintext highlighter-rouge">get_dummies</code>함수로 <code class="language-plaintext highlighter-rouge">원-핫-인코딩</code>을 수행한 것 처럼, <code class="language-plaintext highlighter-rouge">scikit-learn</code>의 <code class="language-plaintext highlighter-rouge">OneHotEncoder</code>클래스에서도 <code class="language-plaintext highlighter-rouge">원-핫-인코딩</code>을 수행할 수 있다. 하지만, 앞의 <code class="language-plaintext highlighter-rouge">get_dummies</code><u>와 달리 </u><code class="language-plaintext highlighter-rouge">OneHotEncoder</code><u>는 모든 열에 인코딩을 수행한다</u>.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">OneHotEncoder</span>
+
+<span class="c1"># sparse를 True로 할 경우 "(행, 열) 1"의 좌표리스트의 형식으로 결과를 보여준다.
+# 하지만, False로 할 경우 넘파이 배열로 반환된다.
+</span><span class="n">ohe</span> <span class="o">=</span> <span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">sparse</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">ohe</span><span class="p">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">demo_df</span><span class="p">))</span>
+
+<span class="c1"># 결과가 pandas의 get_dummies를 사용하여 모든 열을 가변수화 시켰을 때와 같음을 확인할 수 있다.
+# scikit-learn에서의 출력은 DataFrame이 아니기 때문에 친절하게 열 이름을 주지 않는다.
+</span><span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">ohe</span><span class="p">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">demo_df</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[[1. 0. 0. 0. 1. 0.]
+ [0. 1. 0. 0. 0. 1.]
+ [0. 0. 1. 0. 1. 0.]
+ [0. 1. 0. 1. 0. 0.]]
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p><br /></p>
+
+<p>변환된 특성에 해당하는 원본 범주형 변수 이름을 얻으려면 <code class="language-plaintext highlighter-rouge">get_feature_names</code> 메서드를 사용해야한다. 아래의 예제에서 첫 번째 원본 특성(x0)는 “숫자 특성”, 두 번째 원본 특성(x1)는 “범주형 특성”이다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="n">ohe</span><span class="p">.</span><span class="n">get_feature_names</span><span class="p">())</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>['x0_0' 'x0_1' 'x0_2' 'x1_상자' 'x1_양말' 'x1_여우']
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>여기까지 공부해봤을 때, 생각하는 것은 “굳이 <code class="language-plaintext highlighter-rouge">OneHotEncoder</code>를 쓸 필요가 있는건가?” 였다. 왜냐하면, <code class="language-plaintext highlighter-rouge">OneHotEncoder</code>는 모든 특성을 범주형이라고 가정할 뿐더러 <code class="language-plaintext highlighter-rouge">get_dummies</code>는 문자형 특성만을 기본값으로 가변수로 바꿀 수 있었으며, 필요에 따라 colums매개변수에 열을 추가할 수 있었다. 하지만, <code class="language-plaintext highlighter-rouge">ColumnTransformer</code>때문에 사용할 가치가 충분하다고 생각이 바뀌었다.</p>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">ColumnTransformer</code>클래스를 사용하게되면, <u>입력 데이터에 있는 열마다 다른 변환을 적용할 수 있게 된다</u>(ㅎㄷㄷ…). 연속형 특성과 범주형 특성은 매우 다른 종류의 전처리 과정이 필요하기 때문에 이클래스는 매우 유용하다. 이를 확인하기위해 다음의 데이터프레임을 살펴보자.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data</span><span class="p">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>age</th>
+      <th>workclass</th>
+      <th>education</th>
+      <th>gender</th>
+      <th>hours-per-week</th>
+      <th>occupation</th>
+      <th>income</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>39</td>
+      <td>State-gov</td>
+      <td>Bachelors</td>
+      <td>Male</td>
+      <td>40</td>
+      <td>Adm-clerical</td>
+      <td>&lt;=50K</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>50</td>
+      <td>Self-emp-not-inc</td>
+      <td>Bachelors</td>
+      <td>Male</td>
+      <td>13</td>
+      <td>Exec-managerial</td>
+      <td>&lt;=50K</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>38</td>
+      <td>Private</td>
+      <td>HS-grad</td>
+      <td>Male</td>
+      <td>40</td>
+      <td>Handlers-cleaners</td>
+      <td>&lt;=50K</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>53</td>
+      <td>Private</td>
+      <td>11th</td>
+      <td>Male</td>
+      <td>40</td>
+      <td>Handlers-cleaners</td>
+      <td>&lt;=50K</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>28</td>
+      <td>Private</td>
+      <td>Bachelors</td>
+      <td>Female</td>
+      <td>40</td>
+      <td>Prof-specialty</td>
+      <td>&lt;=50K</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>이 데이터셋에 선형 회귀모델을 적용하여 소득을 예측하려면</p>
+<ul>
+  <li>범주형 변수를 <code class="language-plaintext highlighter-rouge">원-핫-인코딩</code>로 변환</li>
+  <li>연속형 변수 age 열과 hours-per-week 열의 <code class="language-plaintext highlighter-rouge">스케일 조정</code>이 필요</li>
+</ul>
+
+<p>이라는 두 가지의 변환이 필요하다. 이때 빛나는 것이 <code class="language-plaintext highlighter-rouge">ColumnTransformer</code>이다.<br />
+<code class="language-plaintext highlighter-rouge">CounterTransformer</code>는 다음의 것들이 list로 지정해야 한다.</p>
+<ul>
+  <li>이름</li>
+  <li>변환기 객체 (ex. StandardScaler)</li>
+  <li>변환된 열의 이름 (만약, DataFrame이 아니라 배열에서 사용할 경우 정수 인덱스나 불린 마스크를 사용하면 된다.)</li>
+</ul>
+
+<p>다음의 예를 살펴보자!</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.compose</span> <span class="kn">import</span> <span class="n">ColumnTransformer</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+
+<span class="n">ct</span> <span class="o">=</span> <span class="n">ColumnTransformer</span><span class="p">(</span>
+<span class="p">[(</span><span class="s">"scaling"</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">(),</span> <span class="p">[</span><span class="s">'age'</span><span class="p">,</span> <span class="s">'hours-per-week'</span><span class="p">]),</span>
+ <span class="p">(</span><span class="s">"onehot"</span><span class="p">,</span> <span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">sparse</span> <span class="o">=</span> <span class="bp">False</span><span class="p">),</span> <span class="p">[</span><span class="s">'workclass'</span><span class="p">,</span> <span class="s">'education'</span><span class="p">,</span> <span class="s">'gender'</span><span class="p">,</span> <span class="s">'occupation'</span><span class="p">])])</span>
+</code></pre></div></div>
+
+<p>여기서 “scaling”과 “onehot”이 <code class="language-plaintext highlighter-rouge">이름</code>에 해당하며, StandardScaler와 OneHotEncdoer가 <code class="language-plaintext highlighter-rouge">변환기 객체</code>에 해당한다. 다른 scikit-learn의 변환기들과 동일하게 <code class="language-plaintext highlighter-rouge">ColumnTransformer</code>로 생성된 객체 또한 <code class="language-plaintext highlighter-rouge">fit</code>, <code class="language-plaintext highlighter-rouge">transform</code> 메서드를 사용할 수 있다.</p>
+
+<p><br /></p>
+
+<p>이제 이를 이용하여 모델을 학습시켜보자!</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+
+<span class="c1"># income을 제외한 모든 열을 추출한다. (drop 기억해두자 은근 많이 써먹을 것 같다.)
+</span><span class="n">data_features</span> <span class="o">=</span> <span class="n">data</span><span class="p">.</span><span class="n">drop</span><span class="p">(</span><span class="s">"income"</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># 데이터프레임과 incom을 분할한다.
+</span><span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">data_features</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s">'income'</span><span class="p">],</span> <span class="n">random_state</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># ColumnTransformer로 생성된 객체 적용
+</span><span class="n">ct</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_train_trans</span> <span class="o">=</span> <span class="n">ct</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+
+<span class="c1"># 결과 확인
+</span><span class="k">print</span><span class="p">(</span><span class="n">X_train_trans</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X_train_trans</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(24420, 44)
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+      <th>...</th>
+      <th>34</th>
+      <th>35</th>
+      <th>36</th>
+      <th>37</th>
+      <th>38</th>
+      <th>39</th>
+      <th>40</th>
+      <th>41</th>
+      <th>42</th>
+      <th>43</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.498941</td>
+      <td>-0.445097</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2.380451</td>
+      <td>-1.668489</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.250134</td>
+      <td>-0.037300</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>-0.925213</td>
+      <td>-0.037300</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.543971</td>
+      <td>-0.037300</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>24415</th>
+      <td>0.323594</td>
+      <td>-0.037300</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>24416</th>
+      <td>0.397053</td>
+      <td>-0.445097</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>24417</th>
+      <td>-1.145591</td>
+      <td>-0.037300</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>24418</th>
+      <td>0.470512</td>
+      <td>0.370498</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>24419</th>
+      <td>-0.998672</td>
+      <td>0.615176</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>24420 rows × 44 columns</p>
+</div>
+
+<p>이전에 해당 데이터프레임에 <code class="language-plaintext highlighter-rouge">get_dummies</code>를 사용했을 때 처럼 44개의 특성을 반환하였다. <code class="language-plaintext highlighter-rouge">get_dummies</code>와 달라진 점은 연속형 특성을 가진 열에 다른 스케일링 변환이 동시에 적용되었다는 점이다.</p>
+
+<p><br /></p>
+
+<p>이제 LogisticRegression모델에 사용할 수 있는 데이터로 변환되었으니 적용해보자!</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 로지스틱회귀 모델 학습
+</span><span class="n">logreg</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
+<span class="n">logreg</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_trans</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+<span class="n">X_test_trans</span> <span class="o">=</span> <span class="n">ct</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"테스트 점수 : {:.2f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">logreg</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test_trans</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>테스트 점수 : 0.81
+</code></pre></div></div>
+
+<p>(해당 데이터에서는 연속형 변수의 데이터 스케일링이 점수에 크게 영향을 미치지는 못했다ㅠ.ㅠ)</p>
+
+<p><br /></p>
+
+<hr />
+
+<h4 id="2-1-make_column_transformer로-간편하게-columntransformer-만들기">2-1) <u>make_column_transformer로 간편하게 ColumnTransformer 만들기</u></h4>
+
+<p>코딩을 하거나 일을 하다보면 순간 멈칫하는 순간이 변수의 이름을 짓는 순간이다. 마찬가지로, <code class="language-plaintext highlighter-rouge">ColumnTransformer</code> 객체를 정의할 때 이름을 붙였었다. 하지만 클래스 이름을 기반으로 자동으로 각 단계에 이름을 붙여주는 편리한 <code class="language-plaintext highlighter-rouge">make_column_transformer</code>함수가 있다. 이 함수는 다음과 같이 사용할 수 있다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.compose</span> <span class="kn">import</span> <span class="n">make_column_transformer</span>
+<span class="n">ct</span> <span class="o">=</span> <span class="n">make_column_transformer</span><span class="p">(</span>
+    <span class="p">(</span><span class="n">StandardScaler</span><span class="p">(),</span> <span class="p">[</span><span class="s">'age'</span><span class="p">,</span> <span class="s">'hours-per-week'</span><span class="p">]),</span>
+    <span class="p">(</span><span class="n">OneHotEncoder</span><span class="p">(</span><span class="n">sparse</span><span class="o">=</span><span class="bp">False</span><span class="p">),</span> <span class="p">[</span><span class="s">'workclass'</span><span class="p">,</span> <span class="s">'education'</span><span class="p">,</span> <span class="s">'gender'</span><span class="p">,</span> <span class="s">'occupation'</span><span class="p">]))</span>
+
+<span class="c1"># ColumnTransformer로 생성된 객체 적용
+</span><span class="n">ct</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+<span class="n">X_train_trans</span> <span class="o">=</span> <span class="n">ct</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+
+<span class="c1"># 결과 확인
+</span><span class="k">print</span><span class="p">(</span><span class="n">X_train_trans</span><span class="p">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X_train_trans</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(24420, 44)
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+      <th>...</th>
+      <th>34</th>
+      <th>35</th>
+      <th>36</th>
+      <th>37</th>
+      <th>38</th>
+      <th>39</th>
+      <th>40</th>
+      <th>41</th>
+      <th>42</th>
+      <th>43</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1.498941</td>
+      <td>-0.445097</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2.380451</td>
+      <td>-1.668489</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.250134</td>
+      <td>-0.037300</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>-0.925213</td>
+      <td>-0.037300</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.543971</td>
+      <td>-0.037300</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>24415</th>
+      <td>0.323594</td>
+      <td>-0.037300</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>24416</th>
+      <td>0.397053</td>
+      <td>-0.445097</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>24417</th>
+      <td>-1.145591</td>
+      <td>-0.037300</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>24418</th>
+      <td>0.470512</td>
+      <td>0.370498</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>24419</th>
+      <td>-0.998672</td>
+      <td>0.615176</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>24420 rows × 44 columns</p>
+</div>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="references">References</h3>
+
+<ul>
+  <li>안드레아스 뮐러, 세라 가이도, 『파이썬 라이브러리를 활용한 머신러닝』, 박해선, 한빛미디어(2017)</li>
+</ul>
+
+:ET

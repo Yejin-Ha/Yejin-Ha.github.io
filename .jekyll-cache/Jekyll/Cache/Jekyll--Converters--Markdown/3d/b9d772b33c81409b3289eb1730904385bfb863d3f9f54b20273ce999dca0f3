@@ -1,0 +1,9 @@
+I"�<h4 id="ml-with-python-2-지도-학습-알고리즘-4-앙상블---baggingextraada">[ML with Python] 2. 지도 학습 알고리즘 (4) 앙상블 - Bagging/Extra/Ada</h4>
+<ul>
+  <li>본 포스팅은 지도 학습 알고리즘인 앙상블-Bagging/Extra/Ada에 관한 기본적인 내용에 관하여 다룹니다.</li>
+  <li>앙상블 (<code class="language-plaintext highlighter-rouge">ensemble</code>)</li>
+  <li>배깅(<code class="language-plaintext highlighter-rouge">Bagging</code>)</li>
+  <li>엑스트라 트리(<code class="language-plaintext highlighter-rouge">Extra_Tree</code>)</li>
+  <li>에이다부스팅(<code class="language-plaintext highlighter-rouge">AdaBoosting</code>)</li>
+</ul>
+:ET

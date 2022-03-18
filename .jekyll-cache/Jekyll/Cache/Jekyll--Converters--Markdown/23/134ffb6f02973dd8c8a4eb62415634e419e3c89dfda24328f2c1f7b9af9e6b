@@ -1,0 +1,290 @@
+I"�p<h4 id="ml-with-python-4-전문가-지식-활용">[ML with Python] 4. 전문가 지식 활용</h4>
+<ul>
+  <li>본 포스팅은 전문가 지식 활용에 관한 기본적인 내용에 관하여 다룹니다.</li>
+</ul>
+
+<h3>Table of Contents<span class="tocSkip"></span></h3>
+<div class="toc"><ul class="toc-item"><li><span><a href="#1)-전문가-지식-활용" data-toc-modified-id="1)-전문가-지식-활용-1">1) 전문가 지식 활용</a></span></li><li><span><a href="#2)-References" data-toc-modified-id="2)-References-2">2) References</a></span></li></ul></div>
+
+<hr />
+
+<p>필요라이브러리 import</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">mglearn</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestRegressor</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">OneHotEncoder</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">PolynomialFeatures</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="p">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s">'ignore'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s">'axes.unicode_minus'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span> 
+<span class="n">plt</span><span class="p">.</span><span class="n">rc</span><span class="p">(</span><span class="s">'font'</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s">'Malgun Gothic'</span><span class="p">)</span> 
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="1-전문가-지식-활용">1) 전문가 지식 활용</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">특성 공학</code> : 특정한 애플리케이션을 위해 <code class="language-plaintext highlighter-rouge">전문가의 지식(Expert Knowledge)</code>를 사용할 수 있는 중요한 영역
+    <ul>
+      <li>대부분의 경우 머신러닝의 목적은 전문가가 설계하는 규칙을 만들지 않기 위해서지만,<br /> <u>종종 분야 전문가는 초기 데이터에서 유용한 특성을 선택할 수 있도록 도움을 준다</u>.</li>
+      <li>ex) 항공료를 예측할 경우의 변수 : 공휴일, 방학 전후의 여행 스케줄에 관한 특성 데이터</li>
+      <li>but, 이러한 사전 지식 특성이 머신러닝 알고리즘에 도움이 될 수 있지만 반드시 그 특성을 사용하는 것은 아니다!</li>
+    </ul>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">전문가 지식</code>을 사용하는 전형적인 사례(앤디 집 앞의 자전거가 대여 가능한지 예측하는 작업)를 살펴보자. 여기서 보고자하는 문제는 특정 날짜와 시간에 앤디 집 앞에 있는 자전거를 사람들이 얼마나 대여할 것인지 예측하는 것이다.</p>
+
+<p><br /></p>
+
+<p>먼저 데이터 프레임을 읽어오고, 8월 한달 동안의 대여 횟수를 그래프로 나타내보자.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">citibike</span> <span class="o">=</span> <span class="n">mglearn</span><span class="p">.</span><span class="n">datasets</span><span class="p">.</span><span class="n">load_citibike</span><span class="p">()</span>
+
+<span class="n">df_citibike</span> <span class="o">=</span> <span class="n">citibike</span><span class="p">.</span><span class="n">to_frame</span><span class="p">().</span><span class="n">reset_index</span><span class="p">()</span>
+<span class="n">df_citibike</span><span class="p">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s">'대여 날짜'</span><span class="p">,</span> <span class="s">'대여 횟수'</span><span class="p">]</span>
+<span class="n">df_citibike</span><span class="p">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>대여 날짜</th>
+      <th>대여 횟수</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2015-08-01 00:00:00</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2015-08-01 03:00:00</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2015-08-01 06:00:00</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2015-08-01 09:00:00</td>
+      <td>41</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2015-08-01 12:00:00</td>
+      <td>39</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">xticks</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">start</span> <span class="o">=</span> <span class="n">citibike</span><span class="p">.</span><span class="n">index</span><span class="p">.</span><span class="nb">min</span><span class="p">(),</span> <span class="n">end</span> <span class="o">=</span> <span class="n">citibike</span><span class="p">.</span><span class="n">index</span><span class="p">.</span><span class="nb">max</span><span class="p">(),</span> <span class="n">freq</span> <span class="o">=</span> <span class="s">'D'</span><span class="p">)</span>
+<span class="n">week</span> <span class="o">=</span> <span class="p">[</span><span class="s">'월'</span><span class="p">,</span> <span class="s">'화'</span><span class="p">,</span> <span class="s">'수'</span><span class="p">,</span> <span class="s">'목'</span><span class="p">,</span> <span class="s">'금'</span><span class="p">,</span> <span class="s">'토'</span><span class="p">,</span> <span class="s">'일'</span><span class="p">]</span>
+<span class="n">xticks_name</span> <span class="o">=</span> <span class="p">[</span><span class="n">week</span><span class="p">[</span><span class="n">w</span><span class="p">]</span> <span class="o">+</span> <span class="n">d</span> <span class="k">for</span> <span class="n">w</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xticks</span><span class="p">.</span><span class="n">weekday</span><span class="p">,</span> <span class="n">xticks</span><span class="p">.</span><span class="n">strftime</span><span class="p">(</span><span class="s">'%m-%d'</span><span class="p">))]</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df_citibike</span><span class="p">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">df_citibike</span><span class="p">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">xticks</span><span class="p">,</span> <span class="n">xticks_name</span><span class="p">,</span><span class="n">rotation</span> <span class="o">=</span> <span class="mi">60</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">'날짜'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">'대여횟수'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0, 0.5, '대여횟수')
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/104837880-f034ea00-58fa-11eb-97b4-b405ff1873e4.png" alt="ML_expert_knowledge_7_1" /></p>
+
+<p>데이터를 보면 24시간 간격으로 낮과 밤을 구분할 수 있다. 또한 주중과 주말의 패턴에서도 차이를 보이는 것 같다. 이와 같은 <code class="language-plaintext highlighter-rouge">시계열 데이터</code>를 이용한 예측 작업은 <u>과거 데이터에서 학습하여 미래를 예측하는 방식</u>을 사용한다. 시계열 데이터에서의 훈련 세트와 테스트 세트는 다음과 같다.</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">훈련 세트</code> : 특정 날짜까지의 모든 데이터</li>
+  <li><code class="language-plaintext highlighter-rouge">테스트 세트</code> : 특정 날짜이후의 모든 데이터</li>
+</ul>
+
+<p><br /></p>
+
+<p>해당 예제에서는 23일 치 184개 데이터 포인트를 <code class="language-plaintext highlighter-rouge">훈련 세트</code>, 남은 8일 치 64개 데이터 포인트를 <code class="language-plaintext highlighter-rouge">테스트 세트</code>로 사용하겠다. 또한 데이터 전처리가 거의 필요하지 않아 처음 시도하기 좋은 <code class="language-plaintext highlighter-rouge">랜덤포레스트</code>를 예측 모델로 사용하겠다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 타깃값(대여 횟수)
+</span><span class="n">y</span> <span class="o">=</span> <span class="n">citibike</span><span class="p">.</span><span class="n">values</span>
+
+<span class="c1"># POSIX 시간 : 1970년 1월 1일 00시 00분 00초 부터 경과한 시간을 초로 나타냄
+# POSIX 시간을 10**9로 나누어 변환
+</span><span class="n">X</span> <span class="o">=</span> <span class="n">citibike</span><span class="p">.</span><span class="n">index</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="s">'int64'</span><span class="p">).</span><span class="n">values</span><span class="p">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># 처음 184개 데이터 포인트를 훈련세트로 사용 나머지는 테스트 세트
+</span><span class="n">n_train</span> <span class="o">=</span> <span class="mi">184</span>
+
+<span class="k">def</span> <span class="nf">eval_on_features</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">regressor</span><span class="p">):</span>
+    <span class="c1">#훈련 세트와 테스트 세트로 나눈다.
+</span>    <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span> <span class="o">=</span> <span class="n">features</span><span class="p">[:</span><span class="n">n_train</span><span class="p">],</span> <span class="n">features</span><span class="p">[</span><span class="n">n_train</span><span class="p">:]</span>
+    <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">target</span><span class="p">[:</span><span class="n">n_train</span><span class="p">],</span> <span class="n">target</span><span class="p">[</span><span class="n">n_train</span><span class="p">:]</span>
+    
+    <span class="n">regressor</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+    
+    <span class="k">print</span><span class="p">(</span><span class="s">"테스트 세트 R^2 : {:.2f}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">regressor</span><span class="p">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)))</span>
+    
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">regressor</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+    <span class="n">y_pred_train</span> <span class="o">=</span> <span class="n">regressor</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+    <span class="n">plt</span><span class="p">.</span><span class="n">xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">),</span> <span class="mi">8</span><span class="p">),</span> <span class="n">xticks_name</span><span class="p">,</span> <span class="n">rotation</span> <span class="o">=</span> <span class="mi">60</span><span class="p">,</span> <span class="n">ha</span> <span class="o">=</span> <span class="s">'left'</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_train</span><span class="p">),</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s">'훈련'</span><span class="p">)</span>
+    <span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_train</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_test</span><span class="p">)</span> <span class="o">+</span> <span class="n">n_train</span><span class="p">),</span> <span class="n">y_test</span><span class="p">,</span> <span class="s">'-'</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s">'테스트'</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_train</span><span class="p">),</span> <span class="n">y_pred_train</span><span class="p">,</span> <span class="s">'--'</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s">'훈련 예측'</span><span class="p">)</span>
+    <span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_train</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_test</span><span class="p">)</span> <span class="o">+</span> <span class="n">n_train</span><span class="p">),</span> <span class="n">y_pred</span><span class="p">,</span> <span class="s">'--'</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s">'테스트 예측'</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span> <span class="o">=</span> <span class="s">'best'</span><span class="p">)</span>
+    <span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">'날짜'</span><span class="p">)</span>
+    <span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">'대여횟수'</span><span class="p">)</span>
+    
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestRegressor</span>
+<span class="n">regressor</span> <span class="o">=</span> <span class="n">RandomForestRegressor</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">eval_on_features</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">regressor</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>테스트 세트 R^2 : -0.04
+range(184, 248)
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/104837881-f1661700-58fa-11eb-8f4e-c22d7f8221ed.png" alt="ML_expert_knowledge_9_1" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">랜덤 포레스트 모델</code>이 그렇듯이 <code class="language-plaintext highlighter-rouge">훈련 세트</code>의 예측은 매우 정확하다. 그런데 테스트 세트에 대해서는 한가지 값으로만 예측하였다. 더불어 R^2값은 -0.04로, 아무것도 학습되지 않았다는 것을 나타낸다.</p>
+
+<p><br /></p>
+
+<p>이러한 문제가 발생한 이유는 <u>테스트 세트에 있는 POSIX시간 특성의 값은 훈련 세트에 있는 특성 값의 범위 밖에 있기 때문이다</u>. 즉 테스트 세트에 있는 데이터 포인터는 훈련 세트에 있는 모든 데이터보다 뒤에 있기에 발생한 문제이다. <u>트리 모델인 랜덤 포레스트는 훈련 세트에 있는 특성의 범위 밖으로는 외삽(extrapolation)할 수 있는 능력이 없다</u>.</p>
+
+<p><br /></p>
+
+<p>결국 이 모델은 <code class="language-plaintext highlighter-rouge">테스트 세트</code>와 가장 가까이 있는 <code class="language-plaintext highlighter-rouge">마지막 훈련 세트</code> 데이터의 타깃값을 예측으로 사용하게 된다.</p>
+
+<p><br /></p>
+
+<p>하지만, 여기에 <code class="language-plaintext highlighter-rouge">전문가 지식</code><u>을 첨가하게 되면 더 나은 결과를 도출 할 수 있게 된다</u>. 훈련 데이터의 대여 데이터 그래프를 보면 (POSIX시간 데이터에는 표현되지 않은)시간과 요일이라는 두 요소가 패턴을 형성하는데 있어 중요한 것으로 보인다. 먼저 시간을 첨부해보자.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">X_hour</span> <span class="o">=</span> <span class="n">citibike</span><span class="p">.</span><span class="n">index</span><span class="p">.</span><span class="n">hour</span><span class="p">.</span><span class="n">values</span><span class="p">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">eval_on_features</span><span class="p">(</span><span class="n">X_hour</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">regressor</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>테스트 세트 R^2 : 0.60
+range(184, 248)
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/104837882-f1fead80-58fa-11eb-9c6b-4ebd6f28140b.png" alt="ML_expert_knowledge_11_1" /></p>
+
+<p>R^2는 이전보다 나아졌지만, 패턴까지는 예측하지 못 하고 있다. 그렇다면 요일 정보까지 추가해보자.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 특성 1에 요일, 특성 2에 시간 [요일, 시간]
+</span><span class="n">X_hour_week</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">citibike</span><span class="p">.</span><span class="n">index</span><span class="p">.</span><span class="n">dayofweek</span><span class="p">.</span><span class="n">values</span><span class="p">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">citibike</span><span class="p">.</span><span class="n">index</span><span class="p">.</span><span class="n">hour</span><span class="p">.</span><span class="n">values</span><span class="p">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)])</span>
+<span class="n">eval_on_features</span><span class="p">(</span><span class="n">X_hour_week</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">regressor</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>테스트 세트 R^2 : 0.84
+range(184, 248)
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/104837883-f1fead80-58fa-11eb-8d82-7e351390109a.png" alt="ML_expert_knowledge_13_1" /></p>
+
+<p>이제 모델은 하루의 시간과 요일에 따른 주기적인 패턴을 따르고 있는 것을 확인할 수 있다. 더불어 R^2도 0.84로 좋은 예측 성능을 보여준다.
+또한, 8월 24일 일요일의 결과와 8월 31일의 결과가 동일한 것으 확인할 수 있는데, 이것은 랜덤 포레스트 회귀로 만든 예측은 여러 트리가 예측한 값들의 평균이기 때문이다.</p>
+
+<p><br /></p>
+
+<hr />
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">랜덤 포레스트</code>보다 더 간단한 모델인 <code class="language-plaintext highlighter-rouge">LinearRegression</code>을 적용해보자.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LinearRegression</span>
+<span class="n">eval_on_features</span><span class="p">(</span><span class="n">X_hour_week</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">LinearRegression</span><span class="p">())</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>테스트 세트 R^2 : 0.13
+range(184, 248)
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/104837884-f2974400-58fa-11eb-821e-ed3ff0a018d5.png" alt="ML_expert_knowledge_17_1" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">LinearRegression</code>은 <code class="language-plaintext highlighter-rouge">랜덤 포레스트</code>와 똑같은 입력값을 넣었음에도 불구하고 성능도 나쁘며 주기적인 패턴도 이상하게 출력되는 것을 확인할 수 있다. 왜냐하면, <u>요일과 시간이 정수로 인코딩되어 있어서 연속형 변수로 해석되기 때문이다</u>.</p>
+
+<p><br /></p>
+
+<p>따라서, 패턴을 잡기 위해서는 <code class="language-plaintext highlighter-rouge">OneHotEncoder</code>를 사용하여 정수형을 범주형으로 해석할 필요가 있다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">OneHotEncoder</span>
+<span class="n">enc</span> <span class="o">=</span> <span class="n">OneHotEncoder</span><span class="p">()</span>
+<span class="n">X_hour_week_onehot</span> <span class="o">=</span> <span class="n">enc</span><span class="p">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_hour_week</span><span class="p">).</span><span class="n">toarray</span><span class="p">()</span>
+
+<span class="n">eval_on_features</span><span class="p">(</span><span class="n">X_hour_week_onehot</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">LinearRegression</span><span class="p">())</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>테스트 세트 R^2 : 0.62
+range(184, 248)
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/104837886-f2974400-58fa-11eb-8d8a-3ccb79456b28.png" alt="ML_expert_knowledge_19_1" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">원 핫 인코더</code>로 인코딩 후 기존 연속형 특성을 가졌을 때 보다 훨씬 좋아졌다.</p>
+
+<p><br /></p>
+
+<p>여기서 더 욕심을 내서 <code class="language-plaintext highlighter-rouge">상호작용 특성</code>을 사용하면 시간과 요일의 조합별 계수를 학습시켜 랜덤 포레스트와 비슷한 더 나은 결과를 얻을 수 있다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">PolynomialFeatures</span>
+<span class="n">poly_transform</span> <span class="o">=</span> <span class="n">PolynomialFeatures</span><span class="p">(</span><span class="n">degree</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">interaction_only</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">include_bias</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+<span class="n">X_hour_week_onehot_poly</span> <span class="o">=</span> <span class="n">poly_transform</span><span class="p">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_hour_week_onehot</span><span class="p">)</span>
+
+<span class="n">eval_on_features</span><span class="p">(</span><span class="n">X_hour_week_onehot_poly</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">LinearRegression</span><span class="p">())</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>테스트 세트 R^2 : 0.84
+range(184, 248)
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/104837887-f32fda80-58fa-11eb-8811-20468d426f36.png" alt="ML_expert_knowledge_21_1" /></p>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="2-references">2) References</h3>
+
+<ul>
+  <li>안드레아스 뮐러, 세라 가이도, 『파이썬 라이브러리를 활용한 머신러닝』, 박해선, 한빛미디어(2017)</li>
+</ul>
+
+:ET

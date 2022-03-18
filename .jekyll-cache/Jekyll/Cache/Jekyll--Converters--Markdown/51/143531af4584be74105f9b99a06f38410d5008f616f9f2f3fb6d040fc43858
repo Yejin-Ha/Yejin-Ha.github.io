@@ -1,0 +1,36 @@
+I"�<h4 id="contents">Contents</h4>
+<ul>
+  <li>Birthday Problem</li>
+  <li>Non-Navie Definition of Probability</li>
+  <li>Probability Properties</li>
+  <li>Inclusion-exclusion Principle</li>
+  <li>deMontmort’s Problem</li>
+</ul>
+
+<hr />
+<p><br /></p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/116772926-29016500-aa8d-11eb-853f-82498f72de35.jpg" alt="확률론 기초-6" /></p>
+
+<p><br /></p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/116772928-2a329200-aa8d-11eb-9ad6-dd8956ee9633.jpg" alt="확률론 기초-7" /></p>
+
+<p><br /></p>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/116772929-2a329200-aa8d-11eb-8bd3-2bb61b857c74.jpg" alt="확률론 기초-8" /></p>
+
+<p><br /></p>
+
+<p>demontmort문제의 마지막 계산수행에서 $(-1)^n\frac{1}{n!}$을 $(-1)^{n+1}\frac{1}{n!}$로 정정합니다.</p>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="references">References</h3>
+<ul>
+  <li>Joe Blitzstein. “Statistics 110 : Probability”  Harvard University</li>
+</ul>
+
+:ET

@@ -1,0 +1,3 @@
+I"�<h4 id="ml-with-python-2-지도-학습-알고리즘-요약-및-정리">[ML with Python] 2. 지도 학습 알고리즘 요약 및 정리</h4>
+<p>많은 알고리즘에서 좋은 성능을 내려면 <code class="language-plaintext highlighter-rouge">매개변수</code>를 적절히 설정하는 것이 중요하다. 어떤 알고리즘은 입력 데이터에 대해, 특히 <code class="language-plaintext highlighter-rouge">입력 특성의 스케일을 어떻게 하느냐</code>에 민감하다. 그러므로 모델의 가정과 매개변수의 의미를 이해하지 못하고 데이터셋에 아무 알고리즘이나 무조건 적용하면 좋은 모델을 만들 가능성이 낮다.</p>
+:ET

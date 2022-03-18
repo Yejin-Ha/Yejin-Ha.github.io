@@ -1,0 +1,162 @@
+I"�C<h4 id="ml-with-python-4-일변량-비선량-변환-log-exp-sin">[ML with Python] 4. 일변량 비선량 변환 (log, exp, sin)</h4>
+<ul>
+  <li>본 포스팅은 일변량 비선량 변환에 관한 기본적인 내용에 관하여 다룹니다.</li>
+</ul>
+
+<h3>Table of Contents<span class="tocSkip"></span></h3>
+<div class="toc"><ul class="toc-item"><li><span><a href="#1)-일변량-비선량-변환-(log,-exp,-sin)" data-toc-modified-id="1)-일변량-비선량-변환-(log,-exp,-sin)-1">1) 일변량 비선량 변환 (log, exp, sin)</a></span></li><li><span><a href="#2)-References" data-toc-modified-id="2)-References-2">2) References</a></span></li></ul></div>
+
+<p>필요라이브러리 import</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">Ridge</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="p">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="n">action</span><span class="o">=</span><span class="s">'ignore'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s">'axes.unicode_minus'</span><span class="p">]</span> <span class="o">=</span> <span class="bp">False</span> 
+<span class="n">plt</span><span class="p">.</span><span class="n">rc</span><span class="p">(</span><span class="s">'font'</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="s">'Malgun Gothic'</span><span class="p">)</span> 
+</code></pre></div></div>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="1-일변량-비선량-변환-log-exp-sin">1) 일변량 비선량 변환 (log, exp, sin)</h3>
+
+<p>이전 포스팅에서 <code class="language-plaintext highlighter-rouge">다항식</code>을 추가할 경우, <code class="language-plaintext highlighter-rouge">선형 회귀</code> 모델에 도움이 되었음을 살펴보았다. 한편 <code class="language-plaintext highlighter-rouge">다항식</code>말고도, <code class="language-plaintext highlighter-rouge">log</code>, <code class="language-plaintext highlighter-rouge">exp</code>, <code class="language-plaintext highlighter-rouge">sin</code>같은 수학 함수를 적용하는 방법도 특성 변환에서 유용하다.</p>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">선형 모델</code><u>과 </u><code class="language-plaintext highlighter-rouge">신경망</code><u>은 각 특성의 스케일과 분포에 밀접하게 연관되어 있으며</u>, <u>특히 </u><code class="language-plaintext highlighter-rouge">선형 모델</code><u>의 경우 특성과 타깃값 사이에 비선형성이 존재한다면 해당 모델을 구성하기 어렵다</u>. 이런 경우, <code class="language-plaintext highlighter-rouge">log</code>와 <code class="language-plaintext highlighter-rouge">exp</code>함수는 데이터의 스케일을 변경해 <code class="language-plaintext highlighter-rouge">선형 모델</code>과 <code class="language-plaintext highlighter-rouge">신경망</code> 모델의 성능을 올리는데 도움을 준다.</p>
+
+<p><br /></p>
+
+<p>더불어, 대부분의 모델은 각 특성이 <code class="language-plaintext highlighter-rouge">정규분포</code>와 비슷할 때 최고의 성능을 나타낸다. 이렇기 때문에 정규분포가 아닌 데이터를 정규분포의 형태로 스케일링할 필요가 있다. 이때, <code class="language-plaintext highlighter-rouge">log</code>와 <code class="language-plaintext highlighter-rouge">exp</code>함수를 사용하는 것이 편법이면서 가장 쉽고 효과적인 방법에 속한다.</p>
+
+<p><br /></p>
+
+<p>특히, 이런 변환이 도움되는 전형적인 경우는 <code class="language-plaintext highlighter-rouge">정수 카운트 데이터(ex.사용자가 얼마나 자주 로그인하는지)</code>를 다룰 때이
+다.</p>
+
+<p><br /></p>
+
+<p>정수 카운트 데이터는 다음과 같은 특징을 지닌다.</p>
+<ul>
+  <li>정수 카운트 데이터는 음수가 존재하지 않는다.</li>
+  <li>특별한 통계 패턴을 따르는 경우가 많다.</li>
+</ul>
+
+<p><br /></p>
+
+<p>실제 데이터의 속성과 비슷한 (특성이 모두 정수고 응답이 실수인)카운트 데이터를 만들어 사용해볼 것이다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># 난수 생성 초기값 객체 생성
+</span><span class="n">rnd</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">X_org</span> <span class="o">=</span> <span class="n">rnd</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1000</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">w</span> <span class="o">=</span> <span class="n">rnd</span><span class="p">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="c1"># ㅔ
+</span><span class="n">X</span> <span class="o">=</span> <span class="n">rnd</span><span class="p">.</span><span class="n">poisson</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="p">.</span><span class="n">exp</span><span class="p">(</span><span class="n">X_org</span><span class="p">))</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X_org</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+
+<span class="n">X</span><span class="p">[:</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>array([ 56,  81,  25,  20,  27,  18,  12,  21, 109,   7])
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>첫 번째 특성(1행)의 값 10개만을 살펴보면 모두 양의 정수지만 특정한 패턴을 보이지는 않는다. 하지만 각 값이 나타난 횟수를 세면 그 분포가 드러난다. <code class="language-plaintext highlighter-rouge">np.bincount</code>를 사용하여 확인해볼 경우, 2가 68회로 가장 많이 나타나며, 큰 값의 수는 빠르게 줄어드는 것을 확인할 수 있다. 그래프로 확인할 시 더 직관적으로 보인다. 이러한 <u>작은 수치가 많고 큰 수치는 몇 안되는 분포</u>는 <code class="language-plaintext highlighter-rouge">카운트 데이터</code>에서 전형적인 <code class="language-plaintext highlighter-rouge">푸아송(Poisson, 단위 시간 안에 일어날 이벤트 횟수를 표현하는 확률분포)</code> 분포이다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">print</span><span class="p">(</span><span class="s">"특성 출현 횟수 :</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">np</span><span class="p">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]))</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">160</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">70</span><span class="p">)</span>
+<span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">bincount</span><span class="p">(</span><span class="n">X</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">bar</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">)),</span> <span class="n">bins</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s">'grey'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">'출현횟수'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">'값'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>특성 출현 횟수 :
+ [28 38 68 48 61 59 45 56 37 40 35 34 36 26 23 26 27 21 23 23 18 21 10  9
+ 17  9  7 14 12  7  3  8  4  5  5  3  4  2  4  1  1  3  2  5  3  8  2  5
+  2  1  2  3  3  2  2  3  3  0  1  2  1  0  0  3  1  0  0  0  1  3  0  1
+  0  2  0  1  1  0  0  0  0  1  0  0  2  2  0  1  1  0  0  0  0  1  1  0
+  0  0  0  0  0  0  1  0  0  0  0  0  1  1  0  0  1  0  0  0  0  0  0  0
+  1  0  0  0  0  1  0  0  0  0  0  0  0  0  0  0  0  0  0  0  1]
+
+
+
+
+
+Text(0.5, 0, '값')
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/104486299-e4051000-560e-11eb-97c2-7cec48f304f3.png" alt="ML_conversion_8_2" /></p>
+
+<p><br /></p>
+
+<p><code class="language-plaintext highlighter-rouge">선형 모델</code>들은 위와 같은 데이터를 잘 처리하지 못한다. 아래는 이 데이터에 <code class="language-plaintext highlighter-rouge">리지 회귀</code>를 적용했을 때의 점수 결과이다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">Ridge</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">random_state</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">score</span> <span class="o">=</span> <span class="n">Ridge</span><span class="p">().</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">).</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'테스트 점수 : {:.3f}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">score</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>테스트 점수 : 0.622
+</code></pre></div></div>
+
+<p>비교적 낮은 R2점수가 나온 것으로 보아 <code class="language-plaintext highlighter-rouge">Ridge</code>는 X와 y의 관계를 제대로 모델링하지 못하였음을 알 수 있다.</p>
+
+<p><br /></p>
+
+<p>하지만, 이런 경우 <code class="language-plaintext highlighter-rouge">log 스케일</code>로 변환하면 큰 도움이 된다. 변환 시 다음과 같이 매우 큰 값을 가진 이상치도 보이지 않으며, 리지 모델의 경우에서도 훨씬 좋은 결과가 나온다.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># bins = 10, 10개로 구분할 경우
+</span><span class="n">plt</span><span class="p">.</span><span class="n">hist</span><span class="p">(</span><span class="n">X_train_log</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">bins</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="n">color</span> <span class="o">=</span> <span class="s">'gray'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">'출현횟수'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">'값'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Text(0.5, 0, '값')
+</code></pre></div></div>
+
+<p><img src="https://user-images.githubusercontent.com/53929665/104486302-e5363d00-560e-11eb-94c5-f456a1105cf4.png" alt="ML_conversion_12_1" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">Ridge</span>
+<span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">random_state</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># 데이터에 0이 있으면 log함수를 적용할 수 없기 때문에 log(X+1)을 사용한다.
+</span><span class="n">X_train_log</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="n">X_train</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">X_test_log</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">log</span><span class="p">(</span><span class="n">X_test</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">score</span> <span class="o">=</span> <span class="n">Ridge</span><span class="p">().</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train_log</span><span class="p">,</span> <span class="n">y_train</span><span class="p">).</span><span class="n">score</span><span class="p">(</span><span class="n">X_test_log</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'테스트 점수 : {:.3f}'</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">score</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>테스트 점수 : 0.875
+</code></pre></div></div>
+
+<p><br /></p>
+
+<p>데이터셋 모델의 조합에 최적인 변환 방법을 찾기란 상당히 까다로운 일이다. 이 예에서는 모든 특성이 같은 속성을 가지고 있다. 하지만, 실제로 이런 경우는 드물며, 일부 특성만 변환하거나 특성마다 모두 다르게 변환하기도 한다.</p>
+
+<p><br /></p>
+
+<p>이런 변환은 <code class="language-plaintext highlighter-rouge">트리</code> 기반 모델에서는 불필요하지만, <code class="language-plaintext highlighter-rouge">선형 모델</code>에서는 필수이다. 가끔 <code class="language-plaintext highlighter-rouge">회귀</code>에서 타깃 변수 y를 변환하는 것이 좋을 때도 있다. <code class="language-plaintext highlighter-rouge">카운트(ex. 주문 횟수)</code>를 예측하는 경우가 전형적인 예로 log(y+1)을 사용해 변환하면 도움이 된다.</p>
+
+<p><br /></p>
+
+<hr />
+
+<h3 id="2-references">2) References</h3>
+
+<ul>
+  <li>안드레아스 뮐러, 세라 가이도, 『파이썬 라이브러리를 활용한 머신러닝』, 박해선, 한빛미디어(2017)</li>
+</ul>
+
+:ET

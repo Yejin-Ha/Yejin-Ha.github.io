@@ -1,37 +1,25 @@
-// # src / katex.js
-// Copyright (c) 2017 Florian Klampfer <https://qwtel.com/>
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// Copyright (c) 2017 Florian Klampfer
+// Licensed under MIT
 
-import 'core-js/fn/array/for-each';
+/* eslint-disable no-param-reassign */
 
-import { hasFeatures, hide } from './common';
+import katex from 'katex';
 
-const { forEach } = Array.prototype;
+import { hasFeatures, hide, matches } from './common';
 
 const REQUIREMENTS = [
-  'classlist',
   'eventlistener',
   'queryselector',
 ];
 
-const featuresOk = hasFeatures(REQUIREMENTS);
-let katexJSLoaded = false;
-let katexCSSLoaded = false;
+function willChangeContent(mathBlocks) {
+  Array.prototype.forEach.call(mathBlocks, (el) => {
+    el.style.willChange = 'content'; // eslint-disable-line no-param-reassign
+  });
+}
 
 function replaceMathBlock(el, tex) {
-  el.outerHTML = window.katex.renderToString(tex, {
+  el.outerHTML = katex.renderToString(tex, {
     displayMode: el.type === 'math/tex; mode=display',
   });
 }
@@ -40,9 +28,7 @@ function renderKatex(el, tex) {
   try {
     const prev = el.previousElementSibling;
     replaceMathBlock(el, tex);
-    if (prev && prev.classList && prev.classList.contains('MathJax_Preview')) {
-      hide.call(prev);
-    }
+    if (prev && matches(prev, '.MathJax_Preview')) hide(prev);
   } catch (e) {
     // TODO: remove in production builds?
     console.error(e); // eslint-disable-line no-console
@@ -57,30 +43,25 @@ function readTexSource(el) {
 
 function changeContent(mathBlocks) {
   // kramdown generates script tags with type "math/tex"
-  forEach.call(mathBlocks, (script) => {
+  Array.prototype.forEach.call(mathBlocks, (script) => {
     const tex = readTexSource(script);
     renderKatex(script, tex);
   });
 }
 
 export default function upgradeMathBlocks() {
-  if (featuresOk) {
+  if (hasFeatures(REQUIREMENTS)) {
     const mathBlocks = document.querySelectorAll('script[type^="math/tex"]');
     if (mathBlocks.length) {
-      if (katexJSLoaded && katexCSSLoaded) {
-        changeContent(mathBlocks);
-      } else {
-        window.loadJSDeferred(document.getElementById('_katexJS').href, () => {
-          katexJSLoaded = true;
-          if (katexJSLoaded && katexCSSLoaded) upgradeMathBlocks();
-        });
-        window.loadCSS(document.getElementById('_katexCSS').href).onload = () => {
-          katexCSSLoaded = true;
-          if (katexJSLoaded && katexCSSLoaded) upgradeMathBlocks();
-        };
-      }
+      willChangeContent(mathBlocks);
+      changeContent(mathBlocks);
     }
   }
 }
 
-upgradeMathBlocks();
+if (hasFeatures(REQUIREMENTS)) {
+  // TODO: load on demand?
+  const ref = document.getElementsByTagName('style')[0];
+  const style = loadCSS('https://unpkg.com/katex@0.7.1/dist/katex.min.css', ref);
+  style.addEventListener('load', upgradeMathBlocks);
+}
