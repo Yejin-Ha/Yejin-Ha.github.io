@@ -1,18 +1,16 @@
 # The primary author of this blog.
 # Must be the same as `author` in `_config.yml`.
 # Change `author1` to your shortname.
-author1:
-  name:              <firstname> <lastname>
-  email:             <mail@domain.tld>
+# author1:
+# 이게 맞나..
+Yejin: 
+  name:              Yejin Ha
+  email:             hyj1004mu@naver.com
 
   # Used at the bottom of each page and at the top of the `about` layout
   # Markdown enabled, can use multiple paragraphs (enabled by `|`)
   about:             |
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-    sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-
-    Open `_data/authors.yml` to edit this text.
+    여기에 자기소개 쓰면 되는듯
 
   # This photo will be used in the about section
   picture:
@@ -25,10 +23,11 @@ author1:
   # Social media icons in sidebar
   # Comment/uncommet to show/hide
   # Rearrange to change the order in which they appear
+  # sidebar 하단에 어필하고싶은 내용을 적으면 된다.
   social:
-    twitter:         <username>
-    github:          <username>
-    # email:           mailto:<mail@domain.tld>
+    # twitter:         <username>
+    github:          https://github.com/Yejin-Ha
+    email:           mailto:hyj1004mu@naver.com
     # rss:             https://<url>/feed.xml
     # facebook:        <username>
     # google:          <number>
@@ -39,7 +38,7 @@ author1:
     # spotify:         <user>/<number>
     # soundcloud:      <username>
     # lastfm:          <username>
-    # instagram:       <username>
+    instagram:       yejin_haaaa
     # flickr:          <string@string>
     # 500px:           <username>
     # dribbble:        <username>

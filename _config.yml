@@ -4,7 +4,7 @@
 # IMPORTANT: Set the URL of your site.
 # Set to https://<username>.github.io when hosting on GitHub Pages
 # (unless you are using a custom domain).
-url:                   https://domain.tld
+url:                   https://yejin-ha.github.io/
 
 # IMPORTANT: Set The "base URL" of your site.
 #
@@ -19,34 +19,32 @@ baseurl:               ''
 
 # Language of your content in 2-letter code, e.g.: en, de.
 # You may also provide a location, e.g.: en-us, de_AT.
-lang:                  en
+lang:                  KP
 
 # The title of your blog. Used in the sidebar and the browser tab.
-title:                 Hydejack
+title:                 Yejin' Velog
 
 # A short description (~150 chars) of the page used for the meta description tag.
 # Can use markdown, but no more than one paragraph (enforced by `>`)
 description:           >
-  A Jekyll theme with JavaScript powers. "Best Theme by a Mile".
-  Combines the best of static sites and modern web apps.
-  Open `_config.yml` to edit this text.
+  이건뭐지탭에써지는내용인가
 
 # A shorter description for the sidebar.
+# sidebar에 쓰이는 내용
 tagline:               >
-  A Jekyll theme with JavaScript powers.
-  Open `_config.yml` to edit this text.
+  공부한 내용을 정리합니다.
 
 # A list of keywords for your blog
-keywords:              []
+keywords:              [keyword]
 
 # Used by jekyll-seo-tag...
 logo:                  /assets/icons/icon.png
 
 # This should be the same author as first entry in `_data/authors.yml`.
 # Duplication is necessary due to the `jekyll-feed`, `jekyll-seo-tag` plugin.
-author:
-  name:                <firstname> <lastname>
-  email:               <mail@domain.tld>
+Yejin:
+  name:                Yejin Ha
+  email:               hyj1004mu@naver.com
   # Used by `jekyll-seo-tag`:
   # twitter:             <username>
 
@@ -195,7 +193,8 @@ plugins:
   - jekyll-seo-tag
   - jekyll-sitemap
   # - jekyll-titles-from-headings
-
+  - jekyll-paginate
+  
 # Theme
 # ---------------------------------------------------------------------------------------
 

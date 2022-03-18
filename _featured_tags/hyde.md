@@ -1,13 +1,13 @@
 ---
 layout: list
-title: Hyde
+title: blog 소개
 slug: hyde
 menu: true
 order: 1
 description: >
-  Hyde is a brazen two-column Jekyll theme that pairs a prominent sidebar with uncomplicated content.
-  It’s based on Poole, the Jekyll butler.
-  Open `_featured_tags/hyde.md` to edit this text.
+  여기에 블로그 설명 쓰면 되는듯  
+  slug는 뭔지 모르겠음
+
 accent_color: '#268bd2'
 accent_image:
   background: '#202020'
