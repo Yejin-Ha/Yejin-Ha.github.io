@@ -1,0 +1,14 @@
+I"-<h1 id="network">Network</h1>
+<ul>
+  <li>물리적으로 연결하여 대화할 수 있는 환경 또는 그러한 것</li>
+</ul>
+
+<p>Network는 <strong>연결 범위</strong>에 따라 <code class="language-plaintext highlighter-rouge">LAN(Local Area Network)</code>, <code class="language-plaintext highlighter-rouge">WAN(Wide Area Network)</code>으로 구분할 수 있다.<br />
+<code class="language-plaintext highlighter-rouge">LAN</code>의 사전적 정의는 <strong>근거리 통신망</strong>이지만 LAN의 범위는 일정하지 않아서 사람마다 기준이 다를 수 있다.</p>
+
+<blockquote>
+  <p>강의실에 있는 모든 PC는 하나의 스위치에 연결되어 있고 스위치는 공유기에 연결되어 있음 ⇒ LAN<br />
+LAN끼리 연결되어 있음 ⇒ WAN</p>
+
+</blockquote>
+:ET
