@@ -8,9 +8,9 @@ comments: true
 ---
 **Contents**
 - [VI](#vivisual-editor)
-    1. [입력모드](#span-style"colorda7c7c"1-입력-모드span)
-    2. [명령모드](#span-style"colorda7c7c"2-명령-모드span)
-    3. [실행모드](#span-style"colorda7c7c"3-ex실행-모드span)
+    1. [입력모드](#1-입력-모드)
+    2. [명령모드](#2-명령-모드)
+    3. [실행모드](#3-ex실행-모드)
 
 ---
 # VI(visual editor)
