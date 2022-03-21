@@ -1,8 +1,0 @@
-I"<h4 id="python-basic-chapter-03-1">[Python Basic] Chapter 03-1</h4>
-<ul>
-  <li>본 포스팅은 파이썬 기초 문법에 관하여 다룹니다.</li>
-  <li>파이썬의 지원 자료형 타입 : <code class="language-plaintext highlighter-rouge">str</code> / <code class="language-plaintext highlighter-rouge">int</code> / <code class="language-plaintext highlighter-rouge">float</code> / <code class="language-plaintext highlighter-rouge">Boolean</code> / <code class="language-plaintext highlighter-rouge">list</code> / <code class="language-plaintext highlighter-rouge">dict</code> / <code class="language-plaintext highlighter-rouge">tuple</code> / <code class="language-plaintext highlighter-rouge">set</code></li>
-  <li>형 변환</li>
-  <li>수치 연산, 외부 모듈</li>
-</ul>
-:ET

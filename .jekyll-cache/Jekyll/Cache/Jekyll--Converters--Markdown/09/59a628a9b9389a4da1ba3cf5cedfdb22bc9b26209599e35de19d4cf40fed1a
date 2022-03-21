@@ -1,7 +1,0 @@
-I"�<h4 id="-bigquery--jupyter-lab의-jupyter-notebook과-연동">[ BIgQuery ] Jupyter Lab의 Jupyter Notebook과 연동</h4>
-<ul>
-  <li>본 포스팅은 GCP의 데이터를 Jupyter Notebook에서 작업할 수 있는 방법에 관하여 작성하였습니다.</li>
-  <li><u>Windows 10 64bit</u> 환경에서 진행합니다.</li>
-  <li><code class="language-plaintext highlighter-rouge">pyarrow</code> 가 <code class="language-plaintext highlighter-rouge">pip</code>나 <code class="language-plaintext highlighter-rouge">conda</code>를 통해서 의존성 문제에 막혀 설치가 안될 경우에 관한 해결법에 관해서도  다룹니다.</li>
-</ul>
-:ET
