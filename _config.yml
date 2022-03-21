@@ -2,7 +2,7 @@
 #  User configuration
 # -----------------------------------------------------------------------------
 
-title:               Daily Lv Up!!
+title:               Jin's Velog
 
 # The unique resource location of your page.
 # Set to `https://<username>.github.io` when hosting on GitHub Pages
@@ -13,12 +13,12 @@ url:                 https://yejin-ha.github.io/
 baseurl:             ""
 
 # A very short description of your page
-tagline:             Yejin-Ha
+tagline:             하루하루 조금씩 성장하는 개발자
 
 # A short description of the page, used in the sidebar and as fallback for the meta description tag.
 # Markdown enabled, but don't use more than one paragraph (enforced by `>`)
 description:         >
-  어필문구 작성하기
+  하루하루 조금씩 성장하는 개발자
 
 # This should be the same author as first entry in `_data/authors.yml`
 author:
@@ -26,7 +26,7 @@ author:
   email:             hyj1004mu@naver.com
 
 # Fallback image and color
-image:               /assets/img/blog_back_image_2.jpg
+image:               /assets/img/background_img.jpg
 color:               '#4f86aa'
 
 # The font used for headings. Expects a string that is a valid CSS font-family value.
@@ -137,8 +137,3 @@ tipue_search:
     files: [search.html, index.html, tags.html]
     categories: []
     tags: []
-    
-    
-
-future: true
-published: true

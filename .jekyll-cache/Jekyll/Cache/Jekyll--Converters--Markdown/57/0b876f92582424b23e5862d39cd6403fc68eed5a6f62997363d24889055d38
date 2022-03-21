@@ -1,4 +1,4 @@
-I"~<h4 id="contents">Contents</h4>
+I"Q<h4 id="contents">Contents</h4>
 <ul>
   <li><a href="#network란">Network란</a></li>
   <li><a href="#protocol-통신-규약">Protocol</a>
@@ -78,21 +78,21 @@ LAN끼리 연결되어 있음 ⇒ WAN
      → 2대의 장비만 연결 가능</td>
  </tr>
  <tr>
-     <th><i>HUB&lt;/th&gt;
+     <th><i>HUB</i></th>
      <td>• Repeater와 같은 역할이지만 장비를 여러 개 연결 가능(Multi port Repeater) <br /> 
      • 물리 계층[1, 전기신호]만 인지하며 데이터 링크 계층[2, 주소]은 인식하지 못함 <br /> 
      → 신호가 겹치면 충돌이 일어날 수 있음 <br />  <br /> 
     • CSMA/CD <br /> 
     &nbsp;&nbsp;&nbsp;&nbsp; • HUB에서 사용하는 방식으로 충돌을 감지해서 데이터가 잘 전달될 수 있게 하는 용도 <br /> 
     &nbsp;&nbsp;&nbsp;&nbsp; • 데이터 링크 계층[2]에 존재함(신호를 전달하는 것은 물리 계층[1])</td>
- &lt;/tr&gt;
+ </tr>
  <tr>
-    <th><i>Bridge&lt;/th&gt;
+    <th><i>Bridge</i></th>
     <td>• 데이터 링크 계층[2, 주소]을 인식하여 전송 받은 값을 적절한 곳으로 옮겨줌
  </td>
- &lt;/tr&gt;
+ </tr>
  <tr>
-    <th>Switch</th>
+    <th><i>Switch</i></th>
     <td>• simplex : 송신만 or 수신만 가능 <br /> 
     • duplex : 송신, 수신 한번에 가능 <br /> 
     &nbsp;&nbsp;&nbsp;&nbsp; → Full(송신, 수신을 위해 독립된 회선을 사용하는 방식) / Half(한쪽이 수신하면 다른 쪽은 송신만 함) <br />  <br /> 
@@ -101,11 +101,10 @@ LAN끼리 연결되어 있음 ⇒ WAN
     • HUB와 HUB를 연결</td>
  </tr>
   <tr>
-    <th>Router</th>
+    <th><i>Router</i></th>
     <td>• 네트워크 계층[3] 장비 <br /> 
     • 데이터가 이동할 때 Router를 지나면서 데이터 링크 계층[2]의 주소가 계속 변경되지만 네트워크 계층[3]의 정보를 이용하여 최적의 경로를 탐색한다. <br /> 
     • 일반적으로 LAN과 WAN을 연결함</td>
  </tr>
- &lt;/table&gt;
-</i></th></tr></i></th></tr></table>
+ </table>
 :ET
