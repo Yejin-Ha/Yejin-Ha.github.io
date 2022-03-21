@@ -2,7 +2,7 @@
 #  User configuration
 # -----------------------------------------------------------------------------
 
-title:               Jin's Velog
+title:               Yejin's Velog
 
 # The unique resource location of your page.
 # Set to `https://<username>.github.io` when hosting on GitHub Pages
@@ -18,7 +18,8 @@ tagline:             하루하루 조금씩 성장하는 개발자
 # A short description of the page, used in the sidebar and as fallback for the meta description tag.
 # Markdown enabled, but don't use more than one paragraph (enforced by `>`)
 description:         >
-  하루하루 조금씩 성장하는 개발자
+  Tech-blog
+  하루하루 공부한 내용을 정리합니다.
 
 # This should be the same author as first entry in `_data/authors.yml`
 author:

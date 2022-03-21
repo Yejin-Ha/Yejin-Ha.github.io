@@ -1,0 +1,132 @@
+I"�<h3 id="github-blog를-만들어보자"><span style="color:#da7c7c">Github blog를 만들어보자.</span></h3>
+<p>Github blog를 만들기 위해서는</p>
+<ol>
+  <li>자신의 Github 계정</li>
+  <li><a href="#span-style&quot;colorda7c7c&quot;githubio-repository-만들기span">repository 생성</a></li>
+  <li>Ruby 설치</li>
+  <li><a href="#span-style&quot;colorda7c7c&quot;jekyll-다운받기span">Jekyll 다운받기</a>
+    <ul>
+      <li>jekyll 테마를 적용하는 것은 선택</li>
+    </ul>
+  </li>
+</ol>
+
+<p>가 필요하다.<br />
+Github 계정을 생성하는 것은 설명하지 않고 넘어가겠다.
+<br />
+<br />
+======
+<br /></p>
+
+<h1 id="githubio-repository-만들기"><span style="color:#da7c7c">Github.io repository 만들기</span></h1>
+<h2 id="1-자신의-github에-repository-생성">1. 자신의 Github에 repository 생성</h2>
+<ul>
+  <li>repository의 이름은 무조건 <code class="language-plaintext highlighter-rouge">{사용자이름}.github.io</code> 가 되어야 한다.</li>
+  <li>사용자의 이름과 정확히 일치하지 않으면 작동하지 않을 수 있다.</li>
+</ul>
+
+<h2 id="2-local에-clone-받기">2. Local에 clone 받기</h2>
+<ul>
+  <li>생성한 repository를 자신의 컴퓨터에 clone 받는다.</li>
+</ul>
+
+<h2 id="3-indexhtml-파일-push">3. index.html 파일 push</h2>
+<ul>
+  <li>index.html을 간단하게 생성한다.
+    <ul>
+      <li>index.html : 블로그의 시작 화면</li>
+    </ul>
+  </li>
+  <li>main에 push한다.
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  git add .
+  git commit -m "create index.html"
+  git push -u origin main
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h2 id="4-확인하기">4. 확인하기</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">{username}.github.io</code> 에 접속해서 index.html 파일이 잘 적용되었는지 확인한다.
+    <ul>
+      <li>Ex) <a href="https://yejin-ha.github.io/">https://yejin-ha.github.io/</a></li>
+    </ul>
+  </li>
+  <li>파일이 적용되려면 10분 정도의 시간이 걸리므로 적용이 안되었다고 조급해하지 말자 :smiley:</li>
+</ul>
+
+<p><br />
+<br />
+<br /></p>
+
+<h1 id="ruby-설치"><span style="color:#da7c7c">Ruby 설치</span></h1>
+<p>Jekyll는 Ruby 기반이므로 Jekyll 테마를 적용하려면 Ruby가 설치되어있어야 한다.<br />
+만약 Jekyll 테마를 적용하지 않는다면 이 과정은 무시해도 괜찮다.</p>
+
+<p><br />
+<br />
+<br /></p>
+
+<h1 id="jekyll-다운받기"><span style="color:#da7c7c">Jekyll 다운받기</span></h1>
+<h2 id="1-jekyll-설치">1. jekyll 설치</h2>
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Start command prompt with Ruby</code>를 실행한다.</li>
+  <li>그 후 다음의 명령어를 실행한다.
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  gem install jekyll bundler
+</code></pre></div>    </div>
+    <ul>
+      <li>bundler - jekyll와 사용하기 좋은 도구이다.
+        <ul>
+          <li>프로젝트에 따라 다른 버전의 Jekyll를 사용해야 하거나 Jekyll를 시스템 레벨이나 사용자 레벨에 설치하고 싶지 않을 때 유용하다.</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="2-jekyll-project-생성">2. Jekyll project 생성</h2>
+<ul>
+  <li>프로젝트를 생성하기 전에 무조건 clone한 dir로 이동해야 한다.
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  &lt;!-- clone 받은 dir로 이동 --&gt;
+  cd Yejin-Ha.github.io
+
+  &lt;!-- 새로운 jekyll 프로젝트 생성 --&gt;
+  jekyll new ./
+</code></pre></div>    </div>
+  </li>
+  <li>다음과 같은 에러가 발생하는 경우가 있다. 
+  <img src="/assets/img/Gitblog/gitblog_jekyllerr1.png" alt="Image Alt 텍스트" />
+    <ul>
+      <li>이런 error가 나올 경우 <code class="language-plaintext highlighter-rouge">jekyll new ./ --force</code>를 통해 해결할 수 있다.</li>
+      <li>아마 이미 프로젝트가 존재하는 경우에 이런 error가 발생한다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="3-jekyll-테마-적용">3. jekyll 테마 적용</h2>
+<ul>
+  <li>원하는 jekyll 테마를 정한다.</li>
+  <li>github에서 zip으로 다운받고 unzip한 뒤 local에 clone 받은 자신의 repository(Yejin-Ha.github.io)에 복사한다.</li>
+  <li>gemfile들을 빼고는 다 복사한 후 __config.yml을 보고 gemfile을 수정한다.
+  __config.yml             |  Gemfile
+  :————————-:|:————————-:
+  <img src="/assets/img/Gitblog/config1.JPG" alt="Image Alt 텍스트" /> | <img src="/assets/img/Gitblog/genfile1.JPG" alt="ML_decision_tree_3_0" /></li>
+</ul>
+
+<h2 id="4-bundle-install">4. bundle install</h2>
+<ul>
+  <li>Genfile에 설정한 내용을 토대로 프로젝트에 사용될 bundle들을 설치한다.
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  bundle install
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h2 id="5-서버-실행">5. 서버 실행</h2>
+<ul>
+  <li>이전의 과정에서 아무런 문제가 없었다면 서버를 실행했을 때 아무 error가 생기지 않을 것이다.</li>
+  <li>다음 명령을 통해 서버를 실행시킨다.
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  bundle exec jekyll serve
+</code></pre></div>    </div>
+  </li>
+</ul>
+:ET
