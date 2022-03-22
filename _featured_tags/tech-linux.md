@@ -2,7 +2,7 @@
 layout: tag-blog
 title: LINUX
 slug: linux
-category: back
+category: tech
 menu: false
 order: 2
 ---

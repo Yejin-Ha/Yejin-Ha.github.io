@@ -2,7 +2,7 @@
 layout: post
 title:  "[LINUX]VI의 기본 명령어"
 subtitle: VI의 기본 명령어
-categories: back
+categories: tech
 tags: linux
 comments: true
 ---

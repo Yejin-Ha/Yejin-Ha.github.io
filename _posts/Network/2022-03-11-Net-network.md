@@ -2,7 +2,7 @@
 layout: post
 title:  "[Network]Network란?"
 subtitle: Network란
-categories: back
+categories: tech
 tags: network
 comments: true
 ---

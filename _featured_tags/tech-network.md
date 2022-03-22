@@ -2,7 +2,7 @@
 layout: tag-blog
 title: Network
 slug: network
-category: back
+category: tech
 menu: false
 order: 1
 ---

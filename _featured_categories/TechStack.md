@@ -1,10 +1,10 @@
 ---
 layout: list
-title: Back-End
-slug: back
+title: Tech-Stack
+slug: tech
 menu: true
 submenu: true
 order: 1
 description: >
-    back end 공부 정리
+    공부한 것을 정리합니다.
 ---

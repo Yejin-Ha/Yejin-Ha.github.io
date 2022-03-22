@@ -2,7 +2,7 @@
 layout: post
 title:  "[Network]OSI 7 Layer란?"
 subtitle: OSI 7 계층
-categories: back
+categories: tech
 tags: network
 comments: true
 ---
