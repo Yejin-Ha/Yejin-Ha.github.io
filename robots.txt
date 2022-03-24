@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://yejin-ha.github.io/sitemap.xml
