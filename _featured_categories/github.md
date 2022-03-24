@@ -1,6 +1,6 @@
 ---
 layout: list
-title: About Github
+title: Github
 slug: git
 menu: true
 # submenu: true
