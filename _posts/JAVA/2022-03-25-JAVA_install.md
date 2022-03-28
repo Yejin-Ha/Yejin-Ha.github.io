@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "[JAVA]기초 작업?"
-subtitle: 설치하고,,뭐시깽이,,,,그런거 정리,,,
+title:  "[JAVA]Java & Eclipse 설치하기"
+subtitle: Java를 설치하고 Eclipse를 다운받는 과정
 categories: tech
 tags: java
 comments: true
@@ -9,7 +9,8 @@ comments: true
 **Contents**
 - [href에서의 절대경로, 상대경로](#절대경로-상대경로)
 
-
+<br/>
+<br/>
 
 ---
 # Java 설치
