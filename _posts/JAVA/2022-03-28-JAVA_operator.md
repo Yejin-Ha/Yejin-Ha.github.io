@@ -22,6 +22,9 @@ comments: true
 - **우선 순위**
     > 증감 연산자  ->  산술 연산자  ->  대입 연산자  ->  비교 연산자  ->  논리 연산자  ->  단항 연산자
 
+<br/>
+<br/>
+
 ## <span style="color:#da7c7c">자주 사용되는 연산자</span>
 <table>
 <tr>
@@ -62,6 +65,7 @@ comments: true
 </tr>
 </table>
 
+<br/>
 <br/>
 
 ## <span style="color:#da7c7c">특이 사항</span>

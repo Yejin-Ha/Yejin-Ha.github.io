@@ -20,16 +20,19 @@ comments: true
 # Java 설치
 ## <span style="color:#da7c7c">1. JDK 설치</span>
 - 현재 운영되는 사이트들은 대부분 v1.5 ~ v1.8 로 만들어져 있기 때문에 v1.8을 다운받아 설치하였다.
+<br/>
+<br/>
 
 ## <span style="color:#da7c7c">2. jdk 설치 확인</span>
 JDK가 정상 설치 되었다면 cmd 창에서 `java -version`을 통해 버전을 확인할 수 있다.
 ![java_version_check](/assets/img/JAVA/jdk_version_check.JPG)
 
-
 java 파일을 실행하기 위해서는 **C:\Program Files\Java\jdk1.8.0_321\bin**에 존재하는 **javac.exe**가 연결되어야 한다. <br/>
 cmd 창에서 `javac -version`을 통해 javac의 버전을 확인해보자
 ![javac_version_1](/assets/img/JAVA/javac_version_1.JPG)
 **javac.exe**가 설치되어있는 것을 확인했지만 다음과 같은 화면이 출력되는 이유는 환경 변수에 추가되어있지 않기 때문이다.
+<br/>
+<br/>
 
 ## <span style="color:#da7c7c">3. 환경 변수에 추가</span>
 - 시스템 속성에 들어가서 오른쪽 하단에 있는 환경 변수에 들어간다.
@@ -47,6 +50,8 @@ cmd 창에서 `javac -version`을 통해 javac의 버전을 확인해보자
 - 새로운 cmd 창을 열어서 javac의 버전을 확인한다.
     - 다음과 같이 나오면 환경 변수에 정상적으로 추가가 된 것이다. 
     ![check_javac_version](/assets/img/JAVA/javac_version_2.JPG)
+<br/>
+<br/>
 
 ## <span style="color:#da7c7c">4. java 파일 실행해보기</span>
 - 다음 내용이 들어있는 HelloJava.java 파일을 생성한다.
@@ -58,14 +63,13 @@ cmd 창에서 `javac -version`을 통해 javac의 버전을 확인해보자
     	}
     }
     ```
-
 - cmd 창에서 해당 파일이 있는 디렉토리까지 이동한다.
 - `javac HelloJava.java` 명령어를 통해 해당 파일을 OS에 상관 없이 JRE에서 실행할 수 있게 컴파일 한다.
     - 자바의 철학인 WORA(Write Once Run Anywhere)를 여기서 확인할 수 있다.
     - **HelloJava.class** 파일이 자동으로 생긴다.
-
 - `java HelloJava` 명령어를 통해 HelloJava.class 가 실행되며 결과를 출력한다.
 
+<br/>
 <br/>
 <br/>
 <hr>
