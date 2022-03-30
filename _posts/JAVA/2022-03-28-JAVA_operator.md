@@ -157,3 +157,23 @@ comments: true
     //   => 00001001
     c = 9
     ```
+<br/>
+
+- `System.out.print`에서의 산술 연산자 `+`
+    - `1+2=3`을 출력하고 싶어서 위와 같이 코드를 작성하고 실행하면 `46=2` 이 결과로 반환된다.
+        ```java
+        int a = 1, b = 2; char operator = +;
+        int result = a + b;
+
+        System.out.println(a + operator + b + "=" + result);
+        ```
+    `int`(a, b), `char`(operator)는 모두 정수형이라서 `+` 연산자를 만나면서 1 + 43(ASCIIcode값) + 2가 실행되기 때문이다.
+    <br/>
+    원하는 결과를 출력하기 위해서는 다음과 같이 코드를 작성하면 된다.
+    <br/>
+        ```java
+        // 방법 1
+        System.out.printf("%d %s %d = %d", a, operator, b, result);
+        // 방법 2 - 연산자로 ""와 정수를 더하면 문자열이 된다.
+        System.out.println("" + a + operator + b + "=" + result);
+        ```
