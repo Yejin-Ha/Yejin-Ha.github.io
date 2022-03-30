@@ -17,6 +17,9 @@ comments: true
 
 ---
 # 자료형
+- **Primitive type** : 논리형, 정수형, 실수형 
+- **class type** : 클래스형
+
 ## <span style="color:#da7c7c">1. 논리형</span>
 - `boolean`
 - true 또는 false 값만 들어갈 수 있음
