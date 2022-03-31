@@ -6,12 +6,12 @@ categories: git
 tags: Github
 comments: true
 ---
-### **Github blog를 만들어보자.**
+**Github blog를 만들어보자.** <br/>
 Github blog를 만들기 위해서는 다음의 조건들이 필요하다.
 1. 자신의 Github 계정
-2. [repository 생성](#span-style"colorda7c7c"githubio-repository-만들기span)
+2. [repository 생성](#githubio-repository-만들기)
 3. Ruby 설치 
-4. [Jekyll 다운받기](#span-style"colorda7c7c"jekyll-다운받기span)
+4. [Jekyll 다운받기](#jekyll-다운받기)
     - jekyll 테마를 적용하는 것은 선택<br/>
 
 <br/>
