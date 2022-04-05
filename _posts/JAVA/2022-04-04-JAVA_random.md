@@ -15,6 +15,8 @@ comments: true
 
 ---
 # JAVA 난수 생성하기
+- **Random** : 의지의 개입과 관계 없이 1/n 확률이 되는 모든 것
+
 ## <span style="color:#da7c7c">1. Random 클래스 활용</span>
 ```java
 import java.util.Random;
