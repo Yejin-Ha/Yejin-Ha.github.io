@@ -1,8 +1,8 @@
 ---
 layout: tag-blog
-title: HTML
-slug: html
+title: Algorithm
+slug: algo
 category: tech
 menu: false
-order: 5
+order: 4
 ---
