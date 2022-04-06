@@ -88,7 +88,7 @@
   background-color: #fff;
 }
 
-.markdown-body code {
+/* .markdown-body code {
   color: #E53A40;
   padding: 0;
   padding-top: 0.2em;
@@ -97,7 +97,7 @@
   font-size: 85%;
   background-color: rgba(0,0,0,0.04);
   border-radius: 3px;
-}
+} */
 
 .markdown-body code:before,
 .markdown-body code:after {
@@ -105,7 +105,7 @@
   content: "\00a0";
 }
 
-.markdown-body pre>code {
+/* .markdown-body pre>code {
   color: #333;
   padding: 0;
   margin: 0;
@@ -114,9 +114,9 @@
   white-space: pre;
   background: transparent;
   border: 0;
-}
+} */
 
-.markdown-body .highlight {
+/* .markdown-body .highlight {
   margin-bottom: 16px;
 }
 
@@ -133,7 +133,7 @@
 .markdown-body .highlight pre {
   margin-bottom: 0;
   word-break: normal;
-}
+} */
 
 .markdown-body pre {
   word-wrap: normal;

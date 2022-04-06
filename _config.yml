@@ -112,7 +112,9 @@ exclude:
   - Gemfile.lock
   - vendor
   
+markdown: kramdown
 kramdown:
+  syntax_highlighter: rouge
   #footnote_backlink:   '&#x21a9;&#xfe0e;'
   math_engine:         mathjax
   math_engine_opts:    {}
