@@ -55,7 +55,9 @@ int[] arr3 = new int[] {4, 5, 6};
     ```
 <br/>
 
-`arr.length` - arr 배열의 길이를 반환
+- 자주 사용되는 메서드
+    - `arr.length` - arr 배열의 길이를 반환
+    - `arr.clone()` - arr와 동일한 배열을 생성해서 반환
 
 <br/>
 <br/>
