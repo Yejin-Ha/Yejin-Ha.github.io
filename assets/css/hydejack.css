@@ -71,7 +71,7 @@
 
 .markdown-body code {
   font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
-  font-size: 12px;
+  /* font-size: 12px; */
 }
 
 .markdown-body pre {
