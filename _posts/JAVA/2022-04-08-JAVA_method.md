@@ -7,17 +7,19 @@ tags: java
 comments: true
 ---
 **Contents**
-
+[Method란?](#method-메서드)
+- [method의 구조](#method-구조)
+- [method 오버로딩](#method-오버로딩-overloading)
 <br/>
 <br/>
 
 ---
-# <span style="color:#da7c7c">Method 메서드</span>
+# Method 메서드
 java에서는 함수를 메서드라고 부른다.
 
 자주 사용하는 코드를 정의해두고 필요할 때마다 호출(call)해서 사용한다.
 
-## **Method 구조**
+## <span style="color:#da7c7c">**Method 구조**</span>
 ```java
 [접근제한자] [예약어] 반환자료형 메서드명(매개변수들...) throws 예외클래스명 {
     문장;
@@ -46,9 +48,8 @@ java에서는 함수를 메서드라고 부른다.
 
 <br/>
 <br/>
-<hr>
 
-# <span style="color:#da7c7c">Method 오버로딩 Overloading</span>
+## <span style="color:#da7c7c">Method 오버로딩 Overloading</span>
 한 클래스 내에 이미 사용하려는 이름과 같은 이름을 가진 메소드가 있더라도 매개변수의 개수 또는 타입이 다르면, 같은 이름을 사용해서 메소드를 정의할 수 있다.
 
 - **조건**
