@@ -1,8 +1,8 @@
 ---
-layout: tag-blog
+layout: list
 title: JAVA
 slug: java
 category: tech
 menu: false
-order: 3
+order: 1
 ---
