@@ -1,15 +1,15 @@
 ---
 layout: post
-title:  "[JAVA]자료형, 변수, 형변환"
+title:  "[JAVA] 자료형, 변수, 형변환"
 subtitle: 자료형, 변수, 형변환에 대한 정리
 categories: tech
 tags: java
 comments: true
 ---
 **Contents**
-- [자료형](#자료형)
-- [JAVA의 변수](#java의-변수)
-- [형변환](#형변환)
+- [자료형](#자료형) -> [논리형](#1-논리형), [정수형](#2-정수형), [실수형](#3-실수형), [클래스형](#4-클래스형)
+- [JAVA의 변수](#java의-변수) -> [변수](#1-변수), [상수](#2-상수)
+- [형변환](#형변환) -> [자동 타입 변환](#1-자동-타입-변환), [명시적 타입 변환](#2-명시적-타입-변환)
 
 
 <br/>
@@ -81,6 +81,12 @@ comments: true
 
 ## <span style="color:#da7c7c">2. 상수</span>
 - 값을 변경할 수 없는 경우의 변수
+- 상수명은 모두 대문자를 쓰고 Snake case를 사용한다.
+- `final` 예약어를 통해 상수 선언 가능
+
+```java
+public final int REC_W = 12;
+```
 
 <br/>
 <br/>
