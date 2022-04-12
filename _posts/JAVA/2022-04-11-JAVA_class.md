@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "[JAVA] class 선언"
+title:  "[JAVA] class란?"
 subtitle: 클래스에 대한 정리
 categories: tech
 tags: java
@@ -9,7 +9,7 @@ comments: true
 **Contents**
 - [Class란?](#class)
 - [Class 명명 규칙](#1-클래스-명명-규칙)
-- [Class의 멤버 구성](#2-클래스-멤버-구성)
+- [Class의 멤버 구성](#2-클래스-멤버-구성) - field, constructor, method
 - [예시](#3-예시)
 
 <br/>
@@ -52,13 +52,32 @@ comments: true
 <br/>
 
 - **생성자**
-    - **객체 생성 시 초기화를 담당**한다.
-    - 필드를 초기화하거나, 메소드를 호출하여 객체를 사용할 준비를 한다.
-    - 메소드와 비슷하게 생겼지만, 클래스 이름으로 되어있고 리턴 타입이 없다.
-    - **생성자를 실행시키지 않고는 클래스로부터 객체를 만들 수 없다.**
+    - **객체를 초기화 하기 위해 사용**한다.
+    - 클래스명과 동일한 이름의 멤버 메소드
+    - **객체 생성 시 반드시 호출된다**(ex. `new Info()`)
+    - 인자가 없는 생성자를 **default constructor**라고 부른다.
+        - 디폴트 생성자는 따로 정의하지 않아도 JVM이 알아서 호출 해준다.
+    - 오버로딩이 가능하다. => 객체 생성하는 방법을 다양하게 제공할 수 있다.
+        - 오버로딩할 경우 default 생성자를 명시하지 않으면 default 생성자는 사용할 수 없다.
+        - `Info(String s){...}`만 오버로딩할 경우 -> `new Info()`는 에러 발생
     ```java
-    // TV : 기본 생성자
-    TV tv1 = new TV();
+    // Info class
+    public class Info() {
+            // field
+            private String name;
+            private int age;
+
+            // Default Constructor
+            Info() {
+                System.out.println("hi");
+            }
+            // constructor overloading
+            Info(String n, int a) {
+                this.name = n;
+                this.age = a;
+            }
+            ...
+    }
     ```
 <br/>
 
