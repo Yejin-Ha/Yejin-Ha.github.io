@@ -8,7 +8,9 @@ comments: true
 mathjax: true
 ---
 **Contents**
-
+1. [sort()](#1-arrayssort배열-구간-메소드)
+2. [copytOf()](#2-arrayscopyof배열-길이-메소드)
+3. [toString()](#)
 <br/>
 <br/>
 
@@ -106,4 +108,25 @@ int[] arr3 = Arrays.copyOf(arr1, 2);
 // arr1 = {1, 2, 3};
 // arr2 = {1, 2, 3, 0, 0};
 // arr3 = {1, 2};
+```
+<br/>
+
+### **<span style="color:#da7c7c">3. Arrays.toString(배열) 메소드</span>**
+- 매개변수
+    - 배열 - 값을 출력할 배열
+<br/>
+<br/>
+
+매개변수로 전달받은 배열에 정의된 값들을 문자열 형태로 만들어서 반환해준다.
+
+```java
+import java.util.Arrays;
+
+...
+
+int[] arr = {1, 2, 3};
+System.out.println(Arrays.toString(arr));
+
+// ==================
+// [1, 2, 3]
 ```
