@@ -1,17 +1,15 @@
 ---
 layout: post
-title:  "[JAVA]반복문 while, for"
+title:  "[JAVA] 반복문 while, for"
 subtitle: for문과 while문에 대한 정리
 categories: tech
 tags: java
 comments: true
 ---
 **Contents**
-- [반복문](#반복문)
-    1. [for loop](#1-for문)
-    2. [while loop](#2-while문)
-    3. [do while loop](#3-do-while문)
-
+- [for loop](#1-for문)
+- [while loop](#2-while문)
+- [do while loop](#3-do-while문)
 <br/>
 <br/>
 
@@ -45,6 +43,16 @@ comments: true
     }
     ```
     - 이런 형식으로 사용해도 관계는 없지만 for문의 () 안에는 `;`는 무조건 써야한다.
+
+- 배열의 값 하나씩을 for문에 사용할 수 있다.
+    ```java
+    int[] arr = {1, 2, 3, 4, 8};
+    for (int i : arr){
+        System.out.print(i + " ");
+    }
+    // 실행 결과 =======
+    // 1 2 3 4 8
+    ```
 <br/>
 
 ## <span style="color:#da7c7c">2. while문</span>
