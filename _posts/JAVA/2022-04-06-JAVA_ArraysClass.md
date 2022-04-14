@@ -8,9 +8,10 @@ comments: true
 mathjax: true
 ---
 **Contents**
-1. [sort()](#1-arrayssort배열-구간-메소드)
-2. [copytOf()](#2-arrayscopyof배열-길이-메소드)
-3. [toString()](#)
+- [sort()](#1-arrayssort배열-구간-메소드)
+- [copytOf()](#2-arrayscopyof배열-길이-메소드)
+- [toString()](#3-arraystostring배열-메소드)
+- [copyOfRange()](#4-arrayscopyofrange배열-시작인덱스-마지막인덱스-메소드)
 <br/>
 <br/>
 
@@ -52,7 +53,7 @@ Arrays.sort(arr3, 3, 7); // 3 ~ 6 index의 원소만 정렬
 // error 발생!!!!
 Arrays.sort(arr4, Collections.reverseOrder());
 
-//===============
+// 실행 결과 ===========
 // arr1 = {2, 3, 4, 5};
 // arr2 = {"A", "B", "D", "T", "Z"};
 // arr3 = {9, 5, 7, 3, 5, 8, 9, 1};
@@ -78,7 +79,7 @@ The method sort(int[]) in the type Arrays is not applicable for the arguments (i
     Integer[] arr4 = {1, 2, 3, 4, 5};
 
     Arrays.sort(arr4, Collections.reverseOrder());
-    //================
+    // 실행 결과 ===========
     // arr4 = {5, 4, 3, 2, 1};
     ```
 <br/>
@@ -104,7 +105,7 @@ int[] arr2 = Arrays.copyOf(arr1, 5);
 // arr1와 동일한 원소를 가지며 크기가 2인 배열 생성
 int[] arr3 = Arrays.copyOf(arr1, 2);
 
-// ==================
+// 실행 결과 ===========
 // arr1 = {1, 2, 3};
 // arr2 = {1, 2, 3, 0, 0};
 // arr3 = {1, 2};
@@ -127,6 +128,32 @@ import java.util.Arrays;
 int[] arr = {1, 2, 3};
 System.out.println(Arrays.toString(arr));
 
-// ==================
+// 실행 결과 ===========
 // [1, 2, 3]
+```
+<br/>
+
+### **<span style="color:#da7c7c">4. Arrays.copyOfRange(배열, 시작인덱스, 마지막인덱스) 메소드</span>**
+- 매개변수
+    - 배열 - 원본 배열
+    - 시작 인덱스 - 배열을 자를 인덱스의 위치
+    - 마지막 인덱스 - 입력된 숫자 -1 까지 배열을 분리함
+<br/>
+<br/>
+
+입력받은 배열을 시작 인덱스 부터 마지막 인데스 -1 까지의 값의 배열을 반환한다.
+
+원본 배열을 수정하는 것이 아니고 새로운 배열을 생성해서 반환한다.
+
+```java
+import java.util.Arrays;
+
+int[] arr1 = {1, 2, 3, 4, 5, 6, 7};
+int[] arr2 = Arrays.copyOfRange(arr, 3, arr.length);
+
+System.out.println(Arrays.toString(arr1));
+System.out.println(Arrays.toString(arr2));
+// 실행 결과 ===========
+// [ 1, 2, 3, 4, 5, 6, 7]
+// [ 4, 5, 6, 7]
 ```
