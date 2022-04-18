@@ -10,7 +10,7 @@ comments: true
 - [상속이란?](#상속-inheritance-이란)
     - 상속의 예시
 - [super와 super()란?](#super와-super)
-- [instanceof 메서드](#instanceof-메소드)
+- [instanceof 메서드](#instanceof-연산자)
 <br/>
 <br/>
 
