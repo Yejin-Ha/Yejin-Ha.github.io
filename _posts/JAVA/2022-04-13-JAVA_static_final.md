@@ -31,6 +31,7 @@ comments: true
 <br/>
 
 ### <span style="color:#da7c7c">static 변수</span>
+`static` 키워드를 통해 생성한 변수는 기울어져서 표기된다.
 
 인스턴스 변수는 모든 인스턴스마다 존재하기 때문에 `this`를 통해 구별이 가능하다. 
 
