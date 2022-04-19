@@ -110,6 +110,19 @@ int[] arr3 = Arrays.copyOf(arr1, 2);
 // arr2 = {1, 2, 3, 0, 0};
 // arr3 = {1, 2};
 ```
+
+<br/>
+
+`copyOf()`를 사용하지 않을 경우는 다음과 같다.
+
+```java
+int[] arr = { 1, 2, 3 };
+int[] tmp = arr;
+arr = new int[arr.length + 3];
+for (int i = 0; i < tmp.length; i++) {
+    arr[i] = tmp[i];
+}
+```
 <br/>
 
 ### **<span style="color:#da7c7c">3. Arrays.toString(배열) 메소드</span>**
