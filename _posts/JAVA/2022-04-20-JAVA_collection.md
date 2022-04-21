@@ -9,7 +9,8 @@ mathjax: true
 ---
 **Contents**
 - [Collection이란?](#collection)
-- [ArrayList 주로 메서드](#1-list)
+- [ArrayList 메서드](#1-list)
+- [Map](#2-map)
 <br/>
 <br/>
 
@@ -50,6 +51,7 @@ mathjax: true
 </table>
 - HASH를 사용하면 속도가 가장 빠른 Collection을 사용할 수 있다.
 
+<br/>
 
 ## <span style="color:#da7c7c">1. List</span>
 1. **ArrayList**
@@ -64,3 +66,24 @@ mathjax: true
 - `indexOf(val)` : value가 존재한다면 값이 존재하는 index를 반환하고 존재하지 않으면 -1을 반환한다.
 
 
+
+## <span style="color:#da7c7c">2. Map</span>
+key와 value를 mapping 시켜 데이터를 저장하는 방식이다.
+
+제네릭(Generic)은 2개를 입력할 수 있다. `<key 자료형, value 자료형>`
+
+순서가 존재하지 않으면 key의 중복은 허용되지 않고 value의 중복은 허용된다.
+
+- HashMap
+- TreeMap
+- HashTable(자체 자동화 처리 적용)
+
+동일한 key로 값을 넣으면 value가 대체된다.
+
+key만 넣고싶은 경우에는 value에는 null을 넣으면 된다.
+
+### Method
+- `elements()` : value들만 묶어서 반환해준다.
+- `keys()` : key들만 묶어서 반환해준다.
+- `keySet()` : Set 자료형으로 key들을 묶어서 반환해준다.
+    - 반환 값을 Set으로 받아서 `itertator()`를 통해 값을 하나씩 사용 가능
