@@ -9,6 +9,7 @@ mathjax: true
 ---
 **Contents**
 - [Collection이란?](#collection)
+- [ArrayList 주로 메서드](#1-list)
 <br/>
 <br/>
 
@@ -48,5 +49,18 @@ mathjax: true
     </tr>
 </table>
 - HASH를 사용하면 속도가 가장 빠른 Collection을 사용할 수 있다.
+
+
+## <span style="color:#da7c7c">1. List</span>
+1. **ArrayList**
+- `add(idx, val)` : index를 입력하면 해당 자리에 값을 추가하고 기존에 있는 값들을 뒤로 한 칸씩 미룬다.
+    - index를 입력하지 않으면 맨 마지막에 값 추가
+- `set(idx, val)` : 해당 index의 값을 val로 바꾼다.
+    - 해당 index에 값이 존재하지 않으면 error 발생(`IndexOutOfBoundsException`)
+- `remove(index)` : 해당 index의 값을 제거한다.
+    - 제거할 값을 반환함
+- `clear()` : ArrayList의 모든 값을 제거한다.(초기화)
+- `contains(val)` : value가 존재하는지 확인하고 boolean 타입으로 결과를 반환해준다.
+- `indexOf(val)` : value가 존재한다면 값이 존재하는 index를 반환하고 존재하지 않으면 -1을 반환한다.
 
 
