@@ -6,7 +6,10 @@ tags: java
 comments: true
 ---
 **Contents**
-
+- [Thread란?](#thread란)
+- [실행 메서드](#실행-method)
+- [Deamon 스레드란?](#demon-thread)
+- [스레드의 우선순위](#thread-priority스레드-우선순위)
 <br/>
 <br/>
 
@@ -49,7 +52,3 @@ CPU가 싱글 코어일 때와 듀얼 코어일 때 멀티 스레드가 다르�
 우선 순위의 기본 값은 5이며 1 ~ 10으로 값이 존재한다.
 
 우선 순위가 클 수록 순위가 높으며 10이 제일 먼저 실행된다.
-
-
-
-
