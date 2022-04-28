@@ -1,8 +1,8 @@
 ---
 layout: tag-blog
-title: LINUX
-slug: linux
+title: Oracle DBMS
+slug: oracle
 category: tech
 menu: false
-order: 4
+order: 3
 ---
