@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "[Spring0] Intro"
+title:  "[Spring] Intro"
 categories: tech
 tags: spring
 comments: true
