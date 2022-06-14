@@ -58,7 +58,7 @@ public class FinishAspect {
 ```
 - `<aop:aspect>` - ref로 설정되는 객체를 aspect로 지정한다.
 - `<aop:before>` - target 메서드가 실행되기 전에 실행한다.
-    - `method` - aspect로 지정된 객체에서 target 메서드에서 실행할 메서드를 설정한다.
+    - `method` - aspect에서 target 메서드실행 전/후에 실행할 메서드를 설정한다.
     - `pointcut` - target 메서드를 지정한다.
 
 <br/>
