@@ -6,7 +6,7 @@ tags: spring
 comments: true
 ---
 # AOP - POJO
-이 포스트에선 [[Spring] AOP(01)](링크넣기) 를 POJO 방식으로 설정하는 방법을 게시한다.
+이 포스트에선 [[Spring] AOP(01)](https://yejin-ha.github.io/tech/2022/06/13/spring_AOP(01)/) 를 POJO 방식으로 설정하는 방법을 게시한다.
 
 
 **POJO** 
